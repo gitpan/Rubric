@@ -17,7 +17,8 @@ my $dbh = DBI->connect(Rubric::Config->dsn,undef,undef);
 __DATA__
 CREATE TABLE links (
 	id INTEGER PRIMARY KEY,
-	uri varchar UNIQUE NOT NULL
+	uri varchar UNIQUE NOT NULL,
+	md5 varchar NOT NULL
 );
 
 CREATE TABLE users (

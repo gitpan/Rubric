@@ -12,8 +12,11 @@
 	[% IF user %]
 	<div class='taglist'>
 	<h3>all tags</h3>
-	[% FOREACH tag = user.tags.sort %]
-	<div class='tag'>&nbsp;[% url_for('entries', user, [ tag ], tag) %]&nbsp;</div>
+	[% FOREACH tag = user.tags_counted %]
+	<div class='tag'>
+		<span class='tag_count'>[% tag.1 %]</span>
+		&nbsp;[% url_for('entries', user, [ tag.0 ], tag.0) %]&nbsp;
+	</div>
 	[% END %]
 	</div>
 	[% END %]
@@ -21,11 +24,25 @@
 	[% IF user && tags.size %]
 	<div class='taglist'>
 	<h3>related tags</h3>
-	[% FOREACH tag = user.related_tags(tags).sort %]
-	<div class='tag'>&nbsp;
-	[%- url_for('entries', user, tags.merge( [ tag ] ), "+", "plus") %]
-	[% url_for('entries', user, [ tag ], tag) -%]
+	[% FOREACH tag = user.related_tags_counted(tags) %]
+	<div class='tag'>
+	<span class='tag_count'>[% tag.1 %]</span>
+	&nbsp;
+	[%- url_for('entries', user, tags.merge( [ tag.0 ] ), "+", "plus") %]
+	[% url_for('entries', user, [ tag.0 ], tag.0) -%]
 	&nbsp;</div>
+	[% END %]
+	</div>
+	[% END %]
+
+	[% IF recent_tags.size %]
+	<div class='taglist'>
+	<h3>recent tags</h3>
+	[% FOREACH tag = recent_tags %]
+	<div class='tag'>
+		<span class='tag_count'>[% tag.1 %]</span>
+		&nbsp;[% url_for('entries', user, [ tag.0 ], tag.0) %]&nbsp;
+	</div>
 	[% END %]
 	</div>
 	[% END %]

@@ -1,5 +1,11 @@
 Revision history for Rubric
 
+0.00_04 2004-11-17
+        refactored paging, posting
+        store md5 of uri's for identification
+        tag counts
+        recently active tags on recent entry listing
+
 0.00_03 2004-11-16
         actually /use/ the template_path config data, thanks
         when finding entry to update, include username in search

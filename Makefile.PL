@@ -15,6 +15,7 @@ WriteMakefile(
 		'DBD::SQLite'      => 1.07,
 		'Digest::MD5'      => 0.00,
 		'Template'         => 2.00,
+		'Time::Piece'      => 0.00,
 		'YAML'             => 0.00,
 		'Class::DBI::AbstractSearch' => 0
 	},

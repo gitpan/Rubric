@@ -1,5 +1,7 @@
+bin/adduser.pl
 bin/entries.pl
 bin/filldb.pl
+bin/dump_yml.pl
 bin/load_yml.pl
 bin/makedb.pl
 bin/rubric.cgi

@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.00_03
+version 0.00_04
 
- $Id: WebApp.pm,v 1.8 2004/11/16 16:10:47 rjbs Exp $
+ $Id: WebApp.pm,v 1.10 2004/11/17 15:03:36 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.00_03';
+our $VERSION = '0.00_04';
 
 use base qw(CGI::Application);
 use CGI::Application::Session;
@@ -164,50 +164,50 @@ sub tag {
 	$self->display_entries;
 }
 
-sub this_page {
+sub page_entries {
 	my ($self, $iterator) = @_;
 
 	my $first = $self->param('per_page') * ($self->param('page') - 1);
 	my $last  = ($self->param('per_page') * $self->param('page')) - 1;
-	return $iterator->slice($first, $last);
+	my $slice = $iterator->slice($first, $last);
+	$self->param('entries', $slice);
+	$self->param('count', $iterator->count);
+
+	my $pagecount = int($iterator->count / $self->param('per_page'));
+	   $pagecount++ if  $iterator->count % $self->param('per_page');
+	$self->param('pages', $pagecount);
+
+	return $self;
+}
+
+sub render_entries {
+	my ($self) = @_;
+
+	$self->template('entries.html' => {
+		user    => $self->param('user'),
+		tags    => $self->param('tags'),
+		count   => $self->param('count'),
+		entries => $self->param('entries'),
+		pages   => $self->param('pages'),
+		recent_tags => $self->param('recent_tags'),
+	});
 }
 
 sub recent {
 	my ($self) = @_;
 
-	my $entries = 
-		Rubric::Entry->retrieve_all;
-		
-	my $slice = $self->this_page($entries);
-
-	my $pages = int($entries->count / $self->param('per_page'));
-	   $pages++ if  $entries->count % $self->param('per_page');
-
-	$self->template('entries.html' => {
-		count   => $entries->count,
-		entries => $slice,
-		pages   => $pages
-	});
+	my $entries = Rubric::Entry->retrieve_all;
+	$self->param('recent_tags', [ Rubric::Entry->recent_tags_counted ]);
+	$self->page_entries($entries)->render_entries;
 }
 
 sub display_entries {
 	my ($self) = @_;
 
-	my %search = ( user => $self->param('user'), tags => $self->param('tags') );
-	my $entries = 
-		Rubric::Entry->by_tag(\%search);
+	my %search  = ( user => $self->param('user'), tags => $self->param('tags') );
+	my $entries = Rubric::Entry->by_tag(\%search);
 
-	my $slice = $self->this_page($entries);
-
-	my $pages = int($entries->count / $self->param('per_page'));
-	   $pages++ if  $entries->count % $self->param('per_page');
-
-	$self->template('entries.html' => {
-			%search,
-			count   => $entries->count,
-			entries => $slice,
-			pages   => $pages
-	});
+	$self->page_entries($entries)->render_entries;
 }
 
 sub must_login {
@@ -220,33 +220,17 @@ sub post {
 
 	return $self->must_login unless $self->param('current_user');	
 
-	my %entry = (
-		uri   => scalar $self->query->param('uri'),
-		title => scalar $self->query->param('title'),
-		description => scalar $self->query->param('description'),
-		tags  => scalar $self->query->param('tags')
-	);
-
-	return $self->post_form(\%entry) unless
-		(($self->query->param('submit') || '') eq 'save')
-		and $entry{uri} and $entry{title};
-
-	use URI;
-	$entry{uri} = URI->new($entry{uri})->canonical;
-
-	my $link = Rubric::Link->find_or_create({ uri => $entry{uri} });
-
-	my $entry = Rubric::Entry->find_or_create({
-		link => $link,
-		user => $self->param('current_user')
-	});
-
-	$entry->title($entry{title});
-	$entry->description($entry{description});
-
-	$entry->update;
+	my %entry;
+	$entry{$_} = $self->query->param($_)
+		for qw(uri title description tags);
 	
-	$entry->set_new_tags(grep /\w+/, split /\s+/, $entry{tags});
+	unless (
+		(($self->query->param('submit') || '') eq 'save')
+		and
+		$self->param('current_user')->quick_entry(\%entry)
+	) {
+		return $self->post_form(\%entry)
+	}
 
 	$self->display_entries;
 }

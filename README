@@ -14,3 +14,6 @@ Things you'll have to do to use it:
 9. get your bookmarks from delicious with my delicious-backup
    delbackup -y | load_yml USERNAME
 A. go?
+
+my bookmarklet:
+	javascript:location.href='http://server.name.tld/rubric/post?uri='+escape(location.href)+'&title='+escape(document.title)

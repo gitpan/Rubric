@@ -22,13 +22,13 @@ __PACKAGE__->add_trigger(before_update => \&update_times);
 
 sub default_title {
 	my $self = shift;
-	$self->title('(default)') unless $self->{title}
+	$self->_atttribute_store(title => '(default)') unless $self->{title}
 }
 
 sub create_times {
 	my $self = shift;
-	$self->created(scalar gmtime) unless $self->{created};
-	$self->modified(scalar gmtime) unless $self->{modified};
+	$self->_attribute_store(created => scalar gmtime) unless $self->{created};
+	$self->_attribute_store(modified => scalar gmtime) unless $self->{modified};
 }
 
 sub update_times {
@@ -65,5 +65,22 @@ __PACKAGE__->set_sql(RetrieveAll => <<'');
 SELECT __ESSENTIAL__
 FROM   __TABLE__
 ORDER BY created DESC
+
+__PACKAGE__->set_sql(recent_tags => <<'');
+SELECT tag, COUNT(*) as count
+FROM   entrytags
+WHERE
+	entry IN (SELECT id FROM entries WHERE created > ? LIMIT 100)
+GROUP BY tag
+ORDER BY count DESC
+LIMIT 50
+
+sub recent_tags_counted {
+	my ($class) = @_;
+	my $sth = $class->sql_recent_tags;
+	$sth->execute(time - (86400 * 7));
+	my $result = $sth->fetchall_arrayref;
+	return @$result;
+}
 
 1;
