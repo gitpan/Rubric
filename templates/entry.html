@@ -12,7 +12,7 @@
 			[% IF current_user == entry.user %]
 			<a href='[% uri.edit_entry(entry) %]'>(edit)</a>
 			[% ELSE %]
-			<a href="[% uri.post_entry %]?uri=[% entry.link | uri %]&title=[% entry.title | uri %]">(copy)</a>
+			<a href="[% uri.post_entry %]?uri=[% quote_escape(entry.link) %]&title=[% quote_escape(entry.title) %]">(copy)</a>
 			[% END %]
 			[% END %]
 		</div>

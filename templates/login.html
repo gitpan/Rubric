@@ -24,7 +24,7 @@
 			<input
 				type='hidden'
 				name='then_goto'
-				value="[% then_goto | uri | html %]"
+				value="[% quote_escape(then_goto) %]"
 			/>
 			[% END %]
 		</form>

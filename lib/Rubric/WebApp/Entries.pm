@@ -8,7 +8,7 @@ Rubric::WebApp::Entries - process the /entries run method
 
 version 0.04
 
- $Id: Entries.pm,v 1.7 2005/01/20 20:58:59 rjbs Exp $
+ $Id: Entries.pm,v 1.9 2005/01/24 04:19:59 rjbs Exp $
 
 =cut
 
@@ -57,6 +57,15 @@ sub entries {
 	$webapp->page_entries($entries)->render_entries(\%arg);
 }
 
+=head2 get_arg($param => $value)
+
+Given a name/value pair from the path, this method will attempt to
+generate part of hash to send to << Rubric::Entry->query >>.  To do this, it
+looks for and calls a method called "arg_for_NAME" where NAME is the passed
+value of C<$param>.  If no clause can be generated, it returns undef.
+
+=cut
+
 sub get_arg {
 	my ($self, $param, $value) = @_;
 
@@ -64,11 +73,29 @@ sub get_arg {
 	$code->($self, $value);
 }
 
+=head2 arg_for_NAME
+
+Each of these functions returns the proper value to put in the hash passed to
+C<< Rubric::Entries->query >>.  If given an invalid argument, they will return
+undef.
+
+=head3 arg_for_user($username)
+
+Given a username, this method returns the associated Rubric::User object.
+
+=cut
+
 sub arg_for_user {
 	my ($self, $user) = @_;
 	return undef unless $user;
-	return Rubric::User->retrieve($user),
+	return Rubric::User->retrieve($user) || undef;
 }
+
+=head3 arg_for_tags($tagstring)
+
+Given "happy fuzzy bunnies" this returns C< [ qw(happy fuzzy bunnies) ] >
+
+=cut
 
 sub arg_for_tags {
 	my ($self, $tagstring) = @_;
@@ -78,21 +105,48 @@ sub arg_for_tags {
 	return $tags;
 }
 
+=head3 arg_for_has_body($bool)
+
+Returns the given boolean as 0 or 1.
+
+=cut
+
 sub arg_for_has_body {
 	my ($self, $bool) = @_;
 	return $bool ? 1 : 0;
 }
+
+=head3 arg_for_has_link($bool)
+
+Returns the given boolean as 0 or 1.
+
+=cut
 
 sub arg_for_has_link {
 	my ($self, $bool) = @_;
 	return $bool ? 1 : 0;
 }
 
+=head3 arg_for_urimd5($md5sum)
+
+This method returns the passed value, if that value is a valid 16-character
+md5sum.
+
+=cut
+
 sub arg_for_urimd5 {
 	my ($self, $md5) = @_;
-	return undef unless my ($link) = Rubric::Link->search({ md5 => $md5 });
-	return $link->md5;
+	return undef unless $md5 =~ /\A[a-z0-9]{32}\Z/i;
+	return $md5;
 }
+
+=head3 arg_for_{timefield}_{preposition}($datetime)
+
+These methods correspond to those described in L<Rubric::Entry::Query>.
+
+They return the passed string unchanged.
+
+=cut
 
 ## more date-arg handling code
 {

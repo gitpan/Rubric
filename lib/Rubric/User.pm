@@ -6,7 +6,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
- $Id: User.pm,v 1.18 2005/01/23 20:00:24 rjbs Exp $
+ $Id: User.pm,v 1.19 2005/01/26 04:16:21 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -206,6 +206,7 @@ sub quick_entry {
 			? Rubric::Entry->find_or_create({ link => $link, user => $self })
 			: Rubric::Entry->create({ user => $self });
 
+	$new_entry->link($link);
 	$new_entry->title($entry->{title});
 	$new_entry->description($entry->{description});
 	$new_entry->body($entry->{body} || undef);

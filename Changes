@@ -1,5 +1,10 @@
 Revision history for Rubric
 
+0.06    2005-01-25
+        fixed stupid bug in Rubric::User->quick_entry that prevented changing
+        of URI on an entry
+        fixed over-escaping of URIs
+
 0.05    2005-01-23
         test coverage for non-web modules, fixing some obscure bugs-to-be
         when_done=close for post, to close pop-up windows

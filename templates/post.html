@@ -25,13 +25,14 @@
 	<h2>new entry</h2>
 	[% END %]
 	<div class='entryform'>
-		<form id='entryform' action="[% uri.post_entry | html_entity %]" method='POST'>
+		<form id='entryform' action="[% quote_escape(uri.post_entry) %]" method='POST'>
 			<table>
 			[% FOREACH param = [ "uri", "title", "description", "tags" ] %]
 				<tr>
 					<th>[% param %]</th>
 					<td><input name='[% param %]' value="[% 
-					form.$param OR existing_entry.$param.join(" ") | html_entity
+					field_value = form.$param OR existing_entry.$param.join(" ");
+					quote_escape(field_value);
 					%]" size='75' />
 				</tr>
 			[% END %]

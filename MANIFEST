@@ -33,6 +33,7 @@ style/rubric.css
 
 t/00_load.t
 t/pod.t
+t/pod-coverage.t
 t/config_custom.t
 t/config_default.t
 t/db/rubric.db
@@ -40,6 +41,7 @@ t/entry.t
 t/entry_query.t
 t/link.t
 t/pod.t
+t/renderer.t
 t/user.t
 t/db/rubric.db
 

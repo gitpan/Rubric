@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
- $Id: WebApp.pm,v 1.79 2005/01/23 21:14:27 rjbs Exp $
+ $Id: WebApp.pm,v 1.81 2005/01/26 04:18:58 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 SYNOPSIS
 
@@ -682,9 +682,9 @@ sub render_entries {
 		entries => $self->param('entries'),
 		pages   => $self->param('pages'),
 		%$options,
-		remove  => sub { [ grep { $_ ne $_[0] } @{$_[1]} ] },
-		long_form   => scalar $self->query->param('long_form'),
-		recent_tags => $self->param('recent_tags'),
+		remove       => sub { [ grep { $_ ne $_[0] } @{$_[1]} ] },
+		long_form    => scalar $self->query->param('long_form'),
+		recent_tags  => $self->param('recent_tags'),
 	});
 }
 
