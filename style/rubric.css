@@ -98,11 +98,18 @@ div.taglist {
 	padding-right: .5%;
 	padding-bottom: 1em;
 	background-color: #bbb;
+	border: 1px black solid;
+	-moz-border-radius: 1em;
 	margin: 1%;
 	font-size: 85%;
 }
 
-div.taglist h3 { text-align: center; }
+div.taglist h3 {
+	text-align: center;
+	border-bottom: thin #eee solid;
+	margin-top: 0;
+	padding-right: 0.75em;
+}
 
 span.tag_count { float: left; text-align: right; width: 2em; }
 

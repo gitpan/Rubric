@@ -6,13 +6,13 @@ Rubric - a notes and bookmarks manager with tagging
 
 =head1 VERSION
 
-version 0.07_02
+version 0.07_03
 
- $Id: Rubric.pm,v 1.18 2005/03/21 01:38:47 rjbs Exp $
+ $Id: Rubric.pm,v 1.19 2005/03/26 14:10:46 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.07_02';
+our $VERSION = '0.07_03';
 
 =head1 DESCRIPTION
 
@@ -60,6 +60,28 @@ then you'll automatically be notified of progress on your bug as I make
 changes.
 
 You can also find some support on the #rubric channel on Freenode IRC.
+
+=head1 SEE ALSO
+
+=over
+
+=item * L<http://del.icio.us/>
+
+one of my original inspirations
+
+=item * L<http://pubweb.nwu.edu/~zps869/nv.html>
+
+Notational Velocity, another of my inspirations
+
+=item * L<http://unalog.com/>
+
+a social bookmarks system, written in Python
+
+=item * L<http://www.tecknik.net/scuttle/>
+
+a social bookmarks system, written in PHP
+
+=back
 
 =head1 COPYRIGHT
 

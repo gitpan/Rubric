@@ -1,5 +1,8 @@
 Revision history for Rubric
 
+0.07_03 2005-03-26
+        /entries?uri=http://www.foo.com/ works again
+
 0.07_02 2005-03-20
         fixed format arg to uri.entries (reported by Steve Mallett)
 

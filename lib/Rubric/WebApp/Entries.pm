@@ -6,13 +6,13 @@ Rubric::WebApp::Entries - process the /entries run method
 
 =head1 VERSION
 
-version 0.04
+version 0.05
 
- $Id: Entries.pm,v 1.9 2005/01/24 04:19:59 rjbs Exp $
+ $Id: Entries.pm,v 1.10 2005/03/26 14:10:46 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 DESCRIPTION
 
@@ -49,6 +49,9 @@ sub entries {
 	while (my $param = $webapp->next_path_part) {
 		my $value = $webapp->next_path_part;
 		$arg{$param} = $self->get_arg($param, $value);
+	}
+	if (my $uri = $webapp->query->param('uri')) {
+		$arg{urimd5} = md5_hex($uri) unless $arg{urimd5};
 	}
 	$webapp->param(recent_tags => Rubric::Entry->recent_tags_counted)
 		unless %arg;
