@@ -17,9 +17,21 @@ for (@uris) {
 	print $link->id, " - ", $link->uri, "\n";
 }
 
-Rubric::User->create({ username => 'rjbs', password => md5_hex('pswd') });
-Rubric::User->create({ username => 'mdxi', password => md5_hex('password') });
-Rubric::User->create({ username => 'jcap', password => md5_hex('password') });
+Rubric::User->create({
+	username => 'rjbs',
+	email => 'example@example.com',
+	password => md5_hex('pswd')
+});
+Rubric::User->create({
+	username => 'mdxi',
+	email => 'example@example.com',
+	password => md5_hex('password')
+});
+Rubric::User->create({
+	username => 'jcap',
+	email => 'example@example.com',
+	password => md5_hex('password')
+});
 
 for my $user (Rubric::User->retrieve_all) {
 	$user->add_to_entries({

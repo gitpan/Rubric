@@ -6,7 +6,7 @@ Rubric::WebApp::URI - URIs for Rubric web requests
 
 =head1 VERSION
 
- $Id: URI.pm,v 1.11 2004/12/16 14:06:34 rjbs Exp $
+ $Id: URI.pm,v 1.12 2005/01/11 02:15:29 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -78,14 +78,12 @@ sub entries {
 	my ($class, $arg) = @_;
 	$arg->{tags} ||= [];
 
-	my $uri = $class->root;
-	$uri .=   $arg->{user}  ? "/user/$arg->{user}"
-	      : @{$arg->{tags}} ? "/tag"
-	      : '';
-	$uri .= ('/' . join('+', @{$arg->{tags}}) . '/') if @{$arg->{tags}};
-	$uri .= '?' if grep { defined $arg->{$_} } qw(has_body has_link format);
+	my $uri = $class->root . '/entries';
+	$uri .= "/user/$arg->{user}" if $arg->{user};
+	$uri .= '/tags/' . join('+', @{$arg->{tags}})  if @{$arg->{tags}};
 	for (qw(has_body has_link format)) {
-		$uri .= "$_=$arg->{$_}&" if (defined $arg->{$_} and $arg->{$_} ne '');
+		$uri .= "/$_/" . ($arg->{$_} ? 1 : 0)
+			if (defined $arg->{$_} and $arg->{$_} ne '');
 	}
 	return $uri;
 }

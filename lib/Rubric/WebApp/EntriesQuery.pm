@@ -8,7 +8,7 @@ Rubric::WebApp::EntriesQuery - process the /entries run method
 
 version 0.01
 
- $Id: EntriesQuery.pm,v 1.2 2005/01/03 23:39:07 rjbs Exp $
+ $Id: EntriesQuery.pm,v 1.4 2005/01/11 02:19:01 rjbs Exp $
 
 =cut
 
@@ -22,6 +22,7 @@ results.
 
 =cut
 
+use Date::Span;
 use Digest::MD5 qw(md5_hex);
 
 use strict;
@@ -43,16 +44,18 @@ return to the user's browser.
 
 sub entries {
 	my ($self, $webapp) = @_;
-	my @constraints;
+	my (@constraints, %constraint);
 	
 	while (my $param = $webapp->next_path_part) {
-		if (my $sql =  $self->get_constraint($param, $webapp->next_path_part)) {
-			push @constraints, $sql;
+		my $value = $webapp->next_path_part;
+		if (my $constraint = $self->get_constraint($param, $value)) {
+			$constraint{$param} = $constraint->{param};
+			push @constraints, $constraint->{sql};
 		}
 	}
 	my $entries = $self->get_entries(\@constraints);
 
-	$webapp->page_entries($entries)->render_entries;
+	$webapp->page_entries($entries)->render_entries(\%constraint);
 }
 
 sub get_constraint {
@@ -68,23 +71,76 @@ sub get_constraint {
 sub get_entries {
 	my ($self, $constraints) = @_;
 	return Rubric::Entry->retrieve_all unless @$constraints;
-	Rubric::Entry->retrieve_from_sql(join(" AND ", @$constraints));
+	Rubric::Entry->retrieve_from_sql(
+		join(" AND ", @$constraints)
+		. " ORDER BY created DESC"
+	);
 }
 
 sub constraint_for_user {
 	my ($self, $user) = @_;
 	return unless $user;
-	return "user = " . Rubric::Entry->db_Main->quote($user);
+	return {
+		param => Rubric::User->retrieve($user),
+		sql   => "user = " . Rubric::Entry->db_Main->quote($user),
+	}
 }
 
-sub constraint_for_body {
-	my ($self, $bool) = @_;
-	return $bool ? "body IS NOT NULL" : "body IS NULL";
+sub constraint_for_tags {
+	my ($self, $tagstring) = @_;
+
+	($tagstring) = ($tagstring || '') =~ /^([+\s\w\d:.*]*)$/; 
+	my $tags = [ split /\+|\s/, $tagstring ];
+	return unless @$tags;
+	return {
+		param => $tags,
+		sql   => Rubric::Entry->_tags_sql(@$tags)
+	}
 }
 
-sub constraint_for_link {
+sub constraint_for_has_body {
 	my ($self, $bool) = @_;
-	return $bool ? "link IS NOT NULL" : "link IS NULL";
+	return {
+		param => $bool ? "body IS NOT NULL" : "body IS NULL",
+		sql   => $bool ? 1 : 0
+	}
+}
+
+sub constraint_for_has_link {
+	my ($self, $bool) = @_;
+	return {
+		param => $bool ? "link IS NOT NULL" : "link IS NULL",
+		sql   => $bool ? 1 : 0
+	}
+}
+
+sub _unit_from_string {
+	my ($datetime) = @_;
+	return unless my @unit = $datetime =~ 
+		qr/^(\d{4})(?:-(\d{2})(?:-(\d{2})(?:(?:T|)(\d{2})(?::(\d{2}))?)?)?)?$/o;
+	$unit[1]-- if $unit[1];
+	return @unit;
+}
+
+{
+	no strict 'refs';
+	for my $field (qw(created modified)) {
+		for my $prep (qw(after before on)) {
+			*{"constraint_for_${field}_${prep}"} = sub {
+				my ($self, $datetime) = @_;
+				return unless my @time = _unit_from_string($datetime);
+				my ($start,$end) = range_from_unit(@time);
+				return {
+					param => $datetime,
+					sql   =>
+						( $prep eq 'after'  ? "$field > $end"
+						: $prep eq 'before' ? "$field < $start"
+						: $prep eq 'on'     ? "$field >= $start AND $field <= $end"
+						: die "illegal preposition in temporal comparison" )
+				}
+			}
+		}
+	}
 }
 
 =head1 AUTHOR

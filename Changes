@@ -1,5 +1,10 @@
 Revision history for Rubric
 
+0.02_03 2005-01-10
+        EntriesQuery pretty much working, needs work
+        minor repairs to use of Time::Local
+        added some prereqs for Date::Span
+
 0.02_02 2005-01-03
         added EntriesQuery
         basic framework for EntriesQuery exists, but stinks

@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.17 2004/12/23 01:44:45 rjbs Exp $
+ $Id: Entry.pm,v 1.18 2005/01/11 02:15:29 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -103,8 +103,11 @@ inflated to Time::Piece objects.
 
 =cut
 
-__PACKAGE__->has_a($_ => 'Time::Piece', deflate => 'epoch')
-	for qw(created modified);
+__PACKAGE__->has_a(
+	$_ => 'Time::Piece',
+	deflate => 'epoch',
+	inflate => sub { gmtime($_[0]) }
+) for qw(created modified);
 
 __PACKAGE__->add_trigger(before_create => \&default_title);
 

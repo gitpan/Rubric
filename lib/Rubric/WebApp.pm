@@ -8,7 +8,7 @@ Rubric::WebApp - the web interface to Rubric
 
 version 0.02_02
 
- $Id: WebApp.pm,v 1.65 2005/01/03 23:40:33 rjbs Exp $
+ $Id: WebApp.pm,v 1.66 2005/01/11 02:15:29 rjbs Exp $
 
 =cut
 
@@ -46,7 +46,6 @@ basic dispatch table looks something like this:
  /post        | post or edit an entry (must be logged in) | post
  /edit        | edit an entry (must be logged in)         | edit
  /delete      | delete an entry (must be logged in)       | delete
- /recent      | see recent entries                        | recent
  /user/NAME   | see a user's entries                      | user
  /user/N/TAGS | see a user's entries for given tags       | user
  /tag/TAGS    | see entries for given tags                | tag
@@ -54,7 +53,7 @@ basic dispatch table looks something like this:
 
 If the system is private and no user is logged in, the default action is to
 display a login screen.  If the system is public, or a user is logged in, the
-default action is to display recent entries.
+default action is to display entries.
 
 =cut
 
@@ -204,9 +203,9 @@ sub setup {
 	$self->run_modes([ qw(doc login newuser verify) ]);
 
 	if ($self->param('current_user') or not Rubric::Config->private_system) {
-		$self->start_mode('recent');
+		$self->start_mode('entries');
 		$self->run_modes([
-			qw(delete edit entries entry link logout post preferences recent user tag)
+			qw(delete edit entries entry link logout post preferences user tag)
 		]);
 	}
 
@@ -224,7 +223,8 @@ sub entries {
 	my ($self) = @_;
 
 	my $entries_class = Rubric::Config->entries_query_class;
-	eval "require $entries_class" or return $self->redirect_root;
+	eval "require $entries_class";
+	if ($@) { warn $@; return $self->redirect_root; }
 	$entries_class->entries($self);
 }
 
@@ -527,14 +527,6 @@ sub get_verification_code {
 	return $self;
 }
 
-=head2 user
-
-This method will find the user requested (the name after "/user/" in the path)
-and note it in the request.  The request is then redispatched to the C<tag>
-method.
-
-=cut
-
 sub user {
 	my ($self) = @_;
 	$self->get_user->get_tags->display_entries;
@@ -546,45 +538,6 @@ sub get_user {
 	$self->param(user => Rubric::User->retrieve($self->next_path_part) || '');
 
 	return $self;
-}
-
-=head2 tag
-
-This method notes the requested tags (the words after /tag or /user/NAME in the
-path) and redispatches to C<display_entries>.
-
-=cut
-
-sub tag {
-	my ($self) = @_;
-
-	$self->get_tags->display_entries;
-}
-
-sub get_tags {
-	my ($self) = @_;
-
-	my ($tagstring) = ($self->next_path_part || '') =~ /^([+\s\w\d:.*]*)$/; 
-	$self->param(tags => [ split /\+|\s/, $tagstring ]);
-
-	return $self;
-}
-
-=head2 recent
-
-This method uses C<page_entries> and C<render_entries> to display the most
-recent entries for all users and tags.
-
-This should probably be what happens when C<display_entries> is called with no
-search criteria in place.
-
-=cut
-
-sub recent {
-	my ($self) = @_;
-
-	$self->param('recent_tags', Rubric::Entry->recent_tags_counted);
-	$self->display_entries;
 }
 
 =head2 display_entries
@@ -653,17 +606,15 @@ C<page_entries>.
 =cut
 
 sub render_entries {
-	my ($self) = @_;
+	my ($self, $options) = @_;
+	$options ||= {};
 
 	$self->template('entries' => {
-		user    => $self->param('user'),
-		tags    => $self->param('tags'),
 		count   => $self->param('count'),
 		entries => $self->param('entries'),
 		pages   => $self->param('pages'),
+		%$options,
 		remove  => sub { [ grep { $_ ne $_[0] } @{$_[1]} ] },
-		has_link    => $self->param('has_link'),
-		has_body    => $self->param('has_body'),
 		long_form   => scalar $self->query->param('long_form'),
 		recent_tags => $self->param('recent_tags'),
 	});
