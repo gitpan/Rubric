@@ -1,5 +1,9 @@
 Revision history for Rubric
 
+0.05    2005-01-23
+        test coverage for non-web modules, fixing some obscure bugs-to-be
+        when_done=close for post, to close pop-up windows
+
 0.04    2005-01-20
         created stub of autocreate_user method on Login
         updated tests to test compilability of all files

@@ -1,2 +1,2 @@
-dsn: dbi:Bogus:Temp
-template_path: ~
+dsn: dbi:SQLite:dbname=t/db/rubric.db
+template_path: templates

@@ -6,7 +6,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
- $Id: User.pm,v 1.17 2004/12/07 14:40:47 rjbs Exp $
+ $Id: User.pm,v 1.18 2005/01/23 20:00:24 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -18,6 +18,7 @@ Rubric::DBI, which is a Class::DBI class.
 use strict;
 use warnings;
 use base qw(Rubric::DBI);
+use Time::Piece;
 
 __PACKAGE__->table('users');
 
@@ -162,11 +163,11 @@ Time::Piece objects.
 
 __PACKAGE__->has_a(created => 'Time::Piece', deflate => 'epoch');
 
-__PACKAGE__->add_trigger(before_create => \&create_times);
+__PACKAGE__->add_trigger(before_create => \&_create_times);
 
-sub create_times {
+sub _create_times {
 	my $self = shift;
-	$self->created(scalar gmtime) unless $self->{created};
+	$self->created(scalar gmtime) unless defined $self->{created};
 }
 
 =head1 METHODS
@@ -199,7 +200,7 @@ sub quick_entry {
 	my $link = Rubric::Link->find_or_create({ uri => $entry->{uri} })
 		if $entry->{uri};
 
-	return unless my $new_entry = $entry->{entryid}
+	my $new_entry = $entry->{entryid}
 		? Rubric::Entry->retrieve($entry->{entryid})
 		: $entry->{uri}
 			? Rubric::Entry->find_or_create({ link => $link, user => $self })
@@ -211,7 +212,7 @@ sub quick_entry {
 	$new_entry->update;
 	$new_entry->set_new_tags($entry->{tags});
 
-	return $entry;
+	return $new_entry;
 }
 
 =head2 verify($code)

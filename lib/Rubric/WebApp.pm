@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.04
+version 0.05
 
- $Id: WebApp.pm,v 1.77 2005/01/20 20:58:59 rjbs Exp $
+ $Id: WebApp.pm,v 1.79 2005/01/23 21:14:27 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 SYNOPSIS
 
@@ -125,6 +125,12 @@ sub cgiapp_init {
 	my @path = split '/', $self->query->path_info;
 	$self->param(path => [ @path[ 2 .. $#path ] ]);
 }
+
+=head2 next_path_part
+
+This method shifts the next item off of the request path and returns it.
+
+=cut
 
 sub next_path_part {
 	my ($self) = @_;
@@ -363,6 +369,13 @@ sub preferences {
 	$self->update_user(\%prefs);
 }
 
+=head2 update_user(\%prefs)
+
+This method will update the current user object with the changes in C<%prefs>,
+which is passed by the C<preferences> method.
+
+=cut
+
 sub update_user {
 	my ($self, $prefs) = @_;
 	for ($self->param('current_user')) {
@@ -382,6 +395,15 @@ sub _get_prefs_form {
 	}
 	return %form;
 }
+
+=head2 validate_prefs(\%prefs)
+
+Given a set of preference updates from a form submission, this method validates
+them and returns a description of the validation results.  This method will
+probably be redesigned (possibly with Data::FormValidator) in the future.
+Don't count on its interface.
+
+=cut
 
 sub validate_prefs {
 	my ($self, $prefs) = @_;
@@ -445,6 +467,15 @@ sub newuser {
 	}
 }
 
+=head2 validate_newuser_form(\%newuser)
+
+Given a set of user data from a form submission, this method validates them and
+returns a description of the validation results.  This method will probably be
+redesigned (possibly with Data::FormValidator) in the future.  Don't count on
+its interface.
+
+=cut
+
 sub validate_newuser_form {
 	my ($self, $newuser) = @_;
 	my %errors;
@@ -475,6 +506,13 @@ sub validate_newuser_form {
 	return %errors;
 }
 
+=head2 create_newuser(\%newuser)
+
+This method creates a new user account from the given description.  It sends
+the user a validation email (if needed) and displays an account creation page.
+
+=cut
+
 sub create_newuser {
 	my ($self, %newuser) = @_;
 
@@ -494,6 +532,12 @@ sub create_newuser {
 
 	$self->template("account_created");
 }
+
+=head2 send_verification_email_to($user)
+
+This method sends a verification email to the given user.
+
+=cut
 
 sub send_verification_email_to {
 	my ($self, $user) = @_;
@@ -530,6 +574,13 @@ sub verify {
 		: $self->redirect_root("BAD USER NO VALIDATION");
 }
 
+=head2 get_verification_code
+
+This gets the next part of the path and puts it in the C<verification_code>
+parameter.
+
+=cut
+
 sub get_verification_code {
 	my ($self) = @_;
 
@@ -538,10 +589,16 @@ sub get_verification_code {
 	return $self;
 }
 
-sub user {
-	my ($self) = @_;
-	$self->get_user->get_tags->display_entries;
-}
+# sub user {
+#	my ($self) = @_;
+#	$self->get_user->get_tags->display_entries;
+#}
+
+=head2 get_user
+
+This gets the next part of the path and puts it in the C<user> parameter.
+
+=cut
 
 sub get_user {
 	my ($self) = @_;
@@ -684,8 +741,12 @@ sub post {
 		(($self->query->param('submit') || '') eq 'save')
 		and	
 		$self->param('current_user')->quick_entry(\%entry);
+	
+	my $when_done = $self->query->param('when_done');
 
-	my $goto_uri = ($self->query->param('when_done') eq 'go_back')
+	return $self->template('close_window') if $when_done eq 'close';
+
+	my $goto_uri = ($when_done eq 'go_back')
 		? $entry{uri}
 		: Rubric::WebApp::URI->entries({ user => $self->param('current_user') });
 	

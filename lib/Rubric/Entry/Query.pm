@@ -8,7 +8,7 @@ Rubric::Entry::Query - construct and execute a complex query
 
 version 0.04
 
- $Id: Query.pm,v 1.4 2005/01/20 20:58:59 rjbs Exp $
+ $Id: Query.pm,v 1.5 2005/01/23 20:00:24 rjbs Exp $
 
 =cut
 
@@ -33,7 +33,10 @@ use Rubric::Config;
 
 =head2 query(\%arg)
 
-This is the only interface to this module.  Given
+This is the only interface to this module.  Given a hashref of named arguments,
+it returns the entries that match constraints built from the arguments.  It
+generates these constraints with C<get_constraint> and its helpers.  If any
+constraint is invalid, an empty set of results is returned.
 
 =cut
 
@@ -45,12 +48,28 @@ sub query {
 	$self->get_entries(\@constraints);
 }
 
+=head2 get_constraint($param => $value)
+
+Given a name/value pair describing a constraint, this method will attempt to
+generate part of an SQL WHERE clause enforcing the constraint.  To do this, it
+looks for and calls a method called "constraint_for_NAME" where NAME is the
+passed value of C<$param>.  If no clause can be generated, it returns undef.
+
+=cut
+
 sub get_constraint {
 	my ($self, $param, $value) = @_;
 
 	return undef unless my $code = $self->can("constraint_for_$param");
 	$code->($self, $value);
 }
+
+=head2 get_entries(\@constraints)
+
+Given a set of SQL constraints, this method builds the WHERE and ORDER BY
+clauses and performs a query with Class::DBI's C<retrieve_from_sql>.
+
+=cut
 
 sub get_entries {
 	my ($self, $constraints) = @_;
@@ -61,15 +80,36 @@ sub get_entries {
 	);
 }
 
+=head2 constraint_for_NAME
+
+These methods are called to produce SQL for the named parameter, and are passed
+a scalar argument.  If the argument is not valid, they return undef, which will
+cause C<query> to produce an empty set of records.
+
+=head3 constraint_for_user($user)
+
+Given a Rubric::User object, this returns SQL to limit results to entries by
+the user.
+
+=cut
+
 sub constraint_for_user {
 	my ($self, $user) = @_;
 	return undef unless $user;
 	return "user = " . Rubric::Entry->db_Main->quote($user);
 }
 
+=head3 constraint_for_tags(\@tags)
+
+Given an arrayref of tag names, this returns SQL to limit results to entries
+marked with the given tags.
+
+=cut
+
 sub constraint_for_tags {
 	my ($self, $tags) = @_;
 
+	return undef unless $tags and ref $tags eq 'ARRAY';
 	return unless @$tags;
 
 	return join ' AND ',
@@ -78,21 +118,59 @@ sub constraint_for_tags {
 		@$tags;
 }
 
+=head3 constraint_for_has_body($bool)
+
+This returns SQL to limit the results to entries with bodies.
+
+=cut
+
 sub constraint_for_has_body {
 	my ($self, $bool) = @_;
 	return $bool ? "body IS NOT NULL" : "body IS NULL";
 }
+
+=head3 constraint_for_has_link($bool)
+
+This returns SQL to limit the results to entries with links.
+
+=cut
 
 sub constraint_for_has_link {
 	my ($self, $bool) = @_;
 	return $bool ? "link IS NOT NULL" : "link IS NULL";
 }
 
+=head3 constraint_for_urimd5($md5)
+
+This returns SQL to limit the results to entries whose link has the given
+md5sum.
+
+=cut
+
 sub constraint_for_urimd5 {
 	my ($self, $md5) = @_;
 	return undef unless my ($link) = Rubric::Link->search({ md5 => $md5 });
 	return "link = " . $link->id;
 }
+
+=head3 constraint_for_{timefield}_{preposition}($datetime)
+
+This set of six methods return SQL to limit the results based on its
+timestamps.
+
+The passed value is a complete or partial datetime in the form:
+
+ YYYY[-MM[-DD[ HH[:MM]]]]  # space may be replaced with 'T'
+
+The timefield may be "created" or "modified".
+
+The prepositions are as follows:
+
+ after  - after the latest part of the given unit of time
+ before - before the earliest part of the given unit of time
+ on     - after (or at) the earliest part and before (or at) the latest part
+
+=cut
 
 ## here there be small lizards
 ## date parameter handling below...
@@ -111,13 +189,14 @@ sub _unit_from_string {
 		for my $prep (qw(after before on)) {
 			*{"constraint_for_${field}_${prep}"} = sub {
 				my ($self, $datetime) = @_;
-				return unless my @time = _unit_from_string($datetime);
+				return undef unless my @time = _unit_from_string($datetime);
 				my ($start,$end) = range_from_unit(@time);
 				return
 					( $prep eq 'after'  ? "$field > $end"
 					: $prep eq 'before' ? "$field < $start"
-					: $prep eq 'on'     ? "$field >= $start AND $field <= $end"
-					: die "illegal preposition in temporal comparison" )
+					:                     "$field >= $start AND $field <= $end")
+#					: $prep eq 'on'     ? "$field >= $start AND $field <= $end"
+#					: die "illegal preposition in temporal comparison" )
 			}
 		}
 	}

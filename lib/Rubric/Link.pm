@@ -6,7 +6,7 @@ Rubric::Link - a link (URI) against which entries have been made
 
 =head1 VERSION
 
- $Id: Link.pm,v 1.4 2004/11/19 20:57:11 rjbs Exp $
+ $Id: Link.pm,v 1.5 2005/01/23 20:00:24 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -59,6 +59,29 @@ sub entry_count {
 	$sth->fetchall_arrayref->[0][0];
 }
 
+=head3 tags_counted
+
+This returns an arrayref of arrayrefs, each containing a tag name and the
+number of entries for this link tagged with that tag.  The pairs are sorted in
+colation order by tag name.
+
+=cut
+
+__PACKAGE__->set_sql(tags_counted => <<'' );
+SELECT DISTINCT tag, COUNT(*) AS count
+FROM entrytags
+WHERE entry IN (SELECT id FROM entries WHERE link = ?)
+GROUP BY tag
+ORDER BY tag
+
+sub tags_counted {
+	my ($self) = @_;
+	my $sth = $self->sql_tags_counted;
+	$sth->execute($self->id);
+	my $tags = $sth->fetchall_arrayref;
+	return $tags;
+}
+
 =head1 INFLATIONS
 
 =head2 uri
@@ -72,11 +95,20 @@ __PACKAGE__->has_a(
 	deflate => sub { (shift)->canonical->as_string }
 ); 
 
-__PACKAGE__->add_trigger(before_create => \&set_md5);
+=head1 METHODS
+
+=head2 stringify_self
+
+This method returns the link's URI as a string, and is teh default
+stringification for Rubric::Link objects.
+
+=cut
 
 sub stringify_self { $_[0]->uri->as_string }
 
-sub set_md5 {
+__PACKAGE__->add_trigger(before_create => \&_set_md5);
+
+sub _set_md5 {
 	my ($self) = @_;
 	$self->_attribute_store(md5 => md5_hex("$self->{uri}"));
 }

@@ -6,7 +6,7 @@ Rubric::Renderer - the rendering interface for Rubric
 
 =head1 VERSION
 
- $Id: Renderer.pm,v 1.5 2005/01/15 03:53:50 rjbs Exp $
+ $Id: Renderer.pm,v 1.6 2005/01/23 20:00:24 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -24,11 +24,15 @@ use Template;
 
 =head1 METHODS
 
-=head2 renderer
+=head2 register_type($type => \%arg)
 
-This method returns an object that renders templates.  By default, it returns a
-Template object configured with data from Rubric::Config.  Each type's renderer
-is a singleton.
+This method registers a format type by providing a little data needed to render
+to it.  The hashref of arguments must include C<content_type>, used to set the
+MIME type of the returned ouput; and C<extension>, used to find the primary
+template.
+
+This method returns a Template object, which is registered as the renderer for
+this type.  This return value may change in the future.
 
 =cut
 
@@ -48,6 +52,18 @@ __PACKAGE__->register_type(@$_) for (
 	[ rss  => { content_type => 'application/rss+xml', extension => 'rss'  } ],
 	[ txt  => { content_type => 'text/plain',          extension => 'txt'  } ],
 );
+
+=head2 process($template, $type, \%stash)
+
+This method renders the named template using the registered renderer for the
+given type, using the passed stash variables.
+
+The type must be rendered with Rubric::Renderer before this method is called.
+
+In list context, this method returns the content type and output document as a
+two-element list.  In scalar context, it returns the output document.
+
+=cut
 
 sub process { 
 	my ($class, $template, $type, $stash) = @_;

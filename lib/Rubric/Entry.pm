@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.20 2005/01/20 20:58:59 rjbs Exp $
+ $Id: Entry.pm,v 1.21 2005/01/23 20:00:24 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -46,6 +46,12 @@ The link attribute returns a Rubric::Link.
 =cut
 
 __PACKAGE__->has_a(link => 'Rubric::Link');
+
+=head2 uri
+
+The uri attribuet returns the URI of the entry's link.
+
+=cut
 
 sub uri { my ($self) = @_; return unless $self->link; $self->link->uri; }
 
@@ -109,23 +115,23 @@ __PACKAGE__->has_a(
 	inflate => sub { gmtime($_[0]) }
 ) for qw(created modified);
 
-__PACKAGE__->add_trigger(before_create => \&default_title);
+__PACKAGE__->add_trigger(before_create => \&_default_title);
 
-__PACKAGE__->add_trigger(before_create => \&create_times);
-__PACKAGE__->add_trigger(before_update => \&update_times);
+__PACKAGE__->add_trigger(before_create => \&_create_times);
+__PACKAGE__->add_trigger(before_update => \&_update_times);
 
-sub default_title {
+sub _default_title {
 	my $self = shift;
 	$self->title('(default)') unless $self->{title}
 }
 
-sub create_times {
+sub _create_times {
 	my $self = shift;
-	$self->created(scalar gmtime) unless $self->{created};
-	$self->modified(scalar gmtime) unless $self->{modified};
+	$self->created(scalar gmtime) unless defined $self->{created};
+	$self->modified(scalar gmtime) unless defined $self->{modified};
 }
 
-sub update_times {
+sub _update_times {
 	my $self = shift;
 	$self->modified(scalar gmtime);
 }
