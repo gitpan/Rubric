@@ -17,22 +17,26 @@ my $dbh = DBI->connect(Rubric::Config->dsn,undef,undef);
 __DATA__
 CREATE TABLE links (
 	id INTEGER PRIMARY KEY,
-	uri varchar UNIQUE NOT NULL
+	uri varchar UNIQUE NOT NULL,
+	md5 varchar NOT NULL
 );
 
 CREATE TABLE users (
 	username PRIMARY KEY,
-	password NOT NULL
+	password NOT NULL,
+	email NOT NULL,
+	validation_code
 );
 
 CREATE TABLE entries (
 	id INTEGER PRIMARY KEY,
-	link integer NOT NULL,
+	link integer,
 	user varchar NOT NULL,
 	title varchar NOT NULL,
 	created NOT NULL,
 	modified NOT NULL,
-	description varchar
+	description varchar,
+	body TEXT
 );
 
 CREATE TABLE entrytags (
@@ -41,3 +45,9 @@ CREATE TABLE entrytags (
 	tag NOT NULL,
 	UNIQUE(entry, tag)
 );
+
+CREATE TABLE rubric (
+	schema_version NOT NULL
+);
+
+INSERT INTO rubric (schema_version) VALUES (10);

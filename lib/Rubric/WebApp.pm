@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.00_12
+version 0.00_13
 
- $Id: WebApp.pm,v 1.28 2004/12/02 04:17:48 rjbs Exp $
+ $Id: WebApp.pm,v 1.30 2004/12/02 13:56:55 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.00_12';
+our $VERSION = '0.00_13';
 
 =head1 SYNOPSIS
 
@@ -456,7 +456,7 @@ sub post {
 		and	
 		$self->param('current_user')->quick_entry(\%entry);
 
-	my $goto_uri = $self->query->param('go_back')
+	my $goto_uri = ($self->query->param('when_done') eq 'go_back')
 		? $entry{uri}
 		: Rubric::Config->uri_root() . "/user/" . $self->param('current_user');
 	
@@ -476,7 +476,7 @@ sub post_form {
 		form           => $entry,
 		user           => scalar $self->param('current_user'),
 		existing_entry => scalar $self->param('existing_entry'),
-		go_back        => scalar $self->query->param('go_back')
+		when_done      => scalar $self->query->param('when_done')
 	});
 }
 
