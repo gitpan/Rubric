@@ -1,5 +1,11 @@
 Revision history for Rubric
 
+0.02_04 2005-01-13
+        potentially finished with first round of EventQueries
+        (the path for the future is clear)
+        fixed a few small (but critical) bugs
+        it'll be 0.03 if nothing's broken
+
 0.02_03 2005-01-10
         EntriesQuery pretty much working, needs work
         minor repairs to use of Time::Local

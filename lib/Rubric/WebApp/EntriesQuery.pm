@@ -8,7 +8,7 @@ Rubric::WebApp::EntriesQuery - process the /entries run method
 
 version 0.01
 
- $Id: EntriesQuery.pm,v 1.4 2005/01/11 02:19:01 rjbs Exp $
+ $Id: EntriesQuery.pm,v 1.5 2005/01/14 04:06:03 rjbs Exp $
 
 =cut
 
@@ -48,7 +48,7 @@ sub entries {
 	
 	while (my $param = $webapp->next_path_part) {
 		my $value = $webapp->next_path_part;
-		if (my $constraint = $self->get_constraint($param, $value)) {
+		if (my $constraint = $self->get_constraint($param, $value, $webapp)) {
 			$constraint{$param} = $constraint->{param};
 			push @constraints, $constraint->{sql};
 		}
@@ -111,6 +111,15 @@ sub constraint_for_has_link {
 	return {
 		param => $bool ? "link IS NOT NULL" : "link IS NULL",
 		sql   => $bool ? 1 : 0
+	}
+}
+
+sub constraint_for_urimd5 {
+	my ($self, $md5) = @_;
+	return unless my ($link) = Rubric::Link->search({ md5 => $md5 });
+	return {
+		param => $link,
+		sql   => "link = " . $link->id
 	}
 }
 

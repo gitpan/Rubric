@@ -11,7 +11,7 @@
 	<h2>new entry</h2>
 	[% END %]
 	<div class='entryform'>
-		<form id='entryform' action='[% uri.post_entry %]'>
+		<form id='entryform' action='[% uri.post_entry %]' method='POST'>
 			<table>
 			[% FOREACH param = [ "uri", "title", "description", "tags" ] %]
 				<tr>
