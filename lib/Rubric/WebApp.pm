@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.00_07
+version 0.00_10
 
- $Id: WebApp.pm,v 1.21 2004/11/25 03:29:26 rjbs Exp $
+ $Id: WebApp.pm,v 1.24 2004/11/28 18:54:49 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.00_07';
+our $VERSION = '0.00_10';
 
 =head1 SYNOPSIS
 
@@ -237,7 +237,7 @@ sub entry {
 	my ($self) = @_;
 
 	unless ($self->get_entry) {
-		return $self->redirect( Rubric::Config->url_root, "No such entry..." );
+		return $self->redirect( Rubric::Config->uri_root, "No such entry..." );
 	}
 	$self->template('entry.html' => {
 		entry => $self->param('entry'),
@@ -265,7 +265,7 @@ the Rubric site.  Otherwise, a login form is provided.
 sub login {
 	my ($self) = @_;
 	if ($self->param('current_user')) {
-		return $self->redirect( Rubric::Config->url_root, "Logged in..." );
+		return $self->redirect( Rubric::Config->uri_root, "Logged in..." );
 	}
 	$self->template('login.html' => {
 		user => scalar $self->query->param('user')
@@ -284,7 +284,7 @@ sub logout {
 	$self->session->param('current_user', undef);
 	$self->param('current_user', undef);
 
-	return $self->redirect( Rubric::Config->url_root, "Logged out..." );
+	return $self->redirect( Rubric::Config->uri_root, "Logged out..." );
 }
 
 =head2 user
@@ -336,9 +336,8 @@ search criteria in place.
 sub recent {
 	my ($self) = @_;
 
-	my $entries = Rubric::Entry->retrieve_all;
 	$self->param('recent_tags', Rubric::Entry->recent_tags_counted);
-	$self->page_entries($entries)->render_entries;
+	$self->display_entries;
 }
 
 =head2 display_entries
@@ -352,7 +351,13 @@ resulting page with C<render_entries>.
 sub display_entries {
 	my ($self) = @_;
 
-	my %search  = ( user => $self->param('user'), tags => $self->param('tags') );
+	my %search  = (
+		user => $self->param('user'),
+		tags => $self->param('tags'),
+		link => scalar $self->query->param('link'),
+		body => scalar $self->query->param('body'),
+	);
+
 	my $entries = Rubric::Entry->by_tag(\%search);
 
 	$self->page_entries($entries)->render_entries;
@@ -402,8 +407,8 @@ sub render_entries {
 		count   => $self->param('count'),
 		entries => $self->param('entries'),
 		pages   => $self->param('pages'),
+		remove  => sub { [ grep { $_ ne $_[0] } @{$_[1]} ] },
 		recent_tags => $self->param('recent_tags'),
-		remove  => sub { [ grep { $_ ne $_[0] } @{$_[1]} ] }
 	});
 }
 
@@ -417,7 +422,7 @@ displays a post form, completed with the given entry's data.
 sub edit {
 	my ($self) = @_;
 
-	return $self->redirect(Rubric::Config->url_root, "...huh?")
+	return $self->redirect(Rubric::Config->uri_root, "...huh?")
 		unless $self->get_entry
 		and $self->param('entry')->user eq $self->param('current_user');
 
@@ -461,11 +466,11 @@ sub post {
 		and	
 		$self->param('current_user')->quick_entry(\%entry);
 
-	my $goto_url = $self->query->param('go_back')
+	my $goto_uri = $self->query->param('go_back')
 		? $entry{uri}
-		: Rubric::Config->url_root() . "/user/" . $self->param('current_user');
+		: Rubric::Config->uri_root() . "/user/" . $self->param('current_user');
 	
-	return $self->redirect( $goto_url, "Posted..." );
+	return $self->redirect( $goto_uri, "Posted..." );
 }
 
 =head2 post_form
@@ -512,18 +517,18 @@ sub delete_entry {
 
 	return $self->must_login unless my $user = $self->param('current_user');	
 
-	return $self->redirect( Rubric::Config->url_root, "No such entry..." )
+	return $self->redirect( Rubric::Config->uri_root, "No such entry..." )
 		unless $self->get_entry;
 
-	return $self->redirect( Rubric::Config->url_root, "Not your entry..." )
+	return $self->redirect( Rubric::Config->uri_root, "Not your entry..." )
 		unless $self->param('entry')->user eq $self->param('current_user');
 
 	$self->param('entry')->delete;
 
-	my $goto_url = 
-		Rubric::Config->url_root() . "/user/" . $self->param('current_user');
+	my $goto_uri = 
+		Rubric::Config->uri_root() . "/user/" . $self->param('current_user');
 
-	return $self->redirect( $goto_url, "Deleted..." );
+	return $self->redirect( $goto_uri, "Deleted..." );
 }
 
 =head1 TODO

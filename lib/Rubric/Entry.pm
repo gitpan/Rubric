@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.10 2004/11/25 03:29:26 rjbs Exp $
+ $Id: Entry.pm,v 1.11 2004/11/28 03:14:34 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -136,6 +136,8 @@ The arguments to C<by_tag> indicate the tags and users for which to search.
 
  user - the user whose tags to search (can be undef)
  tags - an arrayref of tag names
+ body - whether entries must have bodies (T, F, or undef)
+ link - whether entries must have a link (T, F, or undef)
 
 This returns a list or Class::DBI::Iterator, depending on context.
 
@@ -152,6 +154,11 @@ sub by_tag {
 			map { "id IN (SELECT entry FROM entrytags WHERE tag=$_)" }
 			@tags;
 		$wheres{''} = \$ids;
+	}
+	for (qw(body link)) {
+		if (defined $arg->{$_}) {
+			$wheres{$_} = $arg->{$_} ? \'IS NOT NULL' : \'IS NULL';
+		}
 	}
 	%wheres
 		? $self->search_where(\%wheres, { order_by => "created DESC" })

@@ -1,20 +1,17 @@
-[% IF single_entry %]
-	[% PROCESS "entry_long.html" %]
-[% ELSE %]
-	<div class='entry'>
-		<div class='uri'>
+	<div class='entry longform'>
+		<h2 class='created'>
+			[% entry.created.strftime("%Y-%m-%d %H:%M") %]
+		</h2>
+		<h2 class='uri'>
 			[% IF entry.link %]
 				<a href='[% entry.link %]'>[% entry.title %]</a>
 			[% ELSE %]
 				[% entry.title %]
 			[% END %]
-			[% UNLESS single_entry %]
-			[% IF entry.body %]<a href='[% uri.entry(entry) %]'>(body)</a>[% END %]
-			[% END %]
 			[% IF current_user == entry.user %]
 			<a href='[% uri.edit_entry(entry) %]'>(edit)</a>
 			[% END %]
-		</div>
+		</h2>
 		[% IF entry.description %]
 		<div class='description'>[% entry.description %]</div>
 		[% END %]
@@ -23,12 +20,10 @@
 			<a href='[% uri.entries(user => user, tags => [ tag ]) %]'>[% tag %]</a>
 			[% END %]
 			[% "by " _ entry.user UNLESS user %]
-			(created: [% entry.created.strftime("%Y-%m-%d %H:%M") %])
 		</div>
-		[% IF single_entry AND entry.body %]
+		[% IF entry.body %]
 		<div class='body'>
 		[% entry.body %]
 		</div>
 		[% END %]
 	</div>
-[% END %]

@@ -1,6 +1,6 @@
 dsn: |-
   dbi:SQLite:dbname=rubric.db
-url_root: |-
+uri_root: |-
   /~rjbs/rubric/rubric.cgi
 css_href: |-
   /~rjbs/rubric/style/rubric.css

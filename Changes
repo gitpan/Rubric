@@ -1,5 +1,12 @@
 Revision history for Rubric
 
+0.00_10 2004-11-28
+        all "url" things are now "uri"
+        important: your config should be updated to uri_root
+        much better body-handling
+        long-form entry display
+        ?link and ?body query parameters
+
 0.00_07 2004-11-25 Happy Thanksgiving!
         eliminated &url_for, replaced with Rubric::WebApp::URI
         rewrote template structure (use one master template via PROCESS)

@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: Config.pm,v 1.2 2004/11/19 20:57:11 rjbs Exp $
+ $Id: Config.pm,v 1.3 2004/11/25 05:58:54 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -48,13 +48,13 @@ Rubric's database.
 
 sub dsn { (shift)->read_config->{dsn} }
 
-=head2 url_root
+=head2 uri_root
 
 This method returns the URI for the root of the Rubric::WebApp install.
 
 =cut
 
-sub url_root { (shift)->read_config->{url_root} }
+sub uri_root { (shift)->read_config->{uri_root} }
 
 =head2 css_href
 

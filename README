@@ -13,7 +13,8 @@ Things you'll have to do to use it:
    you could just run the filldb script to get some bogus data, but... why?
 9. get your bookmarks from delicious with my delicious-backup
    delbackup -y | load_yml USERNAME
-A. go?
+A. (optional) set up .htaccess to prevent access to rubric.db and .yml
+B. go?
 
 my bookmarklet:
 	javascript:location.href='http://server.name.tld/rubric/post?uri='+escape(location.href)+'&title='+escape(document.title)

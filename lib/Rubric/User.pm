@@ -6,7 +6,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
- $Id: User.pm,v 1.9 2004/11/25 03:29:26 rjbs Exp $
+ $Id: User.pm,v 1.10 2004/11/28 03:14:34 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -183,7 +183,7 @@ sub quick_entry {
 
 	$new_entry->title($entry->{title});
 	$new_entry->description($entry->{description});
-	$new_entry->body($entry->{body});
+	$new_entry->body($entry->{body} || undef);
 	$new_entry->update;
 	$new_entry->set_new_tags($entry->{tags});
 

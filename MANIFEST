@@ -25,6 +25,7 @@ t/00_load.t
 t/pod.t
 templates/entries.html
 templates/entry.html
+templates/entry_long.html
 templates/link.html
 templates/links.html
 templates/login.html

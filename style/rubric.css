@@ -38,6 +38,10 @@ div.toolbar {
 	padding: 0.25em 0.5em;
 }
 
+div.toolbar span.current_user {
+	float: left;
+}
+
 div.toolbar a {
 	text-decoration: none;
 }
@@ -63,6 +67,21 @@ div.entry div.description {
 div.entry div.created,
 div.entry div.tags {
 	padding-left: 1em;
+}
+
+div.entry.longform h2 {
+	margin-left: 0em;
+}
+
+div.entry.longform div.created {
+	padding-left: 0em;
+}
+
+div.entry.longform div.body {
+	padding: 1em;
+	margin-top: 1em;
+	border: 1px black solid;
+	background-color: #f8f8f8;
 }
 
 div.taglist {
