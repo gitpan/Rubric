@@ -6,13 +6,48 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.00_05
+version 0.00_06
 
- $Id: WebApp.pm,v 1.13 2004/11/19 03:59:04 rjbs Exp $
+ $Id: WebApp.pm,v 1.18 2004/11/19 20:57:32 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.00_05';
+our $VERSION = '0.00_06';
+
+=head1 SYNOPSIS
+
+ use strict;
+ use warnings;
+ use Rubric::WebApp;
+ Rubric::WebApp->new->run();
+
+It's a CGI::Application!
+
+=head1 DESCRIPTION
+
+Rubric::WebApp provides a CGI-based interface to Rubric data.  It's built on
+top of CGI::Application, which does most of the boring work.  This module's
+code sets up the dispatch tables and implements the responses to various
+queries.
+
+=head1 REQUESTS DISPATCH
+
+Requests are I<mostly> path-based, though some involve form submission.  The
+basic dispatch table looks something like this:
+
+ request      | description                               | method called
+ -------------+-------------------------------------------+--------------
+ /login       | log in to a user account                  | login
+ /logout      | log out                                   | logout
+ /post        | post or edit an entry (must be logged in) | post
+ /edit        | post or edit an entry (must be logged in) | post
+ /delete      | delete an entry (must be logged in)       | delete_entry
+ /recent      | see recent entries (the default)          | recent
+ /user/NAME   | see a user's entries                      | user
+ /user/N/TAGS | see a user's entries for given tags       | user
+ /tag/TAGS    | see entries for given tags                | tag
+
+=cut
 
 use base qw(CGI::Application);
 use CGI::Application::Session;
@@ -30,51 +65,42 @@ use Rubric::User;
 use Template;
 use URI; 
 
-sub renderer { 
+=head1 METHODS
+
+=cut
+
+=head2 cgiapp_init
+
+This method is called during CGI::Application's initialization.  It finds (or
+creates) a CGI::Session, checks for a login, checks for updates to result-set
+paging, and starts processing the request path. 
+
+=cut
+
+sub cgiapp_init {
 	my ($self) = @_;
-	return $self->param('renderer') if $self->param('renderer');
 
-	my $renderer = Template->new({
-		INCLUDE_PATH => Rubric::Config->template_path()
-	});
-	$self->param('renderer', $renderer);
+	$self->session_config(COOKIE_PARAMS => { -expires => '+3d' });
+	$self->check_for_login;
+	$self->get_current_user;
+	$self->check_pager_data;
+
+	my @path = split '/', $self->query->path_info;
+	shift @path for (1 .. 2);
+	$self->param(path => \@path);
 }
 
-sub template {
-	my ($self, $template, $stash) = @_;
-	$stash ||= {};
-	$stash->{current_user} = $self->param('current_user');
-	$stash->{per_page} = $self->param('per_page');
-	$stash->{page} = $self->param('page');
-	$stash->{url_for} = \&url_for;
+=head2 check_for_login
 
-	my $output;
-	$self->renderer->process($template, $stash, \$output);
-	return $output;
-}
+This method is called by C<cgiapp_init>, and checks for a login attempt in the
+submitted request.  A login request is made with two CGI parameters:
 
-sub url_for {
-	my ($what, $user, $tags, $text) = @_;
-	my $root = Rubric::Config->url_root;
-	if ($what eq 'root') {
-		return "<a href='$root'>(root)</a>";
-	} elsif ($what eq 'css') {
-		return Rubric::Config->css_href;
-	} elsif ($what eq 'logout') {
-		return "<a href='$root/logout'>logout</a>";
-	} elsif ($what eq 'login') {
-		return "<a href='$root/login'>login</a>";
-	} elsif ($what eq 'entries') {
-		if ($user) {
-			return "<a href='$root/user/$user/" . join('+',@$tags) . "'>$text</a>";
-		} elsif ($tags and @$tags) {
-			return "<a href='$root/tag/" . join('+',@$tags) . "'>$text</a>";
-		}
-		return url_for('root');
-	} elsif ($what eq 'post') {
-		return "<a href='$root/post/'>new entry</a>";
-	}
-}
+ user     - the user's username
+ password - the user's password
+
+If these match, the user is now logged in.  If not, it is ignored.
+
+=cut
 
 sub check_for_login {
 	my ($self) = @_;
@@ -88,12 +114,29 @@ sub check_for_login {
 	}
 }
 
+=head2 get_current_user
+
+This method is called by C<cgiapp_init>, and retrieves the Rubric::User object
+for the currently logged-in user, if any.
+
+=cut
+
 sub get_current_user {
 	my ($self) = @_;
 
 	return unless my $userid = $self->session->param('current_user');
 	$self->param(current_user => Rubric::User->retrieve($userid));
 }
+
+=head2 check_pager_data
+
+This method is called by C<cgiapp_init>, and sets up parameters used for paging
+entry listings.  The following parameters are used:
+
+ per_page - how many items per page; default 25, maximum 100; stored in session;
+ page     - which page to display; default 1
+
+=cut
 
 sub check_pager_data {
 	my ($self) = @_;
@@ -109,17 +152,58 @@ sub check_pager_data {
 	$self->param('page',     int(($self->query->param('page') || 1)));
 }
 
-sub cgiapp_init {
-	my ($self) = @_;
+=head2 template($template, \%variables)
 
-	$self->check_for_login;
-	$self->get_current_user;
-	$self->check_pager_data;
+This method is used to render a template with both provided and default
+variables.
 
-	my @path = split '/', $self->query->path_info;
-	shift @path for (1 .. 2);
-	$self->param(path => \@path);
+Templates are rendered by calling the C<process> method on the template renderer,
+which is retrieved by calling the C<renderer> method on the WebApp.
+
+The following variables are passed by default:
+
+ current_user - the currently logged-in user (a Rubric::User object)
+ url_for      - a coderef for generating links (see &url_for)
+ per_page     - entries per page (see check_pager_data)
+ page         - which page (see check_pager_data)
+
+=cut
+
+sub template {
+	my ($self, $template, $stash) = @_;
+	$stash ||= {};
+	$stash->{current_user} = $self->param('current_user');
+	$stash->{per_page} = $self->param('per_page');
+	$stash->{page} = $self->param('page');
+	$stash->{url_for} = \&url_for;
+
+	$self->renderer->process($template, $stash, \(my $output));
+	return $output;
 }
+
+=head2 renderer
+
+This method returns an object that renders templates.  By default, it returns a
+Template object configured with data from Rubric::Config.
+
+=cut
+
+sub renderer { 
+	my ($self) = @_;
+	return $self->param('renderer') if $self->param('renderer');
+
+	my $renderer = Template->new({
+		INCLUDE_PATH => Rubric::Config->template_path()
+	});
+	$self->param('renderer', $renderer);
+}
+
+=head2 setup
+
+This method, called by CGI::Application's initialization process, sets up
+the dispatch table for requests, as described above.
+
+=cut
 
 sub setup {
 	my ($self) = @_;
@@ -128,7 +212,16 @@ sub setup {
 	$self->start_mode('recent');
 	
 	$self->run_modes([qw[login logout post recent user tag]]);
+	$self->run_modes(edit   => 'post');
+	$self->run_modes(delete => 'delete_entry');
 }
+
+=head2 login
+
+If the user is logged in, this request is immediately redirected to the root of
+the Rubric site.  Otherwise, a login form is provided.
+
+=cut
 
 sub login {
 	my ($self) = @_;
@@ -140,13 +233,31 @@ sub login {
 	$self->template('login.html' => { user => $self->query->param('user') });
 }
 
+=head2 logout
+
+This run mode deletes the user's session and redirects him to the root of the
+Rubric site.
+
+=cut
+
 sub logout {
 	my ($self) = @_;
 	$self->session->clear;
 	$self->session->delete;
 	$self->param('current_user', undef);
-	$self->recent;
+
+	$self->header_type('redirect');
+	$self->header_props(-url=> Rubric::Config->url_root);
+	return "Logged out...";
 }
+
+=head2 user
+
+This method will find the user requested (the name after "/user/" in the path)
+and note it in the request.  The request is then redispatched to the C<tag>
+method.
+
+=cut
 
 sub user {
 	my ($self) = @_;
@@ -159,6 +270,13 @@ sub user {
 	$self->tag;
 }
 
+=head2 tag
+
+This method notes the requested tags (the words after /tag or /user/NAME in the
+path) and redispatches to C<display_entries>.
+
+=cut
+
 sub tag {
 	my ($self) = @_;
 
@@ -168,6 +286,53 @@ sub tag {
 
 	$self->display_entries;
 }
+
+=head2 recent
+
+This method uses C<page_entries> and C<render_entries> to display the most
+recent entries for all users and tags.
+
+This should probably be what happens when C<display_entries> is called with no
+search criteria in place.
+
+=cut
+
+sub recent {
+	my ($self) = @_;
+
+	my $entries = Rubric::Entry->retrieve_all;
+	$self->param('recent_tags', [ Rubric::Entry->recent_tags_counted ]);
+	$self->page_entries($entries)->render_entries;
+}
+
+=head2 display_entries
+
+This method searches (with Rubric::Entry) for entries matching the requested
+user and tags.  It pages the result (with C<page_entries>) and renders the
+resulting page with C<render_entries>.
+
+=cut
+
+sub display_entries {
+	my ($self) = @_;
+
+	my %search  = ( user => $self->param('user'), tags => $self->param('tags') );
+	my $entries = Rubric::Entry->by_tag(\%search);
+
+	$self->page_entries($entries)->render_entries;
+}
+
+=head2 page_entries($iterator)
+
+Given a Class::DBI::Iterator, this method sets up parameters describing the
+current page.  Most importantly, it retrieves an Iterator for the slice of
+entries representing the current page.  The following parameters are set:
+
+ entries - a Class::DBI::Iterator for the current page's entries
+ count   - the number of entries in the entire set
+ pages   - the number of pages the set spans
+
+=cut
 
 sub page_entries {
 	my ($self, $iterator) = @_;
@@ -185,6 +350,13 @@ sub page_entries {
 	return $self;
 }
 
+=head2 render_entries
+
+This method renders a template to display the set of entries set up by
+C<page_entries>.
+
+=cut
+
 sub render_entries {
 	my ($self) = @_;
 
@@ -195,30 +367,22 @@ sub render_entries {
 		entries => $self->param('entries'),
 		pages   => $self->param('pages'),
 		recent_tags => $self->param('recent_tags'),
+		remove  => sub { [ grep { $_ ne $_[0] } @{$_[1]} ] }
 	});
 }
 
-sub recent {
-	my ($self) = @_;
+=head2 post
 
-	my $entries = Rubric::Entry->retrieve_all;
-	$self->param('recent_tags', [ Rubric::Entry->recent_tags_counted ]);
-	$self->page_entries($entries)->render_entries;
-}
+This method wants to be simplified.
 
-sub display_entries {
-	my ($self) = @_;
+If the user isn't logged in, it redirects to demand a login.  If he is, it
+checks whether it can create a new entry.  If so, it tries to.  If not, it
+displays a form for doing so.  If the user already has an entry for the given
+URI, the existing entry is passed to the form renderer.
 
-	my %search  = ( user => $self->param('user'), tags => $self->param('tags') );
-	my $entries = Rubric::Entry->by_tag(\%search);
+If a new entry is created, the user is redirected to his entry listing.
 
-	$self->page_entries($entries)->render_entries;
-}
-
-sub must_login {
-	my ($self) = @_;
-	$self->template('must_login.html');
-}
+=cut
 
 sub post {
 	my ($self) = @_;
@@ -253,6 +417,12 @@ sub post {
 	return "Posted...";
 }
 
+=head2 post_form
+
+This method renders a form for the user to create a new entry.
+
+=cut
+
 sub post_form {
 	my ($self, $entry) = @_;
 
@@ -262,5 +432,112 @@ sub post_form {
 		existing_entry => scalar $self->param('existing_entry'),
 	});
 }
+
+=head2 must_login
+
+This method renders a form for the user to create a new entry.
+
+=cut
+
+sub must_login {
+	my ($self) = @_;
+	$self->template('must_login.html');
+}
+
+=head2 delete_entry
+
+This method wants to be simplified.  It's largely copied from C<post>.
+
+If the user isn't logged in, it redirects to demand a login.  If he is, it
+checks whether the user has an entry for the given URI.  If so, it's deleted.
+
+Either way, the user is redirected to his entry listing.
+
+=cut
+
+sub delete_entry {
+	my ($self) = @_;
+
+	return $self->must_login unless my $user = $self->param('current_user');	
+
+	my $uri = $self->query->param('uri');
+	eval { $uri = URI->new($uri)->canonical->as_string; };
+
+	if (my ($link) = Rubric::Link->search({uri => $uri})) {
+		if (my ($entry) = Rubric::Entry->search({link => $link, user => $user})) {
+			$entry->delete;
+		}
+	}
+
+	my $goto_url = 
+		Rubric::Config->url_root() . "/user/" . $self->param('current_user');
+
+	$self->header_type('redirect');
+	$self->header_props( -url => $goto_url);
+	return "Deleted...";
+}
+
+=head1 FUNCTIONS
+
+=head2 url_for(@stuff)
+
+This is a horrible, horrible piece of code.  It's misnamed and just ugly.  I
+hateses it.  It's passed as a coderef to rendered templates, which use it to
+create hrefs.
+
+This function will be replaced ASAP.
+
+=cut
+
+sub url_for {
+	my ($what, $user, $tags, $text) = @_;
+	my $root = Rubric::Config->url_root;
+	if ($what eq 'root') {
+		return "<a href='$root'>(root)</a>";
+	} elsif ($what eq 'css') {
+		return Rubric::Config->css_href;
+	} elsif ($what eq 'logout') {
+		return "<a href='$root/logout'>logout</a>";
+	} elsif ($what eq 'login') {
+		return "<a href='$root/login'>login</a>";
+	} elsif ($what eq 'entry_edit') {
+		return unless UNIVERSAL::isa($user,  'Rubric::Entry');
+		my $uri = $user->link->uri;
+		return "<a href='$root/post?uri=$uri'>(edit)</a>";
+	} elsif ($what eq 'entry_delete') {
+		return unless UNIVERSAL::isa($user,  'Rubric::Entry');
+		my $uri = $user->link->uri;
+		return "<a href='$root/delete?uri=$uri'>(delete this entry)</a>";
+	} elsif ($what eq 'entries') {
+		if ($user) {
+			return "<a href='$root/user/$user/" . join('+',@$tags) . "'>$text</a>";
+		} elsif ($tags and @$tags) {
+			return "<a href='$root/tag/" . join('+',@$tags) . "'>$text</a>";
+		}
+		return url_for('root');
+	} elsif ($what eq 'post') {
+		return "<a href='$root/post/'>new entry</a>";
+	}
+}
+
+=head1 TODO
+
+=head1 AUTHOR
+
+Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+
+=head1 BUGS
+
+Please report any bugs or feature requests to C<bug-rubric@rt.cpan.org>, or
+through the web interface at L<http://rt.cpan.org>. I will be notified, and
+then you'll automatically be notified of progress on your bug as I make
+changes.
+
+=head1 COPYRIGHT
+
+Copyright 2004 Ricardo SIGNES.  This program is free software;  you can
+redistribute it and/or modify it under the same terms as Perl itself.
+
+=cut
 
 1;

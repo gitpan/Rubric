@@ -35,6 +35,15 @@
 	[% url_for('entries', user, [ tag.0 ], tag.0) -%]
 	&nbsp;</div>
 	[% END %]
+	<br />
+	[% FOREACH tag = tags %]
+	<div class='tag'>
+	<span class='tag_count'>&nbsp;</span>
+	&nbsp;
+	[%- url_for('entries', user, remove(tag, tags), "-", "plus") %]
+	[% url_for('entries', user, [tag], tag) -%]
+	&nbsp;</div>
+	[% END %]
 	</div>
 	[% END %]
 

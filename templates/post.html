@@ -12,6 +12,7 @@
 	[% IF existing_entry.created %]
 	<h2>revise entry</h2>
 	<h3>originally created: [% existing_entry.created %]</h3>
+	<div class='delete'>[% url_for('entry_delete', existing_entry) %]</div>
 	[% ELSE %]
 	<h2>new entry</h2>
 	[% END %]

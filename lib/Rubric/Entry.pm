@@ -1,19 +1,105 @@
 package Rubric::Entry;
+
+=head1 NAME
+
+Rubric::Entry - a single entry made by a user
+
+=head1 VERSION
+
+ $Id: Entry.pm,v 1.9 2004/11/19 20:37:12 rjbs Exp $
+
+=head1 DESCRIPTION
+
+This class provides an interface to Rubric entries.  It inherits from
+Rubric::DBI, which is a Class::DBI class.
+
+=cut
+
 use base qw(Rubric::DBI);
 use Time::Piece;
 
 __PACKAGE__->table('entries');
 
+=head1 COLUMNS
+
+ id          - a unique identifier
+ link        - the link to which the entry refers
+ user        - the user who made the entry
+ title       - the title of the link's destination
+ description - a short description of the entry
+ created     - the time when the entry was first created
+ modified    - the time when the entry was last modified
+
+=cut
+
 __PACKAGE__->columns(All => qw(id link user title description created modified));
 
+=head1 RELATIONSHIPS
+
+=head2 link
+
+The link attribute returns a Rubric::Link.
+
+=cut
+
 __PACKAGE__->has_a(link => 'Rubric::Link');
+
+=head2 user
+
+The user attribute returns a Rubric::User.
+
+=cut
+
 __PACKAGE__->has_a(user => 'Rubric::User');
 
-__PACKAGE__->has_a($_ => 'Time::Piece', deflate => 'epoch')
-	for qw(created modified);
+=head2 tags
+
+Every entry has_many tags that describe it.  The C<tags> method will return the
+tags, and the C<entrytags> method will return the Rubric::EntryTag objects that
+represent them.
+
+=cut
 
 __PACKAGE__->has_many(entrytags => 'Rubric::EntryTag' );
 __PACKAGE__->has_many(tags => [ 'Rubric::EntryTag' => tag ]);
+
+=head3 recent_tags_counted
+
+This method returns a reference to an array of arrayrefs, each a (tag, count)
+pair for tags used on the week's 50 most recent entries.
+
+=cut
+
+__PACKAGE__->set_sql(recent_tags_counted => <<'');
+SELECT tag, COUNT(*) as count
+FROM   entrytags
+WHERE
+	entry IN (SELECT id FROM entries WHERE created > ? LIMIT 100)
+GROUP BY tag
+ORDER BY count DESC
+LIMIT 50
+
+sub recent_tags_counted {
+	my ($class) = @_;
+	my $sth = $class->sql_recent_tags_counted;
+	$sth->execute(time - (86400 * 7));
+	my $result = $sth->fetchall_arrayref;
+	return $result;
+}
+
+=head1 INFLATIONS
+
+=head2 created
+
+=head2 modified
+
+The created and modified columns are stored as seconds since epoch, but
+inflated to Time::Piece objects.
+
+=cut
+
+__PACKAGE__->has_a($_ => 'Time::Piece', deflate => 'epoch')
+	for qw(created modified);
 
 __PACKAGE__->add_trigger(before_create => \&default_title);
 
@@ -36,6 +122,20 @@ sub update_times {
 	$self->modified(scalar gmtime);
 }
 
+=head1 METHODS
+
+=head2 by_tag(\%arg)
+
+The arguments to C<by_tag> indicate the tags and users for which to search.
+(The built-in Class::DBI search method can't handle this kind of search.)
+
+ user - the user whose tags to search (can be undef)
+ tags - an arrayref of tag names
+
+This returns a list or Class::DBI::Iterator, depending on context.
+
+=cut
+
 sub by_tag {
 	my ($self, $arg) = @_;
 	my %wheres;
@@ -53,6 +153,12 @@ sub by_tag {
 		: $self->retrieve_all;
 }
 
+=head2 set_new_tags(\@tags)
+
+This method replaces all entry's current tags with the new set of tags.
+
+=cut
+
 sub set_new_tags {
 	my ($self, $tags) = @_;
 	$self->entrytags->delete_all;
@@ -66,21 +172,24 @@ SELECT __ESSENTIAL__
 FROM   __TABLE__
 ORDER BY created DESC
 
-__PACKAGE__->set_sql(recent_tags => <<'');
-SELECT tag, COUNT(*) as count
-FROM   entrytags
-WHERE
-	entry IN (SELECT id FROM entries WHERE created > ? LIMIT 100)
-GROUP BY tag
-ORDER BY count DESC
-LIMIT 50
+=head1 TODO
 
-sub recent_tags_counted {
-	my ($class) = @_;
-	my $sth = $class->sql_recent_tags;
-	$sth->execute(time - (86400 * 7));
-	my $result = $sth->fetchall_arrayref;
-	return @$result;
-}
+=head1 AUTHOR
+
+Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+
+=head1 BUGS
+
+Please report any bugs or feature requests to C<bug-rubric@rt.cpan.org>, or
+through the web interface at L<http://rt.cpan.org>. I will be notified, and
+then you'll automatically be notified of progress on your bug as I make
+changes.
+
+=head1 COPYRIGHT
+
+Copyright 2004 Ricardo SIGNES.  This program is free software;  you can
+redistribute it and/or modify it under the same terms as Perl itself.
+
+=cut
 
 1;

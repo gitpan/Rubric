@@ -1,5 +1,10 @@
 	<div class='entry'>
-		<div class='uri'><a href='[% entry.link %]'>[% entry.title %]</a></div>
+		<div class='uri'>
+			<a href='[% entry.link %]'>[% entry.title %]</a>
+			[% IF current_user == entry.user %]
+			[% url_for('entry_edit', entry) %]
+			[% END %]
+		</div>
 		[% IF entry.description %]
 		<div class='description'>[% entry.description %]</div>
 		[% END %]

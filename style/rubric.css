@@ -21,6 +21,7 @@ h2 {
 
 h3 {
 	padding-left: 1em;
+	margin-bottom: .25em;
 }
 
 h3.error {
@@ -36,6 +37,10 @@ div.toolbar {
 
 div.toolbar a {
 	text-decoration: none;
+}
+
+div.delete {
+	padding-left: 1em;
 }
 
 div.entry {
