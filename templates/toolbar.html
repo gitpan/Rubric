@@ -7,6 +7,7 @@
 		[% END %]
 		</span>
 		<a href='[% uri.root %]'>(root)</a>
+		| <a href='[% uri.doc('help') %]'>help</a>
 		[% IF current_user %]
 		| <a href='[% uri.entries( user => current_user ) %]'>entries</a>
 		[% END %]

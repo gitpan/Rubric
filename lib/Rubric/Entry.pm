@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.14 2004/12/13 21:40:10 rjbs Exp $
+ $Id: Entry.pm,v 1.15 2004/12/15 17:22:29 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -136,6 +136,7 @@ The arguments to C<by_tag> indicate the tags and users for which to search.
 
  user - the user whose tags to search (can be undef)
  tags - an arrayref of tag names
+ link - the id of the entry's link
  has_body - whether entries must have bodies (T, F, or undef)
  has_link - whether entries must have a link (T, F, or undef)
 

@@ -41,6 +41,7 @@ templates/post.html
 templates/template.html
 templates/toolbar.html
 templates/verified.html
+templates/docs/help.html
 
 templates/entries.rss
 templates/template.rss

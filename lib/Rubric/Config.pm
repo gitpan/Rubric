@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: Config.pm,v 1.6 2004/12/13 18:32:13 rjbs Exp $
+ $Id: Config.pm,v 1.9 2004/12/14 04:30:54 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -23,6 +23,13 @@ use base qw(Class::Accessor);
 use Config::Auto;
 use YAML;
 
+my $config_filename = 'rubric.yml';
+
+sub import {
+	my ($class) = shift;
+	$config_filename = shift if @_;
+}
+
 =head1 METHODS
 
 =head2 read_config
@@ -36,7 +43,7 @@ my $config;
 sub read_config {
 	return $config if $config;
 
-	my $config_file = Config::Auto::find_file('rubric.yml');
+	my $config_file = Config::Auto::find_file($config_filename);
 	$config = YAML::LoadFile($config_file);
 }
 
@@ -49,6 +56,7 @@ __PACKAGE__->mk_ro_accessors(qw(
 	css_href
 	dsn
 	email_from
+	private_system
 	registration_closed
 	smtp_server
 	template_path
@@ -85,6 +93,12 @@ This method returns the SMTP server used to send email.
 =head2 registration_closed
 
 This method returns a true value if registration isn't open to the world.
+
+=head2 private_system
+
+This method returns a true value if the Rubric is private.  A private Rubric
+restricts unauthenticated sessions to logging in or registering an account (and
+if registration is closed, they can only log in).
 
 =head1 TODO
 

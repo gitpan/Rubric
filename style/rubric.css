@@ -135,3 +135,5 @@ div.prev_page { float: left ; padding-left : 1em; }
 
 div.page_num,
 div.page_size { text-align: center }
+
+div.document { margin-left: 1em; margin-right: 1em; }

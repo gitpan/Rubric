@@ -1,5 +1,10 @@
 Revision history for Rubric
 
+0.00_24 2004-12-15
+        private_system implemented
+        Rubric::Renderer refactored
+        /doc uri handler added
+
 0.00_23 2004-12-13
         rss links on entries.html
         rss announce in header.html

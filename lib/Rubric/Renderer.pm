@@ -6,7 +6,7 @@ Rubric::Renderer - the rendering interface for Rubric
 
 =head1 VERSION
 
- $Id: Renderer.pm,v 1.2 2004/12/09 03:44:04 rjbs Exp $
+ $Id: Renderer.pm,v 1.4 2004/12/14 04:30:54 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -33,14 +33,30 @@ is a singleton.
 
 my %renderer;
 
-sub renderer { 
-	my ($self, $type) = @_;
-	return $renderer{$type} if $renderer{$type};
-
-	$renderer{$type} = Template->new({
-		PROCESS => ("template.$type"),
+sub register_type {
+	my ($class, $type, $arg) = @_;
+	$renderer{$type} = $arg;
+	$renderer{$type}{renderer} = Template->new({
+		PROCESS => ("template.$arg->{extension}"),
 		INCLUDE_PATH => Rubric::Config->template_path()
 	});
+}
+
+__PACKAGE__->register_type(@$_) for (
+	[ html => { content_type => 'text/html',           extension => 'html' } ],
+	[ rss  => { content_type => 'application/rss+xml', extension => 'rss'  } ],
+	[ txt  => { content_type => 'text/plain',          extension => 'txt'  } ],
+);
+
+sub process { 
+	my ($class, $template, $type, $stash) = @_;
+	return unless $renderer{$type};
+
+	$template .= '.' . $renderer{$type}{extension};
+	$renderer{$type}{renderer}->process($template, $stash, \(my $output));
+	return wantarray
+		? ($renderer{$type}{content_type}, $output)
+		:  $output;
 }
 
 =head1 TODO

@@ -1,4 +1,4 @@
-[%
+[%-
 	USE uri = Class('Rubric::WebApp::URI');
   PROCESS $template
-%]
+-%]

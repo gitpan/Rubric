@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.00_23
+version 0.00_24
 
- $Id: WebApp.pm,v 1.47 2004/12/13 21:41:08 rjbs Exp $
+ $Id: WebApp.pm,v 1.51 2004/12/15 17:26:43 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.00_23';
+our $VERSION = '0.00_24';
 
 =head1 SYNOPSIS
 
@@ -45,10 +45,15 @@ basic dispatch table looks something like this:
  /post        | post or edit an entry (must be logged in) | post
  /edit        | edit an entry (must be logged in)         | edit
  /delete      | delete an entry (must be logged in)       | delete
- /recent      | see recent entries (the default)          | recent
+ /recent      | see recent entries                        | recent
  /user/NAME   | see a user's entries                      | user
  /user/N/TAGS | see a user's entries for given tags       | user
  /tag/TAGS    | see entries for given tags                | tag
+ /doc/PAGE    | view the named page in the documentation  | doc
+
+If the system is private and no user is logged in, the default action is to
+display a login screen.  If the system is public, or a user is logged in, the
+default action is to display recent entries.
 
 =cut
 
@@ -212,11 +217,11 @@ sub template {
 
 	my $type = $self->query->param('format') || 'html';
 	$type = 'html' unless $type =~ /^\w+$/;
-	$template .= ".$type";
 
-	Rubric::Renderer->renderer($type)->process($template, $stash, \(my $output));
+	my ($content_type, $output) =
+		Rubric::Renderer->process($template, $type, $stash);
 
-	$self->header_props(-type => 'application/rss+xml') if $type eq 'rss';
+	$self->header_props(-type => $content_type);
 	return $output;
 }
 
@@ -231,11 +236,18 @@ sub setup {
 	my ($self) = @_;
 
 	$self->mode_param(path_info => 1);
-	$self->start_mode('recent');
 	
-	$self->run_modes([
-		qw(delete edit entry link login logout newuser post recent user verify tag)
-	]);
+	$self->start_mode('login');
+	$self->run_modes([ qw(doc login newuser verify) ]);
+
+	if ($self->param('current_user') or not Rubric::Config->private_system) {
+		$self->start_mode('recent');
+		$self->run_modes([
+			qw(delete edit entry link logout post recent user tag)
+		]);
+	}
+
+	$self->run_modes(AUTOLOAD => 'redirect_root');
 }
 
 =head2 entry
@@ -718,6 +730,34 @@ sub delete {
 	my $goto_uri = Rubric::WebApp::URI->user($self->param('current_user'));
 
 	return $self->redirect( $goto_uri, "Deleted..." );
+}
+
+=head2 doc
+
+This runmode returns a mostly-static document from the template path.
+
+=cut
+
+sub doc {
+	my ($self) = @_;
+
+	$self->get_doc->template("docs/" . $self->param('doc_page'));
+}
+
+=head2 get_doc
+
+This gets the next part of the path and puts it in the C<doc_page> parameter.
+
+=cut
+
+sub get_doc {
+	my ($self) = @_;
+
+	my $doc_page = shift @{$self->param('path')};
+	$self->param(doc_page => $doc_page)
+		if $doc_page =~ /^\w+$/;
+
+	return $self;
 }
 
 =head1 TODO
