@@ -1,5 +1,9 @@
 Revision history for Rubric
 
+0.03_04 2005-01-20
+        updated post template to not fail when query contains an '
+        updated entries query bits to use undef for errors
+
 0.03_03 2005-01-18
         must_login has been replaced with a smarter login runmode
         if you try to /post or perform another operation without a login,

@@ -8,11 +8,11 @@ Rubric::Entry::Query - construct and execute a complex query
 
 version 0.01
 
- $Id: Query.pm,v 1.1 2005/01/16 03:52:46 rjbs Exp $
+ $Id: Query.pm,v 1.3 2005/01/20 15:09:06 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.03';
 
 =head1 DESCRIPTION
 
@@ -40,6 +40,7 @@ This is the only interface to this module.  Given
 sub query {
 	my ($self, $arg) = @_;
 	my @constraints = map { $self->get_constraint($_, $arg->{$_}) } keys %$arg;
+	@constraints = ("1 = 0") if grep { not defined } @constraints;
 
 	$self->get_entries(\@constraints);
 }
@@ -47,7 +48,7 @@ sub query {
 sub get_constraint {
 	my ($self, $param, $value) = @_;
 
-	return unless my $code = $self->can("constraint_for_$param");
+	return undef unless my $code = $self->can("constraint_for_$param");
 	$code->($self, $value);
 }
 
@@ -62,7 +63,7 @@ sub get_entries {
 
 sub constraint_for_user {
 	my ($self, $user) = @_;
-	return unless $user;
+	return undef unless $user;
 	return "user = " . Rubric::Entry->db_Main->quote($user);
 }
 
@@ -89,7 +90,7 @@ sub constraint_for_has_link {
 
 sub constraint_for_urimd5 {
 	my ($self, $md5) = @_;
-	return unless my ($link) = Rubric::Link->search({ md5 => $md5 });
+	return undef unless my ($link) = Rubric::Link->search({ md5 => $md5 });
 	return "link = " . $link->id;
 }
 

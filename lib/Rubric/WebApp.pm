@@ -8,11 +8,11 @@ Rubric::WebApp - the web interface to Rubric
 
 version 0.03_03
 
- $Id: WebApp.pm,v 1.74 2005/01/18 18:46:22 rjbs Exp $
+ $Id: WebApp.pm,v 1.76 2005/01/20 15:09:06 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.03_03';
+our $VERSION = '0.03_04';
 
 =head1 SYNOPSIS
 
@@ -307,7 +307,7 @@ sub login {
 
 	if ($self->param('current_user')) {
 		my $goto =
-			$self->query->param('then_goto') || Rubric::WebApp::URI->uri_root;
+			$self->query->param('then_goto') || Rubric::Config->uri_root;
 		return $self->redirect($goto, "Logged in...");
 	}
 

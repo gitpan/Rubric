@@ -8,11 +8,11 @@ Rubric - a notes and bookmarks manager with tagging
 
 version 0.03_03
 
- $Id: Rubric.pm,v 1.11 2005/01/18 18:46:22 rjbs Exp $
+ $Id: Rubric.pm,v 1.12 2005/01/20 15:09:06 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.03_03';
+our $VERSION = '0.03_04';
 
 warn "Rubric.pm isn't meant to be used.";
 exit 1;

@@ -8,11 +8,11 @@ Rubric::WebApp::Entries - process the /entries run method
 
 version 0.01
 
- $Id: Entries.pm,v 1.3 2005/01/16 04:41:55 rjbs Exp $
+ $Id: Entries.pm,v 1.6 2005/01/20 15:09:06 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.03';
 
 =head1 DESCRIPTION
 
@@ -48,9 +48,7 @@ sub entries {
 	
 	while (my $param = $webapp->next_path_part) {
 		my $value = $webapp->next_path_part;
-		if (my $arg = $self->get_arg($param, $value)) {
-			$arg{$param} = $arg;
-		}
+		$arg{$param} = $self->get_arg($param, $value);
 	}
 	$webapp->param(recent_tags => Rubric::Entry->recent_tags_counted)
 		unless %arg;
@@ -62,13 +60,13 @@ sub entries {
 sub get_arg {
 	my ($self, $param, $value) = @_;
 
-	return unless my $code = $self->can("arg_for_$param");
+	return undef unless my $code = $self->can("arg_for_$param");
 	$code->($self, $value);
 }
 
 sub arg_for_user {
 	my ($self, $user) = @_;
-	return unless $user;
+	return undef unless $user;
 	return Rubric::User->retrieve($user),
 }
 
@@ -92,8 +90,8 @@ sub arg_for_has_link {
 
 sub arg_for_urimd5 {
 	my ($self, $md5) = @_;
-	return unless my ($link) = Rubric::Link->search({ md5 => $md5 });
-	return $link;
+	return undef unless my ($link) = Rubric::Link->search({ md5 => $md5 });
+	return $link->md5;
 }
 
 ## more date-arg handling code
