@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.02_04
+version 0.03
 
- $Id: WebApp.pm,v 1.68 2005/01/14 04:06:03 rjbs Exp $
+ $Id: WebApp.pm,v 1.69 2005/01/15 03:53:50 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.02_04';
+our $VERSION = '0.03';
 
 =head1 SYNOPSIS
 
@@ -59,6 +59,7 @@ default action is to display entries.
 
 use base qw(CGI::Application);
 use CGI::Application::Session;
+use CGI::Carp qw(fatalsToBrowser);
 
 use Digest::MD5 qw(md5_hex);
 
@@ -205,7 +206,7 @@ sub setup {
 	if ($self->param('current_user') or not Rubric::Config->private_system) {
 		$self->start_mode('entries');
 		$self->run_modes([
-			qw(delete edit entries entry link logout post preferences user tag)
+			qw(delete edit entries entry link logout post preferences)
 		]);
 	}
 

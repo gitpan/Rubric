@@ -1,22 +1,58 @@
 <div class='document'>
 <h2>milestones</h2>
-<h3>0.03</h3>
+<h3>0.04</h3>
 <p>
-	The following milestones will be reached for release 0.03, currently under
-	development.  This is not a comprehensive list: requests are welcome.
+	The following milestones will be reached for release 0.04, currently under
+	development. This is not a comprehensive list: requests are welcome.
 </p>
-
 <ul>
-	<li>subclassable login
+	<li>automatic user creation
 		<p>
-			This will let you auto-create user entries for HTTP-based user logins,
-			map or rewrite HTTP-based logins, or retrieve authentication in other
-			ways.
+			It should be possible to create users automatically upon login attempt.
+			When coupled with HTTP authorization, this should allow intranet users to
+			begin using a local Rubric seamlessly.
 		</p>
 	</li>
 
-	<li>retrieve by date
-		<p>Queries for entries should accept dates or datetime ranges.</p>
+	<li>refactored EntriesQuery
+		<p>
+			Rubric::WebApp::EntriesQuery should only parse URIs and send result sets
+			to the pager.  (A renaming may be in order, too.)  Another module should
+			take natural parameters and produce result sets.  It should be able to
+			return errors on invalid queries and empty sets.  (Future revisions
+			should turn a query into English for display on error or as a title.)
+		</p>
+	</li>
+
+	<li>display user's tags on his post form</li>
+	<li>a clearer notice on empty result sets</li>
+</ul>
+
+</p>
+<h3>0.03</h3>
+<ul>
+	<li>subclassable login
+		<p>
+			Rubric now includes a class (Rubric::WebApp::Login) that defines logic
+			for accepting logins; subclasses for login via HTTP and via posted form
+			data are also included.  This change should make intranet Rubrics easier
+			to implement.
+		</p>
+	</li>
+
+	<li>new query builder and /entries handler
+		<p>
+			There was an 0.03 milestone to allow querying by date and time ranges.
+			To implement this, a new query builder was written to replace
+			Rubric::Entry-&gt;by_tag.  Right now it's got its web bits and SQL bits
+			all intertwined, but that will be fixed.  The /user and /tag run modes
+			were eliminated as such.
+	</li>
+
+	<li>fatals to browser
+		<p>Rubric now sends fatal error messages to the end user.  This won't
+		persist forever, but it will continue until Rubric is more mature and less
+		likely to fail during normal use.</p>
 	</li>
 </ul>
 

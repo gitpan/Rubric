@@ -6,7 +6,7 @@ Rubric::Renderer - the rendering interface for Rubric
 
 =head1 VERSION
 
- $Id: Renderer.pm,v 1.4 2004/12/14 04:30:54 rjbs Exp $
+ $Id: Renderer.pm,v 1.5 2005/01/15 03:53:50 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -18,6 +18,7 @@ and other things collected by Rubric::WebApp.
 use strict;
 use warnings;
 
+use Carp;
 use Rubric::Config;
 use Template;
 
@@ -53,7 +54,9 @@ sub process {
 	return unless $renderer{$type};
 
 	$template .= '.' . $renderer{$type}{extension};
-	$renderer{$type}{renderer}->process($template, $stash, \(my $output));
+	$renderer{$type}{renderer}->process($template, $stash, \(my $output))
+		or die "Couldn't render template: " . $renderer{$type}{renderer}->error;
+	die "template produced no content" unless $output;
 	return wantarray
 		? ($renderer{$type}{content_type}, $output)
 		:  $output;

@@ -9,6 +9,7 @@ WriteMakefile(
 	PL_FILES            => {},
 	PREREQ_PM => {
 		'CGI::Application' => 3.00,
+		'CGI::Carp'        => 0.00,
 		'Class::DBI'       => 0.96,
 		'Config::Auto'     => 0.11,
 		'Date::Span'       => 1.12,
