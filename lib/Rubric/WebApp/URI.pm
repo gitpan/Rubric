@@ -6,7 +6,7 @@ Rubric::WebApp::URI - URIs for Rubric web requests
 
 =head1 VERSION
 
- $Id: URI.pm,v 1.12 2005/01/11 02:15:29 rjbs Exp $
+ $Id: URI.pm,v 1.14 2005/03/21 01:38:47 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -77,14 +77,16 @@ URI for entry listing; valid keys for C<%arg>:
 sub entries {
 	my ($class, $arg) = @_;
 	$arg->{tags} ||= [];
+	my $format = delete $arg->{format};
 
 	my $uri = $class->root . '/entries';
 	$uri .= "/user/$arg->{user}" if $arg->{user};
 	$uri .= '/tags/' . join('+', @{$arg->{tags}})  if @{$arg->{tags}};
-	for (qw(has_body has_link format)) {
+	for (qw(has_body has_link)) {
 		$uri .= "/$_/" . ($arg->{$_} ? 1 : 0)
 			if (defined $arg->{$_} and $arg->{$_} ne '');
 	}
+	$uri .= "?format=$format" if $format;
 	return $uri;
 }
 
