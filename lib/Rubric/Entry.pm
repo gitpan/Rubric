@@ -22,13 +22,13 @@ __PACKAGE__->add_trigger(before_update => \&update_times);
 
 sub default_title {
 	my $self = shift;
-	$self->_atttribute_store(title => '(default)') unless $self->{title}
+	$self->title('(default)') unless $self->{title}
 }
 
 sub create_times {
 	my $self = shift;
-	$self->_attribute_store(created => scalar gmtime) unless $self->{created};
-	$self->_attribute_store(modified => scalar gmtime) unless $self->{modified};
+	$self->created(scalar gmtime) unless $self->{created};
+	$self->modified(scalar gmtime) unless $self->{modified};
 }
 
 sub update_times {
@@ -54,11 +54,11 @@ sub by_tag {
 }
 
 sub set_new_tags {
-	my ($self, @tags) = @_;
+	my ($self, $tags) = @_;
 	$self->entrytags->delete_all;
 	$self->update;
 
-	$self->add_to_tags({ tag => $_ }) for @tags;
+	$self->add_to_tags({ tag => $_ }) for @$tags;
 }
 
 __PACKAGE__->set_sql(RetrieveAll => <<'');

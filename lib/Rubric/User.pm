@@ -5,7 +5,7 @@ use base qw(Rubric::DBI);
 
 __PACKAGE__->table('users');
 
-__PACKAGE__->columns(All => qw(username password));
+__PACKAGE__->columns(All => qw(username password email validation_code));
 
 __PACKAGE__->has_many(entries => 'Rubric::Entry' );
 
@@ -35,7 +35,7 @@ sub tags {
 	my $sth = $self->sql_tags;
 	$sth->execute($self);
 	my $tags = $sth->fetchall_arrayref;
-	map { @$_ } @$tags;
+	[ map { @$_ } @$tags ];
 }
 
 sub related_tags {
@@ -55,7 +55,6 @@ sub related_tags {
 		@tags;
 
 	my $result = $self->db_Main->selectcol_arrayref($query, undef, $self);
-	@$result;
 }
 
 sub related_tags_counted {
@@ -63,11 +62,11 @@ sub related_tags_counted {
 	return unless $tags and my @tags = @$tags;
 
 	my $query = "
-	SELECT DISTINCT tag, COUNT(*) AS count
-	FROM entrytags
-	WHERE entry IN (SELECT id FROM entries WHERE user = ?) AND 
-	tag NOT IN (" . join(',',map { $self->db_Main->quote($_) } @tags) . ")
-	AND ";
+		SELECT DISTINCT tag, COUNT(*) AS count
+		FROM entrytags
+		WHERE entry IN (SELECT id FROM entries WHERE user = ?) AND 
+		tag NOT IN (" . join(',',map { $self->db_Main->quote($_) } @tags) . ")
+		AND ";
 
 	$query .= 
 		join ' AND ',
@@ -77,7 +76,6 @@ sub related_tags_counted {
 	$query .= " GROUP BY tag";
 
 	my $result = $self->db_Main->selectall_arrayref($query, undef, $self);
-	@$result;
 }
 
 sub quick_entry {
@@ -90,7 +88,7 @@ sub quick_entry {
 
 	my $new_entry = Rubric::Entry->find_or_create({
 		link => $link,
-		user => $self->param('current_user')
+		user => $self
 	});
 
 	$new_entry->title($entry->{title});

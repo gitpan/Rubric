@@ -5,7 +5,10 @@
 </head>
 <body>
 	<h1>
-		rubric[% "/~" _ user IF user %][% "/" _ tags.join("+") IF tags.size %]
+		rubric
+		[% "/~" IF user %]
+		[% user IF current_user != user %]
+		[% "/" _ tags.join("+") IF tags.size %]
 	</h1>
 	[% PROCESS "toolbar.html" %]
 

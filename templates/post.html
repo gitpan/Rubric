@@ -5,22 +5,31 @@
 </head>
 <body>
 	<h1>
-		rubric :: [% user %] :: (new entry)
+		rubric/~[% user %]/(new entry)
 	</h1>
 
 	[% PROCESS "toolbar.html" %]
-	<h2>related tags</h2>
+	[% IF existing_entry.created %]
+	<h2>revise entry</h2>
+	<h3>originally created: [% existing_entry.created %]</h3>
+	[% ELSE %]
+	<h2>new entry</h2>
+	[% END %]
 	<div class='entryform'>
 		<form id='entryform'>
 			<table>
 			[% FOREACH param = [ "uri", "title", "description", "tags" ] %]
 				<tr>
 					<th>[% param %]</th>
-					<td><input name='[% param %]' value='[% form.$param %]'/>
+					<td><input name='[% param %]' value='[% 
+					form.$param OR existing_entry.$param.join(" ")
+					%]' size='75' />
 				</tr>
 			[% END %]
+				<tr><td class='submit' colspan='2'>
+					<input type='submit' name='submit' value='save' />
+				</td></tr>
 			</table>
-			<input type='submit' name='submit' value='save' />
 		</form>
 	</div>
 

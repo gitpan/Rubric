@@ -1,5 +1,11 @@
 Revision history for Rubric
 
+0.00_05 2004-11-18
+        logins and posts now redirect to new page, instead of rendering
+        post form for an already-entered url displays info
+        fixed return of tag counts to references for TT2's sake
+        numerous style cleanups
+
 0.00_04 2004-11-17
         refactored paging, posting
         store md5 of uri's for identification

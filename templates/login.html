@@ -10,10 +10,13 @@
 
 	[% PROCESS "toolbar.html" %]
 	<h2>login</h2>
+	[% IF user %]
+	<h3 class='error'>That username/password combination doesn't match.</h3>
+	[% END %]
 	<div class='loginform'>
-		<form id='loginform' action='.' method='POST'>
+		<form id='loginform' action='login' method='POST'>
 			<table>
-				<tr><th>username</th><td><input name='user' /></tr>
+				<tr><th>username</th><td><input name='user' value='[%user%]'/></tr>
 				<tr><th>password</th><td><input type='password' name='password' /></tr>
 				<tr><td class='submit' colspan='2'>
 					<input type='submit' name='submit' value='login' />

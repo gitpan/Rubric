@@ -23,7 +23,9 @@ CREATE TABLE links (
 
 CREATE TABLE users (
 	username PRIMARY KEY,
-	password NOT NULL
+	password NOT NULL,
+	email NOT NULL,
+	validation_code
 );
 
 CREATE TABLE entries (

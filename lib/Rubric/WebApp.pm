@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.00_04
+version 0.00_05
 
- $Id: WebApp.pm,v 1.10 2004/11/17 15:03:36 rjbs Exp $
+ $Id: WebApp.pm,v 1.13 2004/11/19 03:59:04 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.00_04';
+our $VERSION = '0.00_05';
 
 use base qw(CGI::Application);
 use CGI::Application::Session;
@@ -28,6 +28,7 @@ use Rubric::Link;
 use Rubric::User;
 
 use Template;
+use URI; 
 
 sub renderer { 
 	my ($self) = @_;
@@ -131,8 +132,12 @@ sub setup {
 
 sub login {
 	my ($self) = @_;
-
-	$self->template('login.html');
+	if ($self->param('current_user')) {
+		$self->header_type('redirect');
+		$self->header_props(-url=> Rubric::Config->url_root);
+		return "Logged in...";
+	}
+	$self->template('login.html' => { user => $self->query->param('user') });
 }
 
 sub logout {
@@ -218,11 +223,18 @@ sub must_login {
 sub post {
 	my ($self) = @_;
 
-	return $self->must_login unless $self->param('current_user');	
+	return $self->must_login unless my $user = $self->param('current_user');	
 
 	my %entry;
 	$entry{$_} = $self->query->param($_)
 		for qw(uri title description tags);
+	eval { $entry{uri} = URI->new($entry{uri})->canonical->as_string; };
+
+	if (my ($link) = Rubric::Link->search({uri => $entry{uri}})) {
+		if (my ($existing_entry) = Rubric::Entry->search({link => $link, user => $user})) {
+			$self->param('existing_entry', $existing_entry);
+		}
+	}
 	
 	unless (
 		(($self->query->param('submit') || '') eq 'save')
@@ -232,15 +244,22 @@ sub post {
 		return $self->post_form(\%entry)
 	}
 
-	$self->display_entries;
+	my $goto_url = $self->query->param('go_back')
+		? $entry{uri}
+		: Rubric::Config->url_root() . "/user/" . $self->param('current_user');
+
+	$self->header_type('redirect');
+	$self->header_props( -url => $goto_url);
+	return "Posted...";
 }
 
 sub post_form {
 	my ($self, $entry) = @_;
 
 	$self->template( 'post.html' => {
-		user => $self->param('current_user'),
-		form => $entry
+		form           => $entry,
+		user           => scalar $self->param('current_user'),
+		existing_entry => scalar $self->param('existing_entry'),
 	});
 }
 

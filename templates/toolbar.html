@@ -1,4 +1,11 @@
 	<div class='toolbar'>
+		<span style='float:left'>
+		[% IF current_user %]
+			you are: [% current_user %]
+		[% ELSE %]
+			not logged in
+		[% END %]
+		</span>
 		[% url_for('root') %]
 		[% "| " _ url_for('entries', current_user, [], 'entries') IF current_user %]
 		[% "| " _ url_for('post', user) IF current_user %]

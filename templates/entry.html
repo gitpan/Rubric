@@ -4,12 +4,10 @@
 		<div class='description'>[% entry.description %]</div>
 		[% END %]
 		<div class='created'>
-			created: [% entry.created.strftime("%Y-%m-%d %H:%M") %]
-		</div>
-		<div class='tags'>tagged as:
 			[% FOREACH tag = entry.tags %]
 			[% url_for('entries', user, [ tag ], tag) %]
 			[% END %]
 			[% "by " _ entry.user UNLESS user %]
+			(created: [% entry.created.strftime("%Y-%m-%d %H:%M") %])
 		</div>
 	</div>
