@@ -1,0 +1,28 @@
+<html>
+<head>
+	<title>Rubric</title>
+	<link href='[% url_for('css') %]' rel='stylesheet' type='text/css' />
+</head>
+<body>
+	<h1>
+		rubric :: [% user %] :: (new entry)
+	</h1>
+
+	[% PROCESS "toolbar.html" %]
+	<h2>related tags</h2>
+	<div class='entryform'>
+		<form id='entryform'>
+			<table>
+			[% FOREACH param = [ "uri", "title", "description", "tags" ] %]
+				<tr>
+					<th>[% param %]</th>
+					<td><input name='[% param %]' value='[% form.$param %]'/>
+				</tr>
+			[% END %]
+			</table>
+			<input type='submit' name='submit' value='save' />
+		</form>
+	</div>
+
+	</body>
+</html>

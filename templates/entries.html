@@ -1,0 +1,56 @@
+<html>
+<head>
+	<title>Rubric</title>
+	<link href='[% url_for('css') %]' rel='stylesheet' type='text/css' />
+</head>
+<body>
+	<h1>
+		rubric[% "/~" _ user IF user %][% "/" _ tags.join("+") IF tags.size %]
+	</h1>
+	[% PROCESS "toolbar.html" %]
+
+	[% IF user %]
+	<div class='taglist'>
+	<h3>all tags</h3>
+	[% FOREACH tag = user.tags.sort %]
+	<div class='tag'>&nbsp;[% url_for('entries', user, [ tag ], tag) %]&nbsp;</div>
+	[% END %]
+	</div>
+	[% END %]
+
+	[% IF user && tags.size %]
+	<div class='taglist'>
+	<h3>related tags</h3>
+	[% FOREACH tag = user.related_tags(tags).sort %]
+	<div class='tag'>&nbsp;
+	[%- url_for('entries', user, tags.merge( [ tag ] ), "+", "plus") %]
+	[% url_for('entries', user, [ tag ], tag) -%]
+	&nbsp;</div>
+	[% END %]
+	</div>
+	[% END %]
+
+	<h2>entries</h2>
+	<div class='entries'>
+	[% WHILE (entry = entries.next) %]
+	[% PROCESS "entry.html" %]
+	[% END %]
+	</div>
+
+	<div class='prev_page'>
+		[% IF page > 1 %]<a href='?page=[% page - 1 %]'>prev page</a>
+		[% ELSE %]prev page[% END %]
+	</div>
+	<div class='next_page'>
+		[% IF page < pages %]<a href='?page=[% page + 1 %]'>next page</a>
+		[% ELSE %]next page[% END %]
+	</div>
+	<div class='page_num'>
+		page [% page %] of [% pages %]
+	</div>
+	<div class='page_size'>
+		[% count %] entries, [% per_page %] per page
+	</div>
+
+	</body>
+</html>

@@ -1,0 +1,85 @@
+body {
+	background-color: #eee;
+	color: black;
+	margin: 0;
+}
+
+h1 { 
+	padding: 0;
+	background-color: #ddd;
+	padding-left: 0.5em;
+	padding-bottom: 1%;
+	margin-bottom: 0;
+}
+
+h2 {
+	margin-left: .5em;
+	margin-bottom: 0;
+}
+
+div.toolbar {
+	text-align: right;
+	background-color: #bbb;
+	margin-top: 0;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
+
+div.toolbar a {
+	text-decoration: none;
+}
+
+div.entry {
+	padding-bottom: .5em;
+}
+
+div.description { font-style: italic }
+
+div.created, div.tags {
+	padding-left: 1em;
+}
+
+div.taglist {
+	float: right;
+	padding-left: .5%;
+	padding-right: .5%;
+	background-color: #bbb;
+	margin: 1%;
+}
+
+div.taglist a { text-decoration: none }
+
+div.taglist h3 { text-align: center; }
+
+div.entryform table th {
+	text-align: right;
+}
+
+div.must_login {
+	margin-left: 1em;
+	margin-right: 1em;
+	padding: .5em;
+}
+
+div.loginform {
+	margin-left: 1em;
+	margin-right: 1em;
+	padding: .5em;
+}
+
+form#loginform td.submit {
+	text-align: right
+}
+
+div.entries {
+	margin-left: 1em;
+	margin-right: 1em;
+	border-bottom: thin black solid;
+	padding: .5em;
+}
+
+div.next_page { float: right; padding-right: 1em; }
+div.prev_page { float: left ; padding-left : 1em; }
+
+div.page_num,
+div.page_size { text-align: center }

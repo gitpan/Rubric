@@ -1,0 +1,26 @@
+<html>
+<head>
+	<title>Rubric</title>
+	<link href='[% url_for('css') %]' rel='stylesheet' type='text/css' />
+</head>
+<body>
+	<h1>
+		rubric :: login
+	</h1>
+
+	[% PROCESS "toolbar.html" %]
+	<h2>login</h2>
+	<div class='loginform'>
+		<form id='loginform' action='.' method='POST'>
+			<table>
+				<tr><th>username</th><td><input name='user' /></tr>
+				<tr><th>password</th><td><input type='password' name='password' /></tr>
+				<tr><td class='submit' colspan='2'>
+					<input type='submit' name='submit' value='login' />
+				</td></tr>
+			</table>
+		</form>
+	</div>
+
+	</body>
+</html>

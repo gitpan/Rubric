@@ -1,0 +1,11 @@
+	<div class='toolbar'>
+		[% url_for('root') %]
+		[% "| " _ url_for('entries', current_user, [], 'entries') IF current_user %]
+		[% "| " _ url_for('post', user) IF current_user %]
+		|
+		[% IF current_user %]
+		[% url_for('logout') %]
+		[% ELSE %]
+		[% url_for('login') %]
+		[% END %]
+	</div>

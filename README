@@ -1,0 +1,14 @@
+README for Rubric
+
+Things you'll have to do to use it:
+
+1. install the modules with the usual "make install"
+2. put rubric.cgi and rubric.yml somewhere together in your docroot
+3. update rubric.yml
+4. run the included makedb to generate rubric.db
+5. set rubric.db a+w
+6. create a user object for yourself
+   you could just run the filldb script to get some bogus data, but... why?
+7. get your bookmarks from delicious with my delicious-backup
+   delbackup -y | load_yml USERNAME
+8. go?
