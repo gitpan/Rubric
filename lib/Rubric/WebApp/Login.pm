@@ -10,7 +10,7 @@ Rubric::WebApp::Login - web login processing
 
 version 0.01
 
- $Id: Login.pm,v 1.1 2004/12/20 13:24:04 rjbs Exp $
+ $Id: Login.pm,v 1.2 2005/01/20 20:58:59 rjbs Exp $
 
 =cut
 
@@ -39,7 +39,8 @@ sub check_for_login {
 
 	$username = $self->map_username($username);
 	return unless $self->valid_username($username);
-	return unless my $user = $self->get_login_user($username);
+	return unless my $user =
+		$self->get_login_user($username) || $self->autocreate_user($username);
 	return unless $self->authenticate_login($webapp, $user);
 	$webapp->param('user_pending', 1) if $user->verification_code;
 
@@ -88,6 +89,17 @@ sub get_login_user {
 	my ($self, $username) = @_;
 	Rubric::User->retrieve($username);
 }
+
+=head2 autocreate_user($username)
+
+If C<get_login_user> can't find a user, this method is called to try to create
+the user automatically.  By default, it always returns nothing.  It may be
+subclassed for implementation.  (For example, one could create domain users
+from a directory.)
+
+=cut
+
+sub autocreate_user { }
 
 =head2 authenticate_login($webapp, $user)
 

@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.19 2005/01/16 03:52:46 rjbs Exp $
+ $Id: Entry.pm,v 1.20 2005/01/20 20:58:59 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -66,7 +66,7 @@ represent them.
 =cut
 
 __PACKAGE__->has_many(entrytags => 'Rubric::EntryTag' );
-__PACKAGE__->has_many(tags => [ 'Rubric::EntryTag' => tag ]);
+__PACKAGE__->has_many(tags => [ 'Rubric::EntryTag' => 'tag' ]);
 
 =head3 recent_tags_counted
 

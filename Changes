@@ -1,5 +1,9 @@
 Revision history for Rubric
 
+0.04    2005-01-20
+        created stub of autocreate_user method on Login
+        updated tests to test compilability of all files
+
 0.03_04 2005-01-20
         updated post template to not fail when query contains an '
         updated entries query bits to use undef for errors

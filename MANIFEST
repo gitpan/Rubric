@@ -1,3 +1,4 @@
+rubric.yml
 bin/adduser.pl
 bin/dump_yml.pl
 bin/entries.pl

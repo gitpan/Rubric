@@ -6,13 +6,13 @@ Rubric::Entry::Query - construct and execute a complex query
 
 =head1 VERSION
 
-version 0.01
+version 0.04
 
- $Id: Query.pm,v 1.3 2005/01/20 15:09:06 rjbs Exp $
+ $Id: Query.pm,v 1.4 2005/01/20 20:58:59 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 DESCRIPTION
 
