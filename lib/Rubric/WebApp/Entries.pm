@@ -1,14 +1,14 @@
-package Rubric::WebApp::EntriesQuery;
+package Rubric::WebApp::Entries;
 
 =head1 NAME
 
-Rubric::WebApp::EntriesQuery - process the /entries run method
+Rubric::WebApp::Entries - process the /entries run method
 
 =head1 VERSION
 
 version 0.01
 
- $Id: Entries.pm,v 1.1 2005/01/16 03:52:46 rjbs Exp $
+ $Id: Entries.pm,v 1.3 2005/01/16 04:41:55 rjbs Exp $
 
 =cut
 
@@ -16,9 +16,9 @@ our $VERSION = '0.01';
 
 =head1 DESCRIPTION
 
-Rubric::WebApp::EntriesQuery implements a URI parser that builds a query based
-on a query URI, performs that query, and returns the rendered report on the
-results.
+Rubric::WebApp::Entries implements a URI parser that builds a query based
+on a query URI, passes it to Rubric::Entries, and returns the rendered report
+on the results.
 
 =cut
 
@@ -52,6 +52,8 @@ sub entries {
 			$arg{$param} = $arg;
 		}
 	}
+	$webapp->param(recent_tags => Rubric::Entry->recent_tags_counted)
+		unless %arg;
 	my $entries = Rubric::Entry->query(\%arg);
 
 	$webapp->page_entries($entries)->render_entries(\%arg);

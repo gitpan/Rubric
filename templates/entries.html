@@ -56,12 +56,16 @@
 	<div class='rss'><a href='[% uri.entries(user => user, tags => tags, has_link => has_link, has_body => has_body, format => "rss" ) %]'>RSS</a> available
 	for this query</div>
 	<div class='entries'>
-	[% WHILE (entry = entries.next) %]
-	[% IF long_form %]
-	[% PROCESS "entry_long.html" %]
+	[% IF entries.count %]
+		[% WHILE (entry = entries.next) %]
+		[% IF long_form %]
+		[% PROCESS "entry_long.html" %]
+		[% ELSE %]
+		[% PROCESS "entry.html" %]
+		[% END %]
+		[% END %]
 	[% ELSE %]
-	[% PROCESS "entry.html" %]
-	[% END %]
+		<h3>no results for this query</h3>
 	[% END %]
 	</div>
 

@@ -1,3 +1,17 @@
+	<div class='taglist'>
+	<h3>all tags</h3>
+	[% FOREACH tag = user.tags_counted %]
+	<div class='tag'>
+		<span class='tag_count'>[% tag.1 %]</span>
+		&nbsp;
+		<a href='[% uri.entries(user => user, tags => [ tag.0 ]) %]'>
+			[% tag.0 %]
+		</a>
+		&nbsp;
+	</div>
+	[% END %]
+	</div>
+
 	[% IF existing_entry.created %]
 	<h2>revise entry</h2>
 	<h3>originally created: [% existing_entry.created %]</h3>

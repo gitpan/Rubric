@@ -1,3 +1,4 @@
+	[% IF entries.count %]
 	<div class='prev_page'>
 		[% IF page > 1 %]<a href='?page=[% page - 1 %]'>prev page</a>
 		[% ELSE %]prev page[% END %]
@@ -12,3 +13,6 @@
 	<div class='page_size'>
 		[% count %] entries, [% per_page %] per page
 	</div>
+	[% ELSE %]
+	<div class='page_num'>(no results)</div>
+	[% END %]

@@ -1,5 +1,10 @@
 Revision history for Rubric
 
+0.03_02 2005-01-15
+        restore recent tags listing to "root"
+        redirect to root when root failed caused loop; just die
+        eliminate numerous references to EntriesQuery;  AUGH!
+
 0.03_01 2005-01-15
         refactored EntriesQuery.pm into two parts
 

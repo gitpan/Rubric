@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.03_01
+version 0.03_02
 
- $Id: WebApp.pm,v 1.70 2005/01/16 04:02:05 rjbs Exp $
+ $Id: WebApp.pm,v 1.73 2005/01/16 04:43:23 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.03_01';
+our $VERSION = '0.03_02';
 
 =head1 SYNOPSIS
 
@@ -216,7 +216,7 @@ sub setup {
 =head2 entries
 
 This passes off responsibility to the class named in the C<entries_query_class>
-configuration option.  This option defaults to Rubric::WebApp::EntriesQuery.
+configuration option.  This option defaults to Rubric::WebApp::Entries.
 
 =cut
 
@@ -224,8 +224,7 @@ sub entries {
 	my ($self) = @_;
 
 	my $entries_class = Rubric::Config->entries_query_class;
-	eval "require $entries_class";
-	if ($@) { warn $@; return $self->redirect_root; }
+	die $@ unless eval "require $entries_class";
 	$entries_class->entries($self);
 }
 

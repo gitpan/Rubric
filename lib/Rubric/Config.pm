@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: Config.pm,v 1.15 2005/01/15 13:46:45 rjbs Exp $
+ $Id: Config.pm,v 1.16 2005/01/16 04:17:50 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -67,7 +67,7 @@ the SMTP server used to send email
 =item * entries_query_class
 
 This is the class used to process the C<entries> run method.  It defaults to
-C<Rubric::WebApp::EntriesQuery>.
+C<Rubric::WebApp::Entries>.
 
 =item * login_class
 
@@ -124,7 +124,7 @@ my $default = {
 	uri_root    => undef,
 	private_system => undef,
 	template_path  => undef,
-	entries_query_class => 'Rubric::WebApp::EntriesQuery',
+	entries_query_class => 'Rubric::WebApp::Entries',
 	registration_closed => undef,
 	skip_newuser_verification => undef,
 };
