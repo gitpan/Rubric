@@ -136,4 +136,33 @@ div.prev_page { float: left ; padding-left : 1em; }
 div.page_num,
 div.page_size { text-align: center }
 
-div.document { margin-left: 1em; margin-right: 1em; }
+div.document {
+	font-size: 120%;
+	max-width: 90%;
+	margin-top: 2%;
+	margin-left: 3%;
+	padding-left: 2%;
+	margin-right: 3%;
+	padding-right: 2%;
+	border-bottom: thin black solid;
+	border-top: thin black solid;
+}
+
+div.document p.bookmarklet {
+	margin-left: 1em;
+}
+
+div.document h2 {
+	margin-left: 0;
+}
+
+div.document li {
+	margin-top: 0.5em;
+	font-weight: bold;
+}
+
+div.document li p {
+	margin-top: 0;
+	margin-bottom: 0;
+	font-weight: normal;
+}

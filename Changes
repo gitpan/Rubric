@@ -1,5 +1,8 @@
 Revision history for Rubric
 
+0.00_25 2004-12-15
+        naive support for REMOTE_USER
+
 0.00_24 2004-12-15
         private_system implemented
         Rubric::Renderer refactored

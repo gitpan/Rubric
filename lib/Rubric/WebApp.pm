@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.00_24
+version 0.00_25
 
- $Id: WebApp.pm,v 1.51 2004/12/15 17:26:43 rjbs Exp $
+ $Id: WebApp.pm,v 1.52 2004/12/16 04:55:40 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.00_24';
+our $VERSION = '0.00_25';
 
 =head1 SYNOPSIS
 
@@ -138,10 +138,16 @@ submitted request.  A login request is made with two CGI parameters:
 
 If these match, the user is now logged in.  If not, it is ignored.
 
+However!  If the REMOTE_USER environment variable is set, because the user has
+logged in via HTTP, the value of REMOTE_USER is used as the current user.
+
 =cut
 
 sub check_for_login {
 	my ($self) = @_;
+
+	return $self->session->param('current_user', $ENV{REMOTE_USER})
+		if ($ENV{REMOTE_USER});
 
 	return unless my $userid = $self->query->param('user');
 	return unless my $login_user = Rubric::User->retrieve($userid);

@@ -7,16 +7,21 @@
 </p>
 
 [% IF current_user %]
-<div>
+<p class='bookmarklet'>
   <a href='[% uri.entries(user => current_user) %]'>my rubric</a>
-</div>
+</p>
 [% END %]
 
-<div>
+<p class='bookmarklet'>
   <a href="javascript:location.href='[% uri.post_entry %]?uri='+escape(location.href)+'&title='+escape(document.title)+'&when_done=go_back'">
     post to rubric
   </a>
-</div>
+</p>
+
+<p>
+	You can drag them to your browser's bookmark bar (if it has one) or put them
+	in its bookmark menu.
+</p>
 
 <p>
   The "post to rubric" link should be explained a bit.  It uses JavaScript to
