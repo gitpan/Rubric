@@ -19,6 +19,6 @@ my @users = $all
 my $tags = [ grep /^\w+$/, @ARGV ] if @ARGV;
 for my $user (@users) {
 	my %search = ( user => $user, tags => $tags );
-	my @entries = Rubric::Entry->by_tag(\%search);
+	my @entries = Rubric::Entry->query(\%search);
 	Template->new->process($template => { %search, entries => \@entries });
 }

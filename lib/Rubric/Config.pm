@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: Config.pm,v 1.14 2005/01/03 13:15:59 rjbs Exp $
+ $Id: Config.pm,v 1.15 2005/01/15 13:46:45 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -16,7 +16,7 @@ using Config::Auto's C<find_file> function.  By default, Rubric::Config looks
 for C<rubric.yml>, but an alternate filename may be passed when using the
 module:
 
- use Rubric:Config ".rubric_yml";
+ use Rubric::Config ".rubric_yml";
 
 =cut
 

@@ -1,5 +1,13 @@
 Revision history for Rubric
 
+0.03_01 2005-01-15
+        refactored EntriesQuery.pm into two parts
+
+0.03    2005-01-14
+        use CGI::Carp qw(fatalsToBrowser)
+        die on Template problems
+        change entry.html template to link entry username
+
 0.02_04 2005-01-13
         potentially finished with first round of EventQueries
         (the path for the future is clear)

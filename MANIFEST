@@ -13,12 +13,13 @@ lib/Rubric.pm
 lib/Rubric/Config.pm
 lib/Rubric/DBI.pm
 lib/Rubric/Entry.pm
+lib/Rubric/Entry/Query.pm
 lib/Rubric/EntryTag.pm
 lib/Rubric/Link.pm
 lib/Rubric/Renderer.pm
 lib/Rubric/User.pm
 lib/Rubric/WebApp.pm
-lib/Rubric/WebApp/EntriesQuery.pm
+lib/Rubric/WebApp/Entries.pm
 lib/Rubric/WebApp/Login.pm
 lib/Rubric/WebApp/Login/HTTP.pm
 lib/Rubric/WebApp/Login/Post.pm

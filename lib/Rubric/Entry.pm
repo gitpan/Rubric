@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.18 2005/01/11 02:15:29 rjbs Exp $
+ $Id: Entry.pm,v 1.19 2005/01/16 03:52:46 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -132,66 +132,30 @@ sub update_times {
 
 =head1 METHODS
 
-=head2 by_tag(\%arg)
+=head2 query(\%arg)
 
-The arguments to C<by_tag> indicate the tags and users for which to search.
+The arguments to C<query> provide a set of abstract constraints for the query.
+These are sent to Rubric::Entry::Query, which builds an SQL query and returns
+the result of running it.  (Either a list or an Iterator is returned.)
+
 (The built-in Class::DBI search method can't handle this kind of search.)
 
- user - the user whose tags to search (can be undef)
- tags - an arrayref of tag names
- link - the id of the entry's link
- has_body - whether entries must have bodies (T, F, or undef)
- has_link - whether entries must have a link (T, F, or undef)
-
-This returns a list or Class::DBI::Iterator, depending on context.
+ user   - entries for this User
+ tags   - entries with these tags (arrayref)
+ link   - entries for this Link
+ urimd5 - entries for the Link with this md5 sum
+ has_body    - whether entries must have bodies (T, F, or undef)
+ has_link    - whether entries must have a link (T, F, or undef)
+ (time spec) - {created,modified}_{before,after,on}
+               limits entries by time; given as a complete or partial
+               time and date string in the form "YYYY-MM-DD HH:MM"
 
 =cut
 
-sub by_tag {
+sub query {
 	my ($self, $arg) = @_;
-	my %wheres;
-	if ($arg->{user}) { $wheres{user} = $arg->{user} }
-	if ($arg->{link}) { $wheres{link} = $arg->{link}->id }
-	if ($arg->{tags} and my @tags = @{$arg->{tags}}) {
-		$wheres{''} = \($self->_tags_sql(@tags));
-	}
-	for (qw(created modified)) {
-		if ($arg->{$_} and my $sql = $self->_time_sql($arg->{$_})) {
-			$wheres{$_} = \$sql
-		}
-	}
-	for (qw(body link)) {
-		if (defined $arg->{"has_$_"}) {
-			$wheres{$_} = $arg->{"has_$_"} ? \'IS NOT NULL' : \'IS NULL';
-		}
-	}
-	%wheres
-		? $self->search_where(\%wheres, { order_by => "created DESC" })
-		: $self->retrieve_all;
-}
-
-sub _tags_sql {
-	my ($self, @tags) = @_;
-	$_ = $self->db_Main->quote($_) for @tags;
-
-	join ' AND ',
-	map { "id IN (SELECT entry FROM entrytags WHERE tag=$_)" }
-	@tags;
-}
-
-# on    => $seconds
-# range => [ $from, $to ]
-sub _time_sql {
-	my ($self, $timespec) = @_;
-	if (my $date = $timespec->{on}) {
-		my $date = $date - ($date % 86400);
-		return { between => [ $date, $date+86400 ] };
-	}
-	if (my $range = $timespec->{range}) {
-		if ((grep { /^\d+$/ } @$range) == 2) {
-			return { between => $range };
-		}
-	}
+	require Rubric::Entry::Query;
+	Rubric::Entry::Query->query($arg);
 }
 
 =head2 set_new_tags(\@tags)
