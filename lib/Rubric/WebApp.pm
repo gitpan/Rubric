@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.02_1
+version 0.02_02
 
- $Id: WebApp.pm,v 1.58 2004/12/20 13:36:13 rjbs Exp $
+ $Id: WebApp.pm,v 1.65 2005/01/03 23:40:33 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.02_01';
+our $VERSION = '0.02_02';
 
 =head1 SYNOPSIS
 
@@ -71,13 +71,8 @@ use Email::Send;
 
 use Rubric::Config;
 use Rubric::Entry;
-use Rubric::Link;
 use Rubric::Renderer;
-use Rubric::User;
 use Rubric::WebApp::URI;
-
-use Template;
-use URI; 
 
 =head1 METHODS
 
@@ -121,15 +116,19 @@ sub cgiapp_init {
 
 	$self->session_config( COOKIE_PARAMS => { -expires => '+7d' } );
 	
-	my $login_class = Rubric::Config->login_class || 'Rubric::WebApp::Login::Post';
+	my $login_class = Rubric::Config->login_class;
 	eval "require $login_class";
 	$login_class->check_for_login($self);
 
 	$self->check_pager_data;
 
 	my @path = split '/', $self->query->path_info;
-	shift @path for (1 .. 2);
-	$self->param(path => \@path);
+	$self->param(path => [ @path[ 2 .. $#path ] ]);
+}
+
+sub next_path_part {
+	my ($self) = @_;
+	my $username = shift @{$self->param('path')};
 }
 
 =head2 check_pager_data
@@ -179,8 +178,8 @@ sub template {
 	$stash->{per_page} = $self->param('per_page');
 	$stash->{page} = $self->param('page');
 
-	my $type = $self->query->param('format') || 'html';
-	$type = 'html' unless $type =~ /^\w+$/;
+	my $type = $self->query->param('format');
+	   $type = 'html' unless $type and $type =~ /^\w+$/;
 
 	my ($content_type, $output) =
 		Rubric::Renderer->process($template, $type, $stash);
@@ -207,11 +206,26 @@ sub setup {
 	if ($self->param('current_user') or not Rubric::Config->private_system) {
 		$self->start_mode('recent');
 		$self->run_modes([
-			qw(delete edit entry link logout post preferences recent user tag)
+			qw(delete edit entries entry link logout post preferences recent user tag)
 		]);
 	}
 
 	$self->run_modes(AUTOLOAD => 'redirect_root');
+}
+
+=head2 entries
+
+This passes off responsibility to the class named in the C<entries_query_class>
+configuration option.  This option defaults to Rubric::WebApp::EntriesQuery.
+
+=cut
+
+sub entries {
+	my ($self) = @_;
+
+	my $entries_class = Rubric::Config->entries_query_class;
+	eval "require $entries_class" or return $self->redirect_root;
+	$entries_class->entries($self);
 }
 
 =head2 entry
@@ -242,11 +256,8 @@ id, and puts the corresponding entry in the "entry" parameter.
 sub get_entry {
 	my ($self) = @_;
 
-	my $entryid = shift @{$self->param('path')};
-	if ($entryid =~ /^\d+$/) {
-		return $self->param(entry => Rubric::Entry->retrieve($entryid));
-	}
-	return;
+	$self->param(entry => Rubric::Entry->retrieve($self->next_path_part));
+	return $self;
 }
 
 =head2 link
@@ -258,8 +269,7 @@ URI or MD5 sum.
 
 sub link {
 	my ($self) = @_;
-	return $self->redirect_root("...no such link")
-		unless $self->get_link;
+	return $self->redirect_root("...no such link") unless $self->get_link;
 	$self->display_entries;
 }
 
@@ -274,14 +284,15 @@ parameter.
 sub get_link {
 	my ($self) = @_;
 	my %search;
-	#$search{md5sum} = $self->query->param('md5sum');
-	$search{uri}    = $self->query->param('uri') || $self->query->param('url');
+	$search{md5} = $self->query->param('md5');
+	$search{uri} = $self->query->param('uri') || $self->query->param('url');
 	for (qw(md5sum uri)) {
 		delete $search{$_} unless $search{$_};
 	}
 	return unless %search;
 	return unless my ($link) = Rubric::Link->search(\%search);
 	$self->param('link', $link);
+	return $self;
 }
 
 =head2 login
@@ -331,11 +342,12 @@ sub preferences {
 	return $self->redirect_root("permission denied")
 		unless $self->param('current_user');
 	
-	my %prefs  = $self->_get_prefs_form;
-	return $self->template("preferences") unless %prefs;
+	return $self->template("preferences")
+		unless my %prefs = $self->_get_prefs_form;
 
-	my %errors = $self->validate_prefs(\%prefs);
-	return $self->template("preferences", { %prefs, %errors } ) if %errors;
+	if (my %errors = $self->validate_prefs(\%prefs)) {
+		return $self->template("preferences", { %prefs, %errors } );
+	}
 
 	$self->update_user(\%prefs);
 }
@@ -510,8 +522,7 @@ sub verify {
 sub get_verification_code {
 	my ($self) = @_;
 
-	my $verification_code = shift @{$self->param('path')};
-	$self->param(verification_code => $verification_code || '');
+	$self->param(verification_code => $self->next_path_part);
 
 	return $self;
 }
@@ -532,10 +543,7 @@ sub user {
 sub get_user {
 	my ($self) = @_;
 
-	my $username = shift @{$self->param('path')};
-	if ($username =~ /^[\w\d.]+$/) {
-		$self->param(user => Rubric::User->retrieve($username) || '');
-	}
+	$self->param(user => Rubric::User->retrieve($self->next_path_part) || '');
 
 	return $self;
 }
@@ -556,12 +564,8 @@ sub tag {
 sub get_tags {
 	my ($self) = @_;
 
-	if (my $tags = shift @{$self->param('path')}) {
-		$tags =~ /^([+\s\w\d:.*]+)$/; $tags = $1;
-		$self->param(tags => [ split /\+/, $tags ]);
-	} else {
-		$self->param(tags => [ ]);
-	}
+	my ($tagstring) = ($self->next_path_part || '') =~ /^([+\s\w\d:.*]*)$/; 
+	$self->param(tags => [ split /\+|\s/, $tagstring ]);
 
 	return $self;
 }
@@ -628,8 +632,8 @@ entries representing the current page.  The following parameters are set:
 sub page_entries {
 	my ($self, $iterator) = @_;
 
-	my $first = $self->param('per_page') * ($self->param('page') - 1);
-	my $last  = ($self->param('per_page') * $self->param('page')) - 1;
+	my $first =  $self->param('per_page') * ($self->param('page')  - 1);
+	my $last  = ($self->param('per_page') *  $self->param('page')) - 1;
 	my $slice = $iterator->slice($first, $last);
 	$self->param('entries', $slice);
 	$self->param('count', $iterator->count);
@@ -778,9 +782,10 @@ sub delete {
 
 	$self->param('entry')->delete;
 
-	my $goto_uri = Rubric::WebApp::URI->user($self->param('current_user'));
-
-	return $self->redirect( $goto_uri, "Deleted..." );
+	return $self->redirect(
+		Rubric::WebApp::URI->entries({user=>$self->param('current_user')}),
+		"Deleted..."
+	);
 }
 
 =head2 doc
@@ -804,9 +809,8 @@ This gets the next part of the path and puts it in the C<doc_page> parameter.
 sub get_doc {
 	my ($self) = @_;
 
-	my $doc_page = shift @{$self->param('path')};
-	$self->param(doc_page => $doc_page)
-		if $doc_page =~ /^\w+$/;
+	my $doc_page = $self->next_path_part;
+	$self->param(doc_page => $doc_page) if $doc_page =~ /^\w+$/;
 
 	return $self;
 }

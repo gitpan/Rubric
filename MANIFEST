@@ -18,6 +18,7 @@ lib/Rubric/Link.pm
 lib/Rubric/Renderer.pm
 lib/Rubric/User.pm
 lib/Rubric/WebApp.pm
+lib/Rubric/WebApp/EntriesQuery.pm
 lib/Rubric/WebApp/Login.pm
 lib/Rubric/WebApp/Login/HTTP.pm
 lib/Rubric/WebApp/Login/Post.pm

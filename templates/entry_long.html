@@ -23,7 +23,7 @@
 		</div>
 		[% IF entry.body %]
 		<div class='body'>
-		[% entry.body %]
+		[% entry.body | html_line_break %]
 		</div>
 		[% END %]
 	</div>

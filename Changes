@@ -1,5 +1,11 @@
 Revision history for Rubric
 
+0.02_02 2005-01-03
+        added EntriesQuery
+        basic framework for EntriesQuery exists, but stinks
+        minor fixes to incorrect method calls
+        added pop-up to help docs; must add "close" to when_done options
+
 0.02_01 2004-12-20
         added Rubric::WebApp::Login
         added skip_newuser_verification option

@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.16 2004/12/19 19:14:34 rjbs Exp $
+ $Id: Entry.pm,v 1.17 2004/12/23 01:44:45 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -150,12 +150,12 @@ sub by_tag {
 	if ($arg->{user}) { $wheres{user} = $arg->{user} }
 	if ($arg->{link}) { $wheres{link} = $arg->{link}->id }
 	if ($arg->{tags} and my @tags = @{$arg->{tags}}) {
-		$_ = $self->db_Main->quote($_) for @tags;
-		my $ids = 
-			join ' AND ',
-			map { "id IN (SELECT entry FROM entrytags WHERE tag=$_)" }
-			@tags;
-		$wheres{''} = \$ids;
+		$wheres{''} = \($self->_tags_sql(@tags));
+	}
+	for (qw(created modified)) {
+		if ($arg->{$_} and my $sql = $self->_time_sql($arg->{$_})) {
+			$wheres{$_} = \$sql
+		}
 	}
 	for (qw(body link)) {
 		if (defined $arg->{"has_$_"}) {
@@ -165,6 +165,30 @@ sub by_tag {
 	%wheres
 		? $self->search_where(\%wheres, { order_by => "created DESC" })
 		: $self->retrieve_all;
+}
+
+sub _tags_sql {
+	my ($self, @tags) = @_;
+	$_ = $self->db_Main->quote($_) for @tags;
+
+	join ' AND ',
+	map { "id IN (SELECT entry FROM entrytags WHERE tag=$_)" }
+	@tags;
+}
+
+# on    => $seconds
+# range => [ $from, $to ]
+sub _time_sql {
+	my ($self, $timespec) = @_;
+	if (my $date = $timespec->{on}) {
+		my $date = $date - ($date % 86400);
+		return { between => [ $date, $date+86400 ] };
+	}
+	if (my $range = $timespec->{range}) {
+		if ((grep { /^\d+$/ } @$range) == 2) {
+			return { between => $range };
+		}
+	}
 }
 
 =head2 set_new_tags(\@tags)
