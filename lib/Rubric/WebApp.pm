@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.00_20
+version 0.00_22
 
- $Id: WebApp.pm,v 1.38 2004/12/07 14:44:48 rjbs Exp $
+ $Id: WebApp.pm,v 1.43 2004/12/13 18:37:17 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.00_20';
+our $VERSION = '0.00_22';
 
 =head1 SYNOPSIS
 
@@ -41,9 +41,10 @@ basic dispatch table looks something like this:
  /logout      | log out                                   | logout
  /newuser     | create a new user account                 | newuser
  /verify      | verify a pending user account             | verify
+ /link        | view the details of entries for a link    | link
  /post        | post or edit an entry (must be logged in) | post
  /edit        | edit an entry (must be logged in)         | edit
- /delete      | delete an entry (must be logged in)       | delete_entry
+ /delete      | delete an entry (must be logged in)       | delete
  /recent      | see recent entries (the default)          | recent
  /user/NAME   | see a user's entries                      | user
  /user/N/TAGS | see a user's entries for given tags       | user
@@ -87,6 +88,18 @@ sub redirect {
 	$self->header_type('redirect');
 	$self->header_props(-url=> $uri);
 	return $message;
+}
+
+=head2 redirect_root($message)
+
+This is shorthand to redirect to the Rubric's root URI.  It calls C<redirect>.
+
+=cut
+
+sub redirect_root {
+	my ($self, $message) = @_;
+
+	return $self->redirect(Rubric::Config->uri_root, $message);
 }
 
 =head2 cgiapp_init
@@ -221,9 +234,8 @@ sub setup {
 	$self->start_mode('recent');
 	
 	$self->run_modes([
-		qw[ edit entry login logout newuser post recent user verify tag ]
+		qw(delete edit entry link login logout newuser post recent user verify tag)
 	]);
-	$self->run_modes(delete => 'delete_entry');
 }
 
 =head2 entry
@@ -235,14 +247,21 @@ This displays the single requested entry.
 sub entry {
 	my ($self) = @_;
 
-	unless ($self->get_entry) {
-		return $self->redirect( Rubric::Config->uri_root, "No such entry..." );
-	}
+	return $self->redirect_root("No such entry...")
+		unless ($self->get_entry);
+
 	$self->template('entry_long' => {
 		entry => $self->param('entry'),
 		long_form => 1
 	});
 }
+
+=head2 get_entry
+
+This method gets the next part of the path, assumes it to be a Rubric::Entry
+id, and puts the corresponding entry in the "entry" parameter.
+
+=cut
 
 sub get_entry {
 	my ($self) = @_;
@@ -252,6 +271,41 @@ sub get_entry {
 		return $self->param(entry => Rubric::Entry->retrieve($entryid));
 	}
 	return;
+}
+
+=head2 link
+
+This runmode displays entries that point to a given link, identified either by
+URI or MD5 sum.
+
+=cut
+
+sub link {
+	my ($self) = @_;
+	return $self->redirect_root("...no such link")
+		unless $self->get_link;
+	$self->display_entries;
+}
+
+=head2 get_link
+
+This method look for a C<uri> or, failing that, C<url> query parameter.  If
+found, it finds a Rubric::Link for that URI and puts it in the "link"
+parameter.
+
+=cut
+
+sub get_link {
+	my ($self) = @_;
+	my %search;
+	#$search{md5sum} = $self->query->param('md5sum');
+	$search{uri}    = $self->query->param('uri') || $self->query->param('url');
+	for (qw(md5sum uri)) {
+		delete $search{$_} unless $search{$_};
+	}
+	return unless %search;
+	return unless my ($link) = Rubric::Link->search(\%search);
+	$self->param('link', $link);
 }
 
 =head2 login
@@ -264,7 +318,7 @@ the Rubric site.  Otherwise, a login form is provided.
 sub login {
 	my ($self) = @_;
 
-	return $self->redirect( Rubric::Config->uri_root, "Logged in..." )
+	return $self->redirect_root("Logged in...")
 		if $self->param('current_user');
 
 	$self->template('login' => {
@@ -285,7 +339,7 @@ sub logout {
 	$self->session->param('current_user', undef);
 	$self->param('current_user', undef);
 
-	return $self->redirect( Rubric::Config->uri_root, "Logged out..." );
+	return $self->redirect_root("Logged out...");
 }
 
 =head2 newuser
@@ -301,7 +355,10 @@ Rubric.
 sub newuser {
 	my ($self) = @_;
 
-	return $self->redirect( Rubric::Config->uri_root, "Already logged in..." )
+	return $self->redirect_root("registration is closed...")
+		if Rubric::Config->registration_closed;
+
+	return $self->redirect_root("Already logged in...")
 		if $self->param('current_user');
 	
 	my %newuser;
@@ -349,32 +406,18 @@ sub validate_newuser_form {
 sub create_newuser {
 	my ($self, %newuser) = @_;
 
-	my $verification_code = md5_hex("%newuser".time);
-
 	my $user = Rubric::User->create({
 		username => $newuser{username},
 		password => md5_hex($newuser{password_1}),
 		email    => $newuser{email},
-		verification_code => $verification_code
+		verification_code => md5_hex("%newuser".time)
 	});
 
-	my $verification_link = Rubric::WebApp::URI->verify_user($user);
-
-	my $email_from = Rubric::Config->email_from;
-
-	my $message = <<"EMAIL";
-To: $newuser{email}
-From: $email_from
-Subject: new user registration
-
-You have created a new Rubric account, $newuser{username}.
-
-Please verify it by following this link:
-	$verification_link
-
--- 
-Rubric
-EMAIL
+	Rubric::Renderer->renderer('txt')->process(
+		'newuser_mail.txt',
+		{ user => $user, email_from => Rubric::Config->email_from },
+		\(my $message)
+	);
 
 	send SMTP => $message => Rubric::Config->smtp_server;
 
@@ -391,16 +434,17 @@ in the form: C< /verify/username/verification_code >
 sub verify {
 	my ($self) = @_;
 
-	return $self->redirect( Rubric::Config->uri_root, "Already logged in..." )
+	return $self->redirect_root("Already logged in...")
 		if $self->param('current_user');
 
 	$self->get_user->get_verification_code;
-	return $self->redirect(Rubric::Config->uri_root, "no such user")
+
+	return $self->redirect_root("no such user")
 		if defined $self->param('user') and $self->param('user') eq '';
 
 	return $self->param('user')->verify($self->param('verification_code'))
 		? $self->template('verified')
-		: $self->redirect(Rubric::Config->uri_root, "BAD USER NO VALIDATION");
+		: $self->redirect_root("BAD USER NO VALIDATION");
 }
 
 sub get_verification_code {
@@ -487,14 +531,15 @@ resulting page with C<render_entries>.
 sub display_entries {
 	my ($self) = @_;
 
-	return $self->redirect(Rubric::Config->uri_root, "no such user")
+	return $self->redirect_root("no such user")
 		if defined $self->param('user') and $self->param('user') eq '';
 
 	my %search = (
 		user => $self->param('user'),
 		tags => $self->param('tags'),
-		link => scalar $self->query->param('link'),
-		body => scalar $self->query->param('body'),
+		link => $self->param('link'),
+		has_body => scalar $self->query->param('has_body'),
+		has_link => scalar $self->query->param('has_link'),
 	);
 
 	my $entries = Rubric::Entry->by_tag(\%search);
@@ -562,7 +607,7 @@ displays a post form, completed with the given entry's data.
 sub edit {
 	my ($self) = @_;
 
-	return $self->redirect(Rubric::Config->uri_root, "...huh?")
+	return $self->redirect_root("...huh?")
 		unless $self->get_entry
 		and $self->param('entry')->user eq $self->param('current_user');
 
@@ -641,7 +686,7 @@ sub must_login {
 	$self->template('must_login');
 }
 
-=head2 delete_entry
+=head2 delete
 
 This method wants to be simplified.  It's largely copied from C<post>.
 
@@ -652,21 +697,20 @@ Either way, the user is redirected to his entry listing.
 
 =cut
 
-sub delete_entry {
+sub delete {
 	my ($self) = @_;
 
 	return $self->must_login unless my $user = $self->param('current_user');	
 
-	return $self->redirect( Rubric::Config->uri_root, "No such entry..." )
+	return $self->redirect_root("No such entry...")
 		unless $self->get_entry;
 
-	return $self->redirect( Rubric::Config->uri_root, "Not your entry..." )
+	return $self->redirect_root("Not your entry...")
 		unless $self->param('entry')->user eq $self->param('current_user');
 
 	$self->param('entry')->delete;
 
-	my $goto_uri = 
-		Rubric::Config->uri_root() . "/user/" . $self->param('current_user');
+	my $goto_uri = Rubric::WebApp::URI->user($self->param('current_user'));
 
 	return $self->redirect( $goto_uri, "Deleted..." );
 }
@@ -675,11 +719,7 @@ sub delete_entry {
 
 =over 4
 
-=item * Entries without links.
-
-=item * Automated new user registration.
-
-=item * Large-body documents on entries.
+=item * change email, password
 
 =back
 

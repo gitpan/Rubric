@@ -6,7 +6,7 @@ Rubric::WebApp::URI - URIs for Rubric web requests
 
 =head1 VERSION
 
- $Id: URI.pm,v 1.6 2004/12/07 14:40:47 rjbs Exp $
+ $Id: URI.pm,v 1.7 2004/12/09 03:44:04 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -137,7 +137,7 @@ URI for new entry form
 =cut
 
 sub verify_user {
-	my ($class, $user, $code) = @_;
+	my ($class, $user) = @_;
 	Rubric::Config->uri_root . "/verify/$user/" . $user->verification_code;
 }
 

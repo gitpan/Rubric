@@ -6,7 +6,7 @@ Rubric::Renderer - the rendering interface for Rubric
 
 =head1 VERSION
 
- $Id: Renderer.pm,v 1.1 2004/11/29 15:25:46 rjbs Exp $
+ $Id: Renderer.pm,v 1.2 2004/12/09 03:44:04 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -26,7 +26,8 @@ use Template;
 =head2 renderer
 
 This method returns an object that renders templates.  By default, it returns a
-Template object configured with data from Rubric::Config.
+Template object configured with data from Rubric::Config.  Each type's renderer
+is a singleton.
 
 =cut
 

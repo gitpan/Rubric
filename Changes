@@ -1,5 +1,13 @@
 Revision history for Rubric
 
+0.00_22 2004-12-13
+        new user registration cleaned up somewhat
+        "registration_closed" option
+        /link runmode (primitive)
+        delete_entry runmode method is now delete
+        more refactoring
+        Rubric::Config methods built by Class::Accessor
+
 0.00_20 2004-12-07
         new user registration works, but is horribly coded
         "copy" link to copy other users' links also works, but is ugly

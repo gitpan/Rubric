@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: Config.pm,v 1.4 2004/12/07 14:40:47 rjbs Exp $
+ $Id: Config.pm,v 1.6 2004/12/13 18:32:13 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -19,6 +19,7 @@ using Config::Auto's find_file function.
 use strict;
 use warnings;
 
+use base qw(Class::Accessor);
 use Config::Auto;
 use YAML;
 
@@ -39,56 +40,51 @@ sub read_config {
 	$config = YAML::LoadFile($config_file);
 }
 
+sub make_ro_accessor {
+	my ($class, $field) = @_;
+	sub { $class->read_config->{$field} }
+}
+
+__PACKAGE__->mk_ro_accessors(qw(
+	css_href
+	dsn
+	email_from
+	registration_closed
+	smtp_server
+	template_path
+	uri_root
+));
+
 =head2 dsn
 
 This method returns the DSN to be used by Rubric::DBI to connect to the
 Rubric's database.
 
-=cut
-
-sub dsn { (shift)->read_config->{dsn} }
-
 =head2 uri_root
 
 This method returns the URI for the root of the Rubric::WebApp install.
-
-=cut
-
-sub uri_root { (shift)->read_config->{uri_root} }
 
 =head2 css_href
 
 This method returns the URI for the stylesheet to be used by Rubric::WebApp
 pages.
 
-=cut
-
-sub css_href { (shift)->read_config->{css_href} }
-
 =head2 template_path
 
 This method returns the INCLUDE_PATH passed to Template when creating the
 template renderer.
 
-=cut
-
-sub template_path { (shift)->read_config->{template_path} }
-
 =head2 email_from
 
 This method returns the email address from which Rubric will send email.
-
-=cut
-
-sub email_from { (shift)->read_config->{email_from} }
 
 =head2 smtp_server
 
 This method returns the SMTP server used to send email.
 
-=cut
+=head2 registration_closed
 
-sub smtp_server { (shift)->read_config->{smtp_server} }
+This method returns a true value if registration isn't open to the world.
 
 =head1 TODO
 

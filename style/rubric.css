@@ -102,7 +102,7 @@ div.taglist h3 { text-align: center; }
 
 span.tag_count { float: left; text-align: right; width: 2em; }
 
-div.must_login {
+div.message {
 	margin-left: 1em;
 	margin-right: 1em;
 	padding: .5em;

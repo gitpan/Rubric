@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.12 2004/12/02 04:07:43 rjbs Exp $
+ $Id: Entry.pm,v 1.13 2004/12/13 18:25:13 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -136,8 +136,8 @@ The arguments to C<by_tag> indicate the tags and users for which to search.
 
  user - the user whose tags to search (can be undef)
  tags - an arrayref of tag names
- body - whether entries must have bodies (T, F, or undef)
- link - whether entries must have a link (T, F, or undef)
+ has_body - whether entries must have bodies (T, F, or undef)
+ has_link - whether entries must have a link (T, F, or undef)
 
 This returns a list or Class::DBI::Iterator, depending on context.
 
@@ -147,6 +147,7 @@ sub by_tag {
 	my ($self, $arg) = @_;
 	my %wheres;
 	if ($arg->{user}) { $wheres{user} = $arg->{user} }
+	if ($arg->{link}) { $wheres{link} = $arg->{link}->id }
 	if ($arg->{tags} and my @tags = @{$arg->{tags}}) {
 		$_ = $self->db_Main->quote($_) for @tags;
 		my $ids = 
@@ -156,7 +157,7 @@ sub by_tag {
 		$wheres{''} = \$ids;
 	}
 	for (qw(body link)) {
-		if (defined $arg->{$_}) {
+		if (defined $arg->{"has_$_"}) {
 			$wheres{$_} = $arg->{$_} ? \'IS NOT NULL' : \'IS NULL';
 		}
 	}

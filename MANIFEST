@@ -44,3 +44,6 @@ templates/verified.html
 
 templates/entries.rss
 templates/template.rss
+
+templates/template.txt
+templates/newuser_mail.txt
