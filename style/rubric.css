@@ -72,7 +72,8 @@ div.entry div.description {
 }
 
 div.entry div.created,
-div.entry div.tags {
+div.entry div.tags,
+div.entry div.other_entries {
 	padding-left: 1em;
 }
 

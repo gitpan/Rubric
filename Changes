@@ -1,5 +1,9 @@
 Revision history for Rubric
 
+0.07_05 2005-03-31
+        experimental javascript to filter by tag count
+        link to entries for a Link if it's got more than one
+
 0.07_04 2005-03-30
         one_entry_per_link option added
         invalid tags no longer drop entire tag string

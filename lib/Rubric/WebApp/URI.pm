@@ -6,7 +6,7 @@ Rubric::WebApp::URI - URIs for Rubric web requests
 
 =head1 VERSION
 
- $Id: URI.pm,v 1.14 2005/03/21 01:38:47 rjbs Exp $
+ $Id: URI.pm,v 1.16 2005/04/01 03:58:23 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -86,6 +86,7 @@ sub entries {
 		$uri .= "/$_/" . ($arg->{$_} ? 1 : 0)
 			if (defined $arg->{$_} and $arg->{$_} ne '');
 	}
+	$uri .= "/urimd5/$arg->{urimd5}" if $arg->{urimd5};
 	$uri .= "?format=$format" if $format;
 	return $uri;
 }

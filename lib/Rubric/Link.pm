@@ -6,7 +6,7 @@ Rubric::Link - a link (URI) against which entries have been made
 
 =head1 VERSION
 
- $Id: Link.pm,v 1.6 2005/03/31 01:02:53 rjbs Exp $
+ $Id: Link.pm,v 1.7 2005/04/01 03:32:44 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -58,7 +58,7 @@ This method returns the number of entries that refer to this link.
 =cut
 
 __PACKAGE__->set_sql(
-	entry_count => "SELECT COUNT(*) FROM entries WHERE id = ?"
+	entry_count => "SELECT COUNT(*) FROM entries WHERE link = ?"
 );
 
 sub entry_count {

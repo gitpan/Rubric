@@ -61,6 +61,7 @@ templates/post.html
 templates/preferences.html
 templates/template.html
 templates/toolbar.html
+templates/user_tags.html
 templates/verified.html
 templates/docs/help.html
 templates/docs/todo.html

@@ -1,21 +1,9 @@
 	[% IF user %]
-	<div class='taglist'>
-	<h3>all tags</h3>
-	[% FOREACH tag = user.tags_counted %]
-	<div class='tag'>
-		<span class='tag_count'>[% tag.1 %]</span>
-		&nbsp;
-		<a href='[% uri.entries(user => user, tags => [ tag.0 ]) %]'>
-			[% tag.0 %]
-		</a>
-		&nbsp;
-	</div>
-	[% END %]
-	</div>
+	[% PROCESS "user_tags.html" %]
 	[% END %]
 
 	[% IF user && tags.size %]
-	<div class='taglist'>
+	<div class='taglist related'>
 	<h3>related tags</h3>
 	[% FOREACH tag = user.related_tags_counted(tags) %]
 	<div class='tag'>
@@ -39,7 +27,7 @@
 	[% END %]
 
 	[% IF recent_tags.size %]
-	<div class='taglist'>
+	<div class='taglist recent'>
 	<h3>recent tags</h3>
 	[% FOREACH tag = recent_tags %]
 	<div class='tag'>

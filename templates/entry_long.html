@@ -4,16 +4,16 @@
 		</h2>
 		<h2 class='uri'>
 			[% IF entry.link %]
-				<a class='title' href='[% entry.link %]'>[% entry.title %]</a>
+				<a class='title' href='[% entry.link %]'>[% entry.title | html %]</a>
 			[% ELSE %]
-				[% entry.title %]
+				[% entry.title | html %]
 			[% END %]
 			[% IF current_user == entry.user %]
 			<a href='[% uri.edit_entry(entry) %]'>(edit)</a>
 			[% END %]
 		</h2>
 		[% IF entry.description %]
-		<div class='description'>[% entry.description %]</div>
+		<div class='description'>[% entry.description | html %]</div>
 		[% END %]
 		<div class='created'>
 			[% FOREACH tag = entry.tags %]
