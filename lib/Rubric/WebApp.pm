@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
- $Id: WebApp.pm,v 1.53 2004/12/16 14:06:34 rjbs Exp $
+ $Id: WebApp.pm,v 1.55 2004/12/18 03:05:08 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
@@ -119,7 +119,7 @@ paging, and starts processing the request path.
 sub cgiapp_init {
 	my ($self) = @_;
 
-	$self->session_config(COOKIE_PARAMS => { -expires => '+3d' });
+	$self->session_config( COOKIE_PARAMS => { -expires => '+7d' } );
 	$self->check_for_login;
 	$self->get_current_user;
 	$self->check_pager_data;
@@ -154,6 +154,7 @@ sub check_for_login {
 	return unless my $login_user = Rubric::User->retrieve($userid);
 
 	my $login_pass = $self->query->param('password');
+
 	if (md5_hex($login_pass) eq $login_user->password) {
 		$login_user->verification_code
 			? $self->param('user_pending', 1)
@@ -228,7 +229,7 @@ sub template {
 	my ($content_type, $output) =
 		Rubric::Renderer->process($template, $type, $stash);
 
-	$self->header_props(-type => $content_type);
+	$self->header_add(-type => $content_type);
 	return $output;
 }
 

@@ -1,5 +1,12 @@
 Revision history for Rubric
 
+0.02    2004-12-17
+        0.00_25 introduced a bug with session cookies
+        this fixes it
+
+0.01    2004-12-16
+        released!
+
 0.00_30	2004-12-16
         /preferences
 
