@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.00_22
+version 0.00_23
 
- $Id: WebApp.pm,v 1.43 2004/12/13 18:37:17 rjbs Exp $
+ $Id: WebApp.pm,v 1.47 2004/12/13 21:41:08 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.00_22';
+our $VERSION = '0.00_23';
 
 =head1 SYNOPSIS
 
@@ -216,7 +216,7 @@ sub template {
 
 	Rubric::Renderer->renderer($type)->process($template, $stash, \(my $output));
 
-	$self->header_props(-type => 'text/rss') if $type eq 'rss';
+	$self->header_props(-type => 'application/rss+xml') if $type eq 'rss';
 	return $output;
 }
 
@@ -534,12 +534,15 @@ sub display_entries {
 	return $self->redirect_root("no such user")
 		if defined $self->param('user') and $self->param('user') eq '';
 
+	$self->param('has_body', scalar $self->query->param('has_body'));
+	$self->param('has_link', scalar $self->query->param('has_link'));
+
 	my %search = (
 		user => $self->param('user'),
 		tags => $self->param('tags'),
 		link => $self->param('link'),
-		has_body => scalar $self->query->param('has_body'),
-		has_link => scalar $self->query->param('has_link'),
+		has_body => $self->param('has_body'),
+		has_link => $self->param('has_link'),
 	);
 
 	my $entries = Rubric::Entry->by_tag(\%search);
@@ -592,6 +595,8 @@ sub render_entries {
 		entries => $self->param('entries'),
 		pages   => $self->param('pages'),
 		remove  => sub { [ grep { $_ ne $_[0] } @{$_[1]} ] },
+		has_link    => $self->param('has_link'),
+		has_body    => $self->param('has_body'),
 		long_form   => scalar $self->query->param('long_form'),
 		recent_tags => $self->param('recent_tags'),
 	});

@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.13 2004/12/13 18:25:13 rjbs Exp $
+ $Id: Entry.pm,v 1.14 2004/12/13 21:40:10 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -158,7 +158,7 @@ sub by_tag {
 	}
 	for (qw(body link)) {
 		if (defined $arg->{"has_$_"}) {
-			$wheres{$_} = $arg->{$_} ? \'IS NOT NULL' : \'IS NULL';
+			$wheres{$_} = $arg->{"has_$_"} ? \'IS NOT NULL' : \'IS NULL';
 		}
 	}
 	%wheres

@@ -53,6 +53,8 @@
 	[% END %]
 
 	<h2>entries</h2>
+	<div class='rss'><a href='[% uri.entries(user => user, tags => tags, has_link => has_link, has_body => has_body, format => "rss" ) %]'>RSS</a> available
+	for this query</div>
 	<div class='entries'>
 	[% WHILE (entry = entries.next) %]
 	[% IF long_form %]

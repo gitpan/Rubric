@@ -6,7 +6,7 @@ Rubric::WebApp::URI - URIs for Rubric web requests
 
 =head1 VERSION
 
- $Id: URI.pm,v 1.7 2004/12/09 03:44:04 rjbs Exp $
+ $Id: URI.pm,v 1.9 2004/12/13 21:40:10 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -55,11 +55,15 @@ sub login { Rubric::Config->uri_root . '/login' }
 
 =head2 newuser
 
-URI to form for new user registration form
+URI to form for new user registration form;  returns false if registration is
+closed.
 
 =cut
 
-sub newuser { Rubric::Config->uri_root . '/newuser' }
+sub newuser {
+	return if Rubric::Config->registration_closed;
+	return Rubric::Config->uri_root . '/newuser';
+}
 
 =head2 entries(\%arg)
 
@@ -79,6 +83,10 @@ sub entries {
 	      : @{$arg->{tags}} ? "/tag"
 	      : '';
 	$uri .= ('/' . join('+', @{$arg->{tags}}) . '/') if @{$arg->{tags}};
+	$uri .= '?' if grep { defined $arg->{$_} } qw(has_body has_link format);
+	for (qw(has_body has_link format)) {
+		$uri .= "$_=$arg->{$_}&" if (defined $arg->{$_} and $arg->{$_} ne '');
+	}
 	return $uri;
 }
 

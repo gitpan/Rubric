@@ -1,5 +1,11 @@
 Revision history for Rubric
 
+0.00_23 2004-12-13
+        rss links on entries.html
+        rss announce in header.html
+        don't display new user registration link if closed
+        some more refactoring
+
 0.00_22 2004-12-13
         new user registration cleaned up somewhat
         "registration_closed" option

@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<!-- name="generator" content="bryar" -->
 <rdf:RDF
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -19,12 +18,12 @@
       </rdf:Seq>
     </items>
   </channel>
-[% entries.reset %]
+[% CALL entries.reset %]
 [% WHILE (entry = entries.next) %]
   <item rdf:about="[% entry.link || uri.entry(entry) %]">
     <title>[% entry.title %]</title>
     <link>[% entry.link || uri.entry(entry) %]</link>
-    <description>[% IF entry.description %]<h1>[% entry.description | html %]</h1>[% END %][% entry.body | html %]</description>
+    <description>[% IF entry.description %][% "<p><em>" _ entry.description _ "</em></p>" | html %][% END %][% entry.body | html %]</description>
     <dc:date>[% entry.created.datetime %]-05:00</dc:date>
     <dc:creator>[% entry.user %]</dc:creator>
   </item>

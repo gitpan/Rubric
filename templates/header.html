@@ -4,6 +4,10 @@
 <head>
 	<title>Rubric</title>
 	<link href='[% uri.stylesheet %]' rel='stylesheet' type='text/css' />
+	<link rel="alternate" type="application/rss+xml" title="RSS"
+		href='[% uri.entries(user => user, tags => tags, has_link => has_link,
+	has_body => has_body, format => "rss" ) %]' />
+
 </head>
 <body>
 	<h1>

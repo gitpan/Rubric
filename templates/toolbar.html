@@ -14,7 +14,9 @@
 		| <a href='[% uri.post_entry %]'>new entry</a>
 		| <a href='[% uri.logout %]'>logout</a>
 		[% ELSE %]
+		[% IF uri.newuser %]
 		| <a href='[% uri.newuser %]'>register</a>
+		[% END %]
 		| <a href='[% uri.login %]'>login</a>
 		[% END %]
 	</div>
