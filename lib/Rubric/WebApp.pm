@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.07_03
+version 0.07_04
 
- $Id: WebApp.pm,v 1.87 2005/03/26 14:10:46 rjbs Exp $
+ $Id: WebApp.pm,v 1.88 2005/03/31 01:02:53 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.07_03';
+our $VERSION = '0.07_04';
 
 =head1 SYNOPSIS
 
@@ -276,7 +276,8 @@ id, and puts the corresponding entry in the "entry" parameter.
 sub get_entry {
 	my ($self) = @_;
 
-	$self->param(entry => Rubric::Entry->retrieve($self->next_path_part));
+	my $entry = Rubric::Entry->retrieve($self->next_path_part);
+	$self->param(entry => $entry);
 	return $self;
 }
 
@@ -736,9 +737,9 @@ sub post {
 	my %entry;
 	$entry{$_} = $self->query->param($_)
 		for qw(entryid uri title description tags body);
-	eval { $entry{uri} = URI->new($entry{uri})->canonical->as_string; };
+	eval { $entry{uri} = URI->new($entry{uri})->canonical; };
 
-	if ($entry{uri}) {
+	if ($entry{uri} and Rubric::Config->one_entry_per_link) {
 		if (my ($link) = Rubric::Link->search({uri => $entry{uri}})) {
 			if (my ($existing_entry) = Rubric::Entry->search({link => $link, user => $user})) {
 				$self->param('existing_entry', $existing_entry);

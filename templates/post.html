@@ -31,7 +31,7 @@
 				<tr>
 					<th>[% param %]</th>
 					<td><input name='[% param %]' value="[% 
-					field_value = form.$param OR existing_entry.$param.join(" ");
+					field_value = form.$param.join(" ") OR existing_entry.$param.join(" ");
 					xml_escape(field_value);
 					%]" size='75' />
 				</tr>

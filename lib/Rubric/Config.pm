@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: Config.pm,v 1.16 2005/01/16 04:17:50 rjbs Exp $
+ $Id: Config.pm,v 1.17 2005/03/31 01:02:53 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -88,6 +88,15 @@ true if registration new users can't register for accounts via the web
 
 true value if users must have an account to view entries
 
+=item * one_entry_per_link
+
+if true, each user can have only one entry per link (default: true)
+
+=item * allowed_schemes
+
+If undef, all URI schemes are allowed in entries.  If it's an array reference,
+it's the list of allowed schemes.
+
 =back
 
 =head1 METHODS
@@ -124,7 +133,9 @@ my $default = {
 	uri_root    => undef,
 	private_system => undef,
 	template_path  => undef,
+	allowed_schemes     => undef,
 	entries_query_class => 'Rubric::WebApp::Entries',
+	one_entry_per_link  => 1,
 	registration_closed => undef,
 	skip_newuser_verification => undef,
 };

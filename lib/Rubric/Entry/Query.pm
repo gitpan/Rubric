@@ -8,7 +8,7 @@ Rubric::Entry::Query - construct and execute a complex query
 
 version 0.04
 
- $Id: Query.pm,v 1.5 2005/01/23 20:00:24 rjbs Exp $
+ $Id: Query.pm,v 1.6 2005/03/31 01:02:53 rjbs Exp $
 
 =cut
 
@@ -41,7 +41,7 @@ constraint is invalid, an empty set of results is returned.
 =cut
 
 sub query {
-	my ($self, $arg) = @_;
+	my ($self, $arg, $user) = @_;
 	my @constraints = map { $self->get_constraint($_, $arg->{$_}) } keys %$arg;
 	@constraints = ("1 = 0") if grep { not defined } @constraints;
 

@@ -1,5 +1,12 @@
 Revision history for Rubric
 
+0.07_04 2005-03-30
+        one_entry_per_link option added
+        invalid tags no longer drop entire tag string
+        allowed_schemes added
+        fixed a few bugs in turning non-scalars into strings for display
+        add version display to html footer
+
 0.07_03 2005-03-26
         /entries?uri=http://www.foo.com/ works again
 

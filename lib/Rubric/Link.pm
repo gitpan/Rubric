@@ -6,7 +6,7 @@ Rubric::Link - a link (URI) against which entries have been made
 
 =head1 VERSION
 
- $Id: Link.pm,v 1.5 2005/01/23 20:00:24 rjbs Exp $
+ $Id: Link.pm,v 1.6 2005/03/31 01:02:53 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -30,6 +30,15 @@ __PACKAGE__->table('links');
 =cut
 
 __PACKAGE__->columns(All => qw(id uri md5));
+
+__PACKAGE__->add_constraint('scheme', uri => \&_check_schema);
+sub _check_schema {
+	my ($uri) = @_;
+	return 1 unless $uri;
+	return 1 unless Rubric::Config->allowed_schemes;
+	$uri = URI->new($uri) unless ref $uri;
+	return scalar grep { $_ eq $uri->scheme } @{ Rubric::Config->allowed_schemes }
+}
 
 =head1 RELATIONSHIPS
 

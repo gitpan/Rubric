@@ -6,7 +6,7 @@ Rubric::Renderer - the rendering interface for Rubric
 
 =head1 VERSION
 
- $Id: Renderer.pm,v 1.9 2005/03/17 02:55:33 rjbs Exp $
+ $Id: Renderer.pm,v 1.10 2005/03/31 01:02:53 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -19,6 +19,7 @@ use strict;
 use warnings;
 
 use Carp;
+use Rubric;
 use Rubric::Config;
 use Template;
 
@@ -82,6 +83,7 @@ sub process {
 	return unless $renderer{$type};
 
 	$stash->{xml_escape} = $xml_escape;
+	$stash->{version} = $Rubric::VERSION;
 
 	$template .= '.' . $renderer{$type}{extension};
 	$renderer{$type}{renderer}->process($template, $stash, \(my $output))

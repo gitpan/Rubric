@@ -173,3 +173,7 @@ div.document li p {
 	margin-bottom: 0;
 	font-weight: normal;
 }
+
+div#footer {
+	text-align: center
+}

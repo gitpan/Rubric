@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.21 2005/01/23 20:00:24 rjbs Exp $
+ $Id: Entry.pm,v 1.22 2005/03/31 01:02:53 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -49,7 +49,7 @@ __PACKAGE__->has_a(link => 'Rubric::Link');
 
 =head2 uri
 
-The uri attribuet returns the URI of the entry's link.
+The uri attribute returns the URI of the entry's link.
 
 =cut
 
@@ -190,8 +190,7 @@ letters, numbers, underscores, colons, dots, and asterisks.
 
 sub tags_from_string {
 	my ($class, $taglist) = @_;
-	$taglist =~ /^([\s\w\d:.*]+)$/; $taglist = $1;
-	[ grep /^[\w\d:.*]+$/, split /\s+/, $taglist ];
+	[ grep /\A@?[\w\d:.*]+\Z/, split /\s+/, $taglist ];
 }
 
 ## return retrieve_all'd objects in recent-to-older order

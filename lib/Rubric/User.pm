@@ -6,7 +6,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
- $Id: User.pm,v 1.19 2005/01/26 04:16:21 rjbs Exp $
+ $Id: User.pm,v 1.20 2005/03/31 01:02:53 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -197,12 +197,15 @@ sub quick_entry {
 	return unless $entry->{title};
 	$entry->{tags} = Rubric::Entry->tags_from_string($entry->{tags});
 
-	my $link = Rubric::Link->find_or_create({ uri => $entry->{uri} })
-		if $entry->{uri};
+	my $link;
+	if ($entry->{uri}) {
+		$link = eval { Rubric::Link->find_or_create({ uri => $entry->{uri} }) };
+		return unless $link;
+	}
 
 	my $new_entry = $entry->{entryid}
 		? Rubric::Entry->retrieve($entry->{entryid})
-		: $entry->{uri}
+		: $link
 			? Rubric::Entry->find_or_create({ link => $link, user => $self })
 			: Rubric::Entry->create({ user => $self });
 
