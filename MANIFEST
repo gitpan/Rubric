@@ -13,6 +13,7 @@ lib/Rubric/DBI.pm
 lib/Rubric/Entry.pm
 lib/Rubric/EntryTag.pm
 lib/Rubric/Link.pm
+lib/Rubric/Renderer.pm
 lib/Rubric/User.pm
 lib/Rubric/WebApp.pm
 lib/Rubric/WebApp/URI.pm
@@ -36,3 +37,6 @@ templates/page_data.html
 templates/template.html
 templates/footer.html
 templates/header.html
+
+templates/template.rss
+templates/entries.rss

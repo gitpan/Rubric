@@ -1,5 +1,9 @@
 Revision history for Rubric
 
+0.00_11 2004-11-29
+        put servername in uri_root in default config
+        awful temporary refactoring of rendering for RSS
+
 0.00_10 2004-11-28
         all "url" things are now "uri"
         important: your config should be updated to uri_root

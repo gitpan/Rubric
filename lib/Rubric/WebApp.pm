@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.00_10
+version 0.00_11
 
- $Id: WebApp.pm,v 1.24 2004/11/28 18:54:49 rjbs Exp $
+ $Id: WebApp.pm,v 1.27 2004/11/29 16:05:47 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.00_10';
+our $VERSION = '0.00_11';
 
 =head1 SYNOPSIS
 
@@ -60,6 +60,7 @@ use warnings;
 use Rubric::Config;
 use Rubric::Entry;
 use Rubric::Link;
+use Rubric::Renderer;
 use Rubric::User;
 
 use Template;
@@ -188,26 +189,14 @@ sub template {
 	$stash->{per_page} = $self->param('per_page');
 	$stash->{page} = $self->param('page');
 
-	$self->renderer->process($template, $stash, \(my $output));
+	my $type = $self->query->param('format') || 'html';
+	$type = 'html' unless $type =~ /^\w+$/;
+	$template .= ".$type";
+
+	Rubric::Renderer->renderer($type)->process($template, $stash, \(my $output));
+
+	$self->header_props(-type => 'text/rss') if $type eq 'rss';
 	return $output;
-}
-
-=head2 renderer
-
-This method returns an object that renders templates.  By default, it returns a
-Template object configured with data from Rubric::Config.
-
-=cut
-
-sub renderer { 
-	my ($self) = @_;
-	return $self->param('renderer') if $self->param('renderer');
-
-	my $renderer = Template->new({
-		PROCESS => 'template.html',
-		INCLUDE_PATH => Rubric::Config->template_path()
-	});
-	$self->param('renderer', $renderer);
 }
 
 =head2 setup
@@ -239,9 +228,9 @@ sub entry {
 	unless ($self->get_entry) {
 		return $self->redirect( Rubric::Config->uri_root, "No such entry..." );
 	}
-	$self->template('entry.html' => {
+	$self->template('entry_long' => {
 		entry => $self->param('entry'),
-		single_entry => 1
+		long_form => 1
 	});
 }
 
@@ -267,7 +256,7 @@ sub login {
 	if ($self->param('current_user')) {
 		return $self->redirect( Rubric::Config->uri_root, "Logged in..." );
 	}
-	$self->template('login.html' => {
+	$self->template('login' => {
 		user => scalar $self->query->param('user')
 	});
 }
@@ -401,13 +390,14 @@ C<page_entries>.
 sub render_entries {
 	my ($self) = @_;
 
-	$self->template('entries.html' => {
+	$self->template('entries' => {
 		user    => $self->param('user'),
 		tags    => $self->param('tags'),
 		count   => $self->param('count'),
 		entries => $self->param('entries'),
 		pages   => $self->param('pages'),
 		remove  => sub { [ grep { $_ ne $_[0] } @{$_[1]} ] },
+		long_form   => scalar $self->query->param('long_form'),
 		recent_tags => $self->param('recent_tags'),
 	});
 }
@@ -482,7 +472,7 @@ This method renders a form for the user to create a new entry.
 sub post_form {
 	my ($self, $entry) = @_;
 
-	$self->template( 'post.html' => {
+	$self->template( 'post' => {
 		form           => $entry,
 		user           => scalar $self->param('current_user'),
 		existing_entry => scalar $self->param('existing_entry'),
@@ -498,7 +488,7 @@ This method renders a form for the user to create a new entry.
 
 sub must_login {
 	my ($self) = @_;
-	$self->template('must_login.html');
+	$self->template('must_login');
 }
 
 =head2 delete_entry

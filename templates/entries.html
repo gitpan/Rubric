@@ -55,7 +55,11 @@
 	<h2>entries</h2>
 	<div class='entries'>
 	[% WHILE (entry = entries.next) %]
+	[% IF long_form %]
+	[% PROCESS "entry_long.html" %]
+	[% ELSE %]
 	[% PROCESS "entry.html" %]
+	[% END %]
 	[% END %]
 	</div>
 
