@@ -5,42 +5,175 @@ use warnings;
 use DBI;
 use Rubric::Config;
 
-my $dbh = DBI->connect(Rubric::Config->dsn,undef,undef) or die;
+my $dbh = DBI->connect(
+	Rubric::Config->dsn,
+	undef, undef,
+	{PrintError => 0}
+) or die "can't connect to db";
 
-{
-	local $/ = "\n\n";
-	$dbh->do($_) for <DATA>;
+sub determine_version {
+	my ($version) = $dbh->selectrow_array("SELECT schema_version FROM rubric");
+	return $version if $version;
+
+	{
+		my @columns = $dbh->selectrow_array("SELECT * FROM entries LIMIT 1");
+		return 4 if @columns == 8; # v4 added body column;
+	}
+
+	{
+		my @columns = $dbh->selectrow_array("SELECT * FROM users LIMIT 1");
+		return 3 if @columns == 4; # v3 added email and validation_code;
+	}
+
+	{
+		my @columns = $dbh->selectrow_array("SELECT * FROM links LIMIT 1");
+		return 2 if @columns == 3; # v2 added md5 column;
+	}
+
+	{
+		my @columns = $dbh->selectrow_array("SELECT * FROM links LIMIT 1");
+		return 1 if @columns == 2;
+	}
+
+	die "can't determine db schema version" unless $version;
 }
 
-__DATA__
-CREATE TABLE new_entries (
-	id INTEGER PRIMARY KEY,
-	link integer,
-	user varchar NOT NULL,
-	title varchar NOT NULL,
-	created NOT NULL,
-	modified NOT NULL,
-	description varchar,
-	body TEXT
-);
+sub last_version { sub { 
+	print "now at current schema!\n";
+	exit;
+} }
 
-INSERT INTO new_entries
-SELECT *, NULL FROM entries;
+my %from;
 
-DROP TABLE entries;
+# from 1 to 2
+#  add md5 sum to links table
 
-CREATE TABLE entries (
-	id INTEGER PRIMARY KEY,
-	link integer,
-	user varchar NOT NULL,
-	title varchar NOT NULL,
-	created NOT NULL,
-	modified NOT NULL,
-	description varchar,
-	body TEXT
-);
+$from{1} = sub {
+	require Digest::MD5;
+	$dbh->func('md5hex', 1, \&Digest::MD5::md5_hex, 'create_function');
 
-INSERT INTO entries
-SELECT * FROM new_entries;
+	my $sql = <<'END_SQL';
+	CREATE TABLE new_links (
+		id INTEGER PRIMARY KEY,
+		uri varchar UNIQUE NOT NULL,
+		md5 varchar NOT NULL
+	);
 
-DROP TABLE new_entries;
+	INSERT INTO new_links
+	SELECT id, uri, md5hex(uri) FROM links;
+
+	DROP TABLE links;
+
+	CREATE TABLE links (
+		id INTEGER PRIMARY KEY,
+		uri varchar UNIQUE NOT NULL,
+		md5 varchar NOT NULL
+	);
+
+	INSERT INTO links
+	SELECT id, uri, md5 FROM new_links;
+
+	DROP TABLE new_links;
+END_SQL
+
+	$dbh->do($_) for split /\n\n/, $sql;
+};
+
+# from 2 to 3
+#  add email and validation_code
+#  fill in email with garbage data
+
+$from{2} = sub {
+	my $sql = <<'END_SQL';
+	CREATE TABLE new_users (
+		username PRIMARY KEY,
+		password NOT NULL,
+		email NOT NULL,
+		validation_code
+	);
+
+	INSERT INTO new_users
+	SELECT *, 'user@example.com', NULL FROM users;
+
+	DROP TABLE users;
+
+	CREATE TABLE users (
+		username PRIMARY KEY,
+		password NOT NULL,
+		email NOT NULL,
+		validation_code
+	);
+
+	INSERT INTO users
+	SELECT * FROM new_users;
+
+	DROP TABLE new_users;
+END_SQL
+
+	$dbh->do($_) for split /\n\n/, $sql;
+};
+
+# from 3 to 4
+#  link becomes null-ok
+#  add body column
+
+$from{3} = sub {
+	my $sql = <<END_SQL;
+	CREATE TABLE new_entries (
+		id INTEGER PRIMARY KEY,
+		link integer,
+		user varchar NOT NULL,
+		title varchar NOT NULL,
+		created NOT NULL,
+		modified NOT NULL,
+		description varchar,
+		body TEXT
+	);
+
+	INSERT INTO new_entries
+	SELECT *, NULL FROM entries;
+
+	DROP TABLE entries;
+
+	CREATE TABLE entries (
+		id INTEGER PRIMARY KEY,
+		link integer,
+		user varchar NOT NULL,
+		title varchar NOT NULL,
+		created NOT NULL,
+		modified NOT NULL,
+		description varchar,
+		body TEXT
+	);
+
+	INSERT INTO entries
+	SELECT * FROM new_entries;
+
+	DROP TABLE new_entries;
+END_SQL
+
+	$dbh->do($_) for split /\n\n/, $sql;
+};
+
+# from 4 to 5
+#  add rubric table and schema number
+
+$from{4} = sub {
+	my $sql = <<END_SQL;
+	CREATE TABLE rubric (
+		schema_version NOT NULL
+	);
+
+	INSERT INTO rubric (schema_version) VALUES (5);
+END_SQL
+
+	$dbh->do($_) for split /\n\n/, $sql;
+};
+
+$from{5} = last_version;
+
+while ($_ = determine_version) {
+	print "updating from version $_...\n";
+	die "no update path from schema version $_" unless $from{$_};
+	$from{$_}->();
+}

@@ -1,5 +1,11 @@
 Revision history for Rubric
 
+0.00_12 2004-12-01
+        updatedb rewritten to actually, well, work
+        style and html structure cleaned up
+        html doctype added; validates
+        some refactoring, including tag validation
+
 0.00_11 2004-11-29
         put servername in uri_root in default config
         awful temporary refactoring of rendering for RSS

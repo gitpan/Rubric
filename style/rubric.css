@@ -3,17 +3,20 @@ body {
 	color: black;
 	margin: 0;
 	font-size: 80%;
+	font-family: sans-serif;
 }
 
-a { color: rgb(0,80,191) }
+a {
+	color: rgb(0,80,191);
+	text-decoration: none;
+}
+
 a:visited { color: rgb(44,127,113) }
 
 h1 { 
-	padding: 0;
 	background-color: #ddd;
-	padding-left: 0.5em;
-	padding-bottom: 1%;
-	margin-bottom: 0;
+	padding-left: 1%;
+	margin: 0;
 }
 
 h2 {
@@ -42,10 +45,6 @@ div.toolbar span.current_user {
 	float: left;
 }
 
-div.toolbar a {
-	text-decoration: none;
-}
-
 div.delete {
 	padding-left: 1em;
 }
@@ -58,6 +57,10 @@ div.entry {
 
 div.entry div.uri {
 	font-size: 110%;
+}
+
+a.title {
+	text-decoration: underline;
 }
 
 div.entry div.description {
@@ -82,6 +85,7 @@ div.entry.longform div.body {
 	margin-top: 1em;
 	border: 1px black solid;
 	background-color: #f8f8f8;
+	width: 70%;
 }
 
 div.taglist {
@@ -93,8 +97,6 @@ div.taglist {
 	margin: 1%;
 	font-size: 85%;
 }
-
-div.taglist a { text-decoration: none }
 
 div.taglist h3 { text-align: center; }
 

@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.11 2004/11/28 03:14:34 rjbs Exp $
+ $Id: Entry.pm,v 1.12 2004/12/02 04:07:43 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -178,6 +178,23 @@ sub set_new_tags {
 
 	$self->add_to_tags({ tag => $_ }) for @$tags;
 }
+
+=head2 tags_from_string($taglist)
+
+This (class) method takes a string of tags, delimited by whitespace, and
+returns a reference to an array of the tags, dropping invalid tags.
+
+Valid tags (shouldn't this be documented somewhere else instead?) may contain
+letters, numbers, underscores, colons, dots, and asterisks.
+
+=cut
+
+sub tags_from_string {
+	my ($class, $taglist) = @_;
+	[ grep /^[\w\d:.*]+$/, split /\s+/, $taglist ];
+}
+
+## return retrieve_all'd objects in recent-to-older order
 
 __PACKAGE__->set_sql(RetrieveAll => <<'');
 SELECT __ESSENTIAL__

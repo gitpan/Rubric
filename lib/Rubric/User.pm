@@ -6,7 +6,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
- $Id: User.pm,v 1.10 2004/11/28 03:14:34 rjbs Exp $
+ $Id: User.pm,v 1.11 2004/12/02 04:07:43 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -50,7 +50,8 @@ number of accessors for his tag list.
 
 =head3 tags
 
-This returns an arrayref of all the user's tags in their database colation order.
+This returns an arrayref of all the user's tags in their database colation
+order.
 
 =cut
 
@@ -170,7 +171,7 @@ sub quick_entry {
 	my ($self, $entry) = @_;
 
 	return unless $entry->{title};
-	$entry->{tags} = [ grep /\w+/, split /\s+/, $entry->{tags} ];
+	$entry->{tags} = Rubric::Entry->tags_from_string($entry->{tags});
 
 	my $link = Rubric::Link->find_or_create({ uri => $entry->{uri} })
 		if $entry->{uri};

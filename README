@@ -17,4 +17,4 @@ A. (optional) set up .htaccess to prevent access to rubric.db and .yml
 B. go?
 
 my bookmarklet:
-	javascript:location.href='http://server.name.tld/rubric/post?uri='+escape(location.href)+'&title='+escape(document.title)
+	javascript:location.href='http://server.name.tld/rubric/post?uri='+escape(location.href)+'&title='+escape(document.title)+'&go_back=1'

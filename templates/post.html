@@ -2,7 +2,7 @@
 	<h2>revise entry</h2>
 	<h3>originally created: [% existing_entry.created %]</h3>
 	[% IF existing_entry.created != existing_entry.modified %]
-	<h3>last modified: [% existing_entry.created %]</h3>
+	<h3>last modified: [% existing_entry.modified %]</h3>
 	[% END %]
 	<div class='delete'>
 		<a href='[% uri.delete_entry(existing_entry) %]'>delete this entry</a>
@@ -30,6 +30,7 @@
 				</tr>
 				<tr><td class='submit' colspan='2'>
 					<input type='hidden' name='entryid' value='[%existing_entry.id%]' />
+					<input type='hidden' name='go_back' value='[% go_back %]' />
 					<input type='submit' name='submit' value='save' />
 				</td></tr>
 			</table>

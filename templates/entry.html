@@ -1,7 +1,7 @@
 	<div class='entry'>
 		<div class='uri'>
 			[% IF entry.link %]
-				<a href='[% entry.link %]'>[% entry.title %]</a>
+				<a class='title' href='[% entry.link %]'>[% entry.title %]</a>
 			[% ELSE %]
 				[% entry.title %]
 			[% END %]
@@ -17,7 +17,7 @@
 		[% END %]
 		<div class='created'>
 			[% FOREACH tag = entry.tags %]
-			<a href='[% uri.entries(user => user, tags => [ tag ]) %]'>[% tag %]</a>
+			<a class='tag' href='[% uri.entries(user => user, tags => [ tag ]) %]'>[% tag %]</a>
 			[% END %]
 			[% "by " _ entry.user UNLESS user %]
 			(created: [% entry.created.strftime("%Y-%m-%d %H:%M") %])
