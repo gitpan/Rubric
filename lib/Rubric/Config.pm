@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: Config.pm,v 1.9 2004/12/14 04:30:54 rjbs Exp $
+ $Id: Config.pm,v 1.10 2004/12/20 13:24:04 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -56,8 +56,10 @@ __PACKAGE__->mk_ro_accessors(qw(
 	css_href
 	dsn
 	email_from
+	login_class
 	private_system
 	registration_closed
+	skip_newuser_verification
 	smtp_server
 	template_path
 	uri_root
@@ -68,6 +70,12 @@ __PACKAGE__->mk_ro_accessors(qw(
 This method returns the DSN to be used by Rubric::DBI to connect to the
 Rubric's database.
 
+=head2 login_class
+
+This is the class used to check for logins; it should subclass
+Rubric::WebApp::Login.  If not supplied, the default is
+Rubric::WebApp::Login::Post.
+
 =head2 uri_root
 
 This method returns the URI for the root of the Rubric::WebApp install.
@@ -76,6 +84,11 @@ This method returns the URI for the root of the Rubric::WebApp install.
 
 This method returns the URI for the stylesheet to be used by Rubric::WebApp
 pages.
+
+=head2 skip_newuser_verification
+
+If true, users will be created without verification codes, and won't get
+verification emails.
 
 =head2 template_path
 

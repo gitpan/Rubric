@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.15 2004/12/15 17:22:29 rjbs Exp $
+ $Id: Entry.pm,v 1.16 2004/12/19 19:14:34 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -193,6 +193,7 @@ letters, numbers, underscores, colons, dots, and asterisks.
 
 sub tags_from_string {
 	my ($class, $taglist) = @_;
+	$taglist =~ /^([\s\w\d:.*]+)$/; $taglist = $1;
 	[ grep /^[\w\d:.*]+$/, split /\s+/, $taglist ];
 }
 

@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.02
+version 0.02_1
 
- $Id: WebApp.pm,v 1.55 2004/12/18 03:05:08 rjbs Exp $
+ $Id: WebApp.pm,v 1.58 2004/12/20 13:36:13 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.02_01';
 
 =head1 SYNOPSIS
 
@@ -120,60 +120,16 @@ sub cgiapp_init {
 	my ($self) = @_;
 
 	$self->session_config( COOKIE_PARAMS => { -expires => '+7d' } );
-	$self->check_for_login;
-	$self->get_current_user;
+	
+	my $login_class = Rubric::Config->login_class || 'Rubric::WebApp::Login::Post';
+	eval "require $login_class";
+	$login_class->check_for_login($self);
+
 	$self->check_pager_data;
 
 	my @path = split '/', $self->query->path_info;
 	shift @path for (1 .. 2);
 	$self->param(path => \@path);
-}
-
-=head2 check_for_login
-
-This method is called by C<cgiapp_init>, and checks for a login attempt in the
-submitted request.  A login request is made with two CGI parameters:
-
- user     - the user's username
- password - the user's password
-
-If these match, the user is now logged in.  If not, it is ignored.
-
-However!  If the REMOTE_USER environment variable is set, because the user has
-logged in via HTTP, the value of REMOTE_USER is used as the current user.
-
-=cut
-
-sub check_for_login {
-	my ($self) = @_;
-
-	return $self->session->param('current_user', $ENV{REMOTE_USER})
-		if ($ENV{REMOTE_USER});
-
-	return unless my $userid = $self->query->param('user');
-	return unless my $login_user = Rubric::User->retrieve($userid);
-
-	my $login_pass = $self->query->param('password');
-
-	if (md5_hex($login_pass) eq $login_user->password) {
-		$login_user->verification_code
-			? $self->param('user_pending', 1)
-			: $self->session->param('current_user',$self->query->param('user'))
-	}
-}
-
-=head2 get_current_user
-
-This method is called by C<cgiapp_init>, and retrieves the Rubric::User object
-for the currently logged-in user, if any.
-
-=cut
-
-sub get_current_user {
-	my ($self) = @_;
-
-	return unless my $userid = $self->session->param('current_user');
-	$self->param(current_user => Rubric::User->retrieve($userid));
 }
 
 =head2 check_pager_data
@@ -499,22 +455,33 @@ sub validate_newuser_form {
 sub create_newuser {
 	my ($self, %newuser) = @_;
 
-	my $user = Rubric::User->create({
+	my %user = (
 		username => $newuser{username},
 		password => md5_hex($newuser{password_1}),
 		email    => $newuser{email},
-		verification_code => md5_hex("%newuser".time)
-	});
+	);
 
-	Rubric::Renderer->renderer('txt')->process(
-		'newuser_mail.txt',
-		{ user => $user, email_from => Rubric::Config->email_from },
-		\(my $message)
+	$user{verification_code} = md5_hex("%user".time)
+		unless Rubric::Config->skip_newuser_verification;
+
+	my $user = Rubric::User->create(\%user);
+
+	$self->send_verification_email_to($user)
+		unless Rubric::Config->skip_newuser_verification;
+
+	$self->template("account_created");
+}
+
+sub send_verification_email_to {
+	my ($self, $user) = @_;
+
+	my $message = Rubric::Renderer->process(
+		'newuser_mail',
+		'txt',
+		{ user => $user, email_from => Rubric::Config->email_from }
 	);
 
 	send SMTP => $message => Rubric::Config->smtp_server;
-
-	$self->template("account_created");
 }
 
 =head2 verify
@@ -589,9 +556,12 @@ sub tag {
 sub get_tags {
 	my ($self) = @_;
 
-	my $tags = shift @{$self->param('path')};
-
-	$self->param(tags => [ split /\+/, ($tags || '') ]);
+	if (my $tags = shift @{$self->param('path')}) {
+		$tags =~ /^([+\s\w\d:.*]+)$/; $tags = $1;
+		$self->param(tags => [ split /\+/, $tags ]);
+	} else {
+		$self->param(tags => [ ]);
+	}
 
 	return $self;
 }
