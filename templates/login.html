@@ -1,4 +1,9 @@
 	<h2>login</h2>
+	[% IF note %]
+	<div class='message'>
+		[% note %]
+	</div>
+	[% END %]
 	[% IF user %]
 	[% IF user_pending %]
 	<h3 class='error'>You haven't verified your account.  Check your mail.</h3>
@@ -15,5 +20,12 @@
 					<input type='submit' name='submit' value='login' />
 				</td></tr>
 			</table>
+			[% IF then_goto %]
+			<input
+				type='hidden'
+				name='then_goto'
+				value="[% then_goto | uri | html %]"
+			/>
+			[% END %]
 		</form>
 	</div>

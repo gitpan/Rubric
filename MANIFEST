@@ -40,7 +40,6 @@ templates/header.html
 templates/link.html
 templates/links.html
 templates/login.html
-templates/must_login.html
 templates/newuser.html
 templates/page_data.html
 templates/post.html

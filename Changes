@@ -1,5 +1,10 @@
 Revision history for Rubric
 
+0.03_03 2005-01-18
+        must_login has been replaced with a smarter login runmode
+        if you try to /post or perform another operation without a login,
+        the login form will redirect you back to it once you're auth'd
+
 0.03_02 2005-01-15
         restore recent tags listing to "root"
         redirect to root when root failed caused loop; just die

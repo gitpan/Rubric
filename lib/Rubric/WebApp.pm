@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.03_02
+version 0.03_03
 
- $Id: WebApp.pm,v 1.73 2005/01/16 04:43:23 rjbs Exp $
+ $Id: WebApp.pm,v 1.74 2005/01/18 18:46:22 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.03_02';
+our $VERSION = '0.03_03';
 
 =head1 SYNOPSIS
 
@@ -305,11 +305,22 @@ the Rubric site.  Otherwise, a login form is provided.
 sub login {
 	my ($self) = @_;
 
-	return $self->redirect_root("Logged in...")
-		if $self->param('current_user');
+	if ($self->param('current_user')) {
+		my $goto =
+			$self->query->param('then_goto') || Rubric::WebApp::URI->uri_root;
+		return $self->redirect($goto, "Logged in...");
+	}
+
+	my $note;
+	if ($self->mode_param ne 'login') {
+		$note = "You must log in to use this feature.";
+		$self->query->param('then_goto', $self->query->self_url);
+	}
 
 	$self->template('login' => {
-		user => scalar $self->query->param('user'),
+		note      => $note,
+		then_goto => $self->query->param('then_goto'),
+		user      => scalar $self->query->param('user'),
 		user_pending => scalar $self->param('user_pending')
 	});
 }
@@ -654,7 +665,7 @@ If a new entry is created, the user is redirected to his entry listing.
 sub post {
 	my ($self) = @_;
 
-	return $self->must_login unless my $user = $self->param('current_user');	
+	return $self->login unless my $user = $self->param('current_user');	
 
 	my %entry;
 	$entry{$_} = $self->query->param($_)
@@ -698,17 +709,6 @@ sub post_form {
 	});
 }
 
-=head2 must_login
-
-This method renders a form for the user to create a new entry.
-
-=cut
-
-sub must_login {
-	my ($self) = @_;
-	$self->template('must_login');
-}
-
 =head2 delete
 
 This method wants to be simplified.  It's largely copied from C<post>.
@@ -723,7 +723,7 @@ Either way, the user is redirected to his entry listing.
 sub delete {
 	my ($self) = @_;
 
-	return $self->must_login unless my $user = $self->param('current_user');	
+	return $self->login unless my $user = $self->param('current_user');	
 
 	return $self->redirect_root("No such entry...")
 		unless $self->get_entry;
