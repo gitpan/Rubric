@@ -6,7 +6,7 @@ Rubric::WebApp::URI - URIs for Rubric web requests
 
 =head1 VERSION
 
- $Id: URI.pm,v 1.10 2004/12/15 17:22:29 rjbs Exp $
+ $Id: URI.pm,v 1.11 2004/12/16 14:06:34 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -137,6 +137,14 @@ URI for new entry form
 =cut
 
 sub post_entry { Rubric::Config->uri_root . "/post"; }
+
+=head2 preferences
+
+URI for preferences form
+
+=cut
+
+sub preferences { Rubric::Config->uri_root . "/preferences"; }
 
 =head2 verify_user
 

@@ -5,8 +5,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
 	NAME                => 'Rubric',
 	AUTHOR              => 'Ricardo SIGNES <rjbs@cpan.org>',
-	VERSION_FROM        => 'lib/Rubric/WebApp.pm',
-	#ABSTRACT_FROM       => 'lib/Rubric/WebApp.pm',
+	VERSION_FROM        => 'lib/Rubric.pm',
 	PL_FILES            => {},
 	PREREQ_PM => {
 		'CGI::Application' => 3.00,

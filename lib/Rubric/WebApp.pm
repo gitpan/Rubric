@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.00_25
+version 0.01
 
- $Id: WebApp.pm,v 1.52 2004/12/16 04:55:40 rjbs Exp $
+ $Id: WebApp.pm,v 1.53 2004/12/16 14:06:34 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.00_25';
+our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
@@ -39,6 +39,7 @@ basic dispatch table looks something like this:
  -------------+-------------------------------------------+--------------
  /login       | log in to a user account                  | login
  /logout      | log out                                   | logout
+ /preferences | view or change account settings           | preferences
  /newuser     | create a new user account                 | newuser
  /verify      | verify a pending user account             | verify
  /link        | view the details of entries for a link    | link
@@ -249,7 +250,7 @@ sub setup {
 	if ($self->param('current_user') or not Rubric::Config->private_system) {
 		$self->start_mode('recent');
 		$self->run_modes([
-			qw(delete edit entry link logout post recent user tag)
+			qw(delete edit entry link logout post preferences recent user tag)
 		]);
 	}
 
@@ -360,6 +361,79 @@ sub logout {
 	return $self->redirect_root("Logged out...");
 }
 
+=head2 preferences
+
+This method displays account information for the current user.  Some account
+settings may be changed.
+
+=cut
+
+sub preferences {
+	my ($self) = @_;
+
+	return $self->redirect_root("permission denied")
+		unless $self->param('current_user');
+	
+	my %prefs  = $self->_get_prefs_form;
+	return $self->template("preferences") unless %prefs;
+
+	my %errors = $self->validate_prefs(\%prefs);
+	return $self->template("preferences", { %prefs, %errors } ) if %errors;
+
+	$self->update_user(\%prefs);
+}
+
+sub update_user {
+	my ($self, $prefs) = @_;
+	for ($self->param('current_user')) {
+		$_->password(md5_hex($prefs->{password_1})) if $prefs->{password_1};
+		$_->email($prefs->{email});
+		$_->update;
+	}
+	$self->redirect_root('updated');
+}
+
+sub _get_prefs_form {
+	my ($self) = @_;
+
+	my %form;
+	for (qw(password password_1 password_2 email)) {
+		$form{$_} = $self->query->param($_) if $self->query->param($_);
+	}
+	return %form;
+}
+
+sub validate_prefs {
+	my ($self, $prefs) = @_;
+	my %errors;
+
+	unless ($prefs->{email}) {
+		$errors{email_missing} = 1;
+	} elsif ($prefs->{email} and $prefs->{email} !~ $Email::Address::addr_spec) {
+		undef $prefs->{email};
+		$errors{email_invalid} = 1;
+	}
+
+	if (
+		$prefs->{password_1} and $prefs->{password_2}
+		and $prefs->{password_1} ne $prefs->{password_2}
+	) {
+		undef $prefs->{password_1};
+		undef $prefs->{password_2};
+		$errors{password_mismatch} = 1;
+	}
+
+	unless ($prefs->{password}) {
+		$errors{password_missing} = 1;
+	} elsif (
+		md5_hex($prefs->{password}) ne $self->param('current_user')->password
+	) {
+		$errors{password_wrong} = 1;
+	}
+
+	return %errors;
+}
+
 =head2 newuser
 
 If the proper form information is present, this runmode creates a new user
@@ -385,7 +459,7 @@ sub newuser {
 
 	my %errors = $self->validate_newuser_form(\%newuser);
 	if (%errors) {
-		$self->template('newuser' => { %newuser, %errors});
+		$self->template('newuser' => { %newuser, %errors });
 	} else {
 		$self->create_newuser(%newuser);
 	}

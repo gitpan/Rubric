@@ -4,6 +4,15 @@ Rubric is a note-keeping system that also serves as a bookmark manager.  Users
 store entries, which are small (or large) notes with a set of categorizing
 "tags."  Entries may also refer to URIs.
 
+--- WARNING ---
+
+This is young software, likely to have bugs and likely to change in strange
+ways.  I will try to keep the documented API stable, but not if it makes
+writing Rubric too inconvenient.
+
+Basically, just take note that this software is still version 0.0x; it works,
+but it's still very much under construction.
+
 --- UPGRADING ---
 
 Things you'll have to do:

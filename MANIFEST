@@ -9,6 +9,7 @@ bin/updatedb.pl
 bin/vacuumdb.pl
 Changes
 etc/rubric.yml
+lib/Rubric.pm
 lib/Rubric/Config.pm
 lib/Rubric/DBI.pm
 lib/Rubric/Entry.pm
@@ -42,6 +43,7 @@ templates/template.html
 templates/toolbar.html
 templates/verified.html
 templates/docs/help.html
+templates/docs/todo.html
 
 templates/entries.rss
 templates/template.rss

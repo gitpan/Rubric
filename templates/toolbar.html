@@ -13,6 +13,7 @@
 		[% END %]
 		[% IF current_user %]
 		| <a href='[% uri.post_entry %]'>new entry</a>
+		| <a href='[% uri.preferences %]'>preferences</a>
 		| <a href='[% uri.logout %]'>logout</a>
 		[% ELSE %]
 		[% IF uri.newuser %]
