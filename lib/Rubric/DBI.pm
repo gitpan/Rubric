@@ -6,7 +6,7 @@ Rubric::DBI - Rubric's subclass of Class::DBI
 
 =head1 VERSION
 
- $Id: DBI.pm,v 1.2 2004/11/19 20:57:11 rjbs Exp $
+ $Id: DBI.pm,v 1.3 2005/04/01 04:28:29 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -23,11 +23,13 @@ use base qw(Class::DBI);
 use Class::DBI::AbstractSearch;
 
 my $dsn = Rubric::Config->dsn;
+my $db_user = Rubric::Config->db_user;
+my $db_pass = Rubric::Config->db_pass;
 
 __PACKAGE__->connection(
 	$dsn,
-	undef,
-	undef,
+	$db_user,
+	$db_pass,
 	#{ AutoCommit => 0 }
 );
 

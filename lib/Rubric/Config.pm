@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: Config.pm,v 1.17 2005/03/31 01:02:53 rjbs Exp $
+ $Id: Config.pm,v 1.18 2005/04/01 04:28:29 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -43,6 +43,14 @@ These configuration settings can all be retrieved by methods of the same name.
 =item * dsn
 
 the DSN to be used by Rubric::DBI to connect to the Rubric's database
+
+=item * db_user
+
+the username to be used by Rubric::DBI to connect to the Rubric's database
+
+=item * db_pass
+
+the password to be used by Rubric::DBI to connect to the Rubric's database
 
 =item * uri_root
 
@@ -126,6 +134,8 @@ This method returns the default configuration has a hashref.
 
 my $default = {
 	css_href    => undef,
+	db_user     => undef,
+	db_pass     => undef,
 	dsn         => undef,
 	email_from  => undef,
 	login_class => 'Rubric::WebApp::Login::Post',

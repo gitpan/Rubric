@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.07_05
+version 0.07_06
 
- $Id: WebApp.pm,v 1.90 2005/04/01 04:10:31 rjbs Exp $
+ $Id: WebApp.pm,v 1.92 2005/04/02 14:51:13 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.07_05';
+our $VERSION = '0.07_06';
 
 =head1 SYNOPSIS
 
@@ -46,6 +46,7 @@ basic dispatch table looks something like this:
  /post        | post or edit an entry (must be logged in) | post
  /edit        | edit an entry (must be logged in)         | edit
  /delete      | delete an entry (must be logged in)       | delete
+ /entry/ENTRY | find and display the identified entry     | entry
  /entries/Q   | find and display results for query Q      | entries
  /~USER/TAGS  | see a user's entries for given tags       | (in flux)
  /doc/PAGE    | view the named page in the documentation  | doc
@@ -729,35 +730,58 @@ If a new entry is created, the user is redirected to his entry listing.
 
 =cut
 
-sub post {
+sub _post_form_contents {
 	my ($self) = @_;
+	my (%form, %error);
 
-	return $self->login unless my $user = $self->param('current_user');	
-
-	my %entry;
-	$entry{$_} = $self->query->param($_)
+	$form{$_} = $self->query->param($_)
 		for qw(entryid uri title description tags body);
-	eval { $entry{uri} = URI->new($entry{uri})->canonical; };
+	eval { $form{uri} = URI->new($form{uri})->canonical; };
+	$error{uri} = "Invalid URI" if $@;
+	if (
+		$form{uri}
+		and not $error{uri}
+		and not grep { $_ eq $form{uri}->scheme } @{ Rubric::Config->allowed_schemes }
+	) {
+		$error{uri} = "Invalid URI; valid schemes are: "
+			. join(" ", @{ Rubric::Config->allowed_schemes });
+	}
+	$error{tags} =
+		"Tags may only contain letters, numbers, dot, colon, and asterisk."
+		if $form{tags} =~ /[^\s\w\d:.*]/;
 
-	if ($entry{uri} and Rubric::Config->one_entry_per_link) {
-		if (my ($link) = Rubric::Link->search({uri => $entry{uri}})) {
-			if (my ($existing_entry) = Rubric::Entry->search({link => $link, user => $user})) {
+	if ($form{uri} and Rubric::Config->one_entry_per_link) {
+		if (my ($link) = Rubric::Link->search({uri => $form{uri}})) {
+			my $existing_entry = Rubric::Entry->search(
+				{link => $link, user => $self->param('current_user') }
+			);
+			if ($existing_entry) {
 				$self->param('existing_entry', $existing_entry);
 			}
 		}
 	}
 	
-	return $self->post_form(\%entry) unless
-		(($self->query->param('submit') || '') eq 'save')
-		and	
-		$self->param('current_user')->quick_entry(\%entry);
+	return (\%form, \%error);
+}
+
+sub post {
+	my ($self) = @_;
+
+	return $self->login unless my $user = $self->param('current_user');	
+
+	my ($form, $error) = $self->_post_form_contents;
+	
+	return $self->post_form($form, $error) if
+		(($self->query->param('submit') || '') ne 'save')
+		or %$error
+		or not $self->param('current_user')->quick_entry($form);
 	
 	my $when_done = $self->query->param('when_done');
 
 	return $self->template('close_window') if $when_done eq 'close';
 
-	my $goto_uri = ($when_done eq 'go_back') && $entry{uri}
-		? $entry{uri}
+	my $goto_uri = ($when_done eq 'go_back') && $form->{uri}
+		? $form->{uri}
 		: Rubric::WebApp::URI->entries({ user => $self->param('current_user') });
 	
 	return $self->redirect( $goto_uri, "Posted..." );
@@ -770,10 +794,11 @@ This method renders a form for the user to create a new entry.
 =cut
 
 sub post_form {
-	my ($self, $entry) = @_;
+	my ($self, $form, $error) = @_;
 
 	$self->template( 'post' => {
-		form           => $entry,
+		form           => $form,
+		error          => $error,
 		user           => scalar $self->param('current_user'),
 		existing_entry => scalar $self->param('existing_entry'),
 		when_done      => scalar $self->query->param('when_done')

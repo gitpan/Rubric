@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.22 2005/03/31 01:02:53 rjbs Exp $
+ $Id: Entry.pm,v 1.23 2005/04/02 04:05:41 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -190,7 +190,11 @@ letters, numbers, underscores, colons, dots, and asterisks.
 
 sub tags_from_string {
 	my ($class, $taglist) = @_;
-	[ grep /\A@?[\w\d:.*]+\Z/, split /\s+/, $taglist ];
+	my %seen;
+	my @tags = map { $seen{$_}++ ? $_ : () } 
+	           grep /\A@?[\w\d:.*]+\Z/,
+	           split /\s+/, $taglist;
+	return \@tags;
 }
 
 ## return retrieve_all'd objects in recent-to-older order

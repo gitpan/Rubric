@@ -1,5 +1,11 @@
 Revision history for Rubric
 
+0.07_06 2005-04-02
+        duplicate tags are now dropped; they no longer break posting
+        report bad uri/tags at post-time and reproduce form
+        keep long_form param on next/prev page links
+				username and password for db connection can be specified in config
+
 0.07_05 2005-03-31
         experimental javascript to filter by tag count
         link to entries for a Link if it's got more than one

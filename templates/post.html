@@ -23,6 +23,12 @@
 					xml_escape(field_value);
 					%]" size='75' />
 				</tr>
+				[% IF error.$param %]
+				<tr>
+					<th></th>
+					<td class='error'>[% error.$param %]</td>
+				</tr>
+				[% END %]
 			[% END %]
 				<tr><td class='submit' colspan='2'>
 					<input type='submit' name='submit' value='save' />
