@@ -13,7 +13,7 @@
     <items>
       <rdf:Seq>
       [% WHILE (entry = entries.next) -%]
-      <rdf:li rdf:resource="[% entry.link %]"/>
+      <rdf:li rdf:resource="[% xml_escape(entry.link) %]"/>
       [% END %]
       </rdf:Seq>
     </items>

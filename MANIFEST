@@ -58,11 +58,18 @@ templates/login.html
 templates/newuser.html
 templates/page_data.html
 templates/post.html
+templates/preferences.html
 templates/template.html
 templates/toolbar.html
 templates/verified.html
 templates/docs/help.html
 templates/docs/todo.html
+
+templates/template.api
+templates/header.api
+templates/footer.api
+templates/entry.api
+templates/entries.api
 
 templates/entries.rss
 templates/template.rss

@@ -6,7 +6,7 @@ Rubric::Renderer - the rendering interface for Rubric
 
 =head1 VERSION
 
- $Id: Renderer.pm,v 1.7 2005/01/26 04:16:21 rjbs Exp $
+ $Id: Renderer.pm,v 1.9 2005/03/17 02:55:33 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -51,6 +51,7 @@ __PACKAGE__->register_type(@$_) for (
 	[ html => { content_type => 'text/html; charset="utf-8"', extension => 'html' } ],
 	[ rss  => { content_type => 'application/rss+xml', extension => 'rss'  } ],
 	[ txt  => { content_type => 'text/plain',          extension => 'txt'  } ],
+	[ api  => { content_type => 'text/xml',            extension => 'api'  } ],
 );
 
 =head2 process($template, $type, \%stash)
@@ -65,7 +66,7 @@ two-element list.  In scalar context, it returns the output document.
 
 =cut
 
-my $xml_quote_escape = sub {
+my $xml_escape = sub {
 	for (shift) {
 		s/&/&amp;/g;
 		s/</&lt;/g;
@@ -80,7 +81,7 @@ sub process {
 	my ($class, $template, $type, $stash) = @_;
 	return unless $renderer{$type};
 
-	$stash->{quote_escape} = $xml_quote_escape;
+	$stash->{xml_escape} = $xml_escape;
 
 	$template .= '.' . $renderer{$type}{extension};
 	$renderer{$type}{renderer}->process($template, $stash, \(my $output))

@@ -6,13 +6,13 @@ Rubric - a notes and bookmarks manager with tagging
 
 =head1 VERSION
 
-version 0.06
+version 0.07_01
 
- $Id: Rubric.pm,v 1.16 2005/01/26 04:18:58 rjbs Exp $
+ $Id: Rubric.pm,v 1.17 2005/03/17 03:32:39 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.07_01';
 
 =head1 DESCRIPTION
 

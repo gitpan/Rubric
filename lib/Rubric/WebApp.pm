@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.06
+version 0.07_01
 
- $Id: WebApp.pm,v 1.81 2005/01/26 04:18:58 rjbs Exp $
+ $Id: WebApp.pm,v 1.85 2005/03/17 03:32:39 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.07_01';
 
 =head1 SYNOPSIS
 
@@ -46,9 +46,8 @@ basic dispatch table looks something like this:
  /post        | post or edit an entry (must be logged in) | post
  /edit        | edit an entry (must be logged in)         | edit
  /delete      | delete an entry (must be logged in)       | delete
- /user/NAME   | see a user's entries                      | user
- /user/N/TAGS | see a user's entries for given tags       | user
- /tag/TAGS    | see entries for given tags                | tag
+ /entries/Q   | find and display results for query Q      | entries
+ /~USER/TAGS  | see a user's entries for given tags       | (in flux)
  /doc/PAGE    | view the named page in the documentation  | doc
 
 If the system is private and no user is logged in, the default action is to
@@ -216,7 +215,22 @@ sub setup {
 		]);
 	}
 
-	$self->run_modes(AUTOLOAD => 'redirect_root');
+	$self->run_modes(AUTOLOAD => '_default_handler');
+}
+
+sub _default_handler {
+	my ($self, $runmode) = @_;
+	if (substr($runmode, 0, 1) eq '~') {
+		return $self->_entries_shortcut(substr($runmode, 1));
+	}
+	$self->redirect_root;
+}
+
+sub _entries_shortcut {
+	my ($self, $user) = @_;
+	my $path = $self->param('path');
+	unshift @$path, 'user', $user, 'tags';
+	$self->entries;
 }
 
 =head2 entries
@@ -588,11 +602,6 @@ sub get_verification_code {
 
 	return $self;
 }
-
-# sub user {
-#	my ($self) = @_;
-#	$self->get_user->get_tags->display_entries;
-#}
 
 =head2 get_user
 

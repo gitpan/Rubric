@@ -1,5 +1,9 @@
 Revision history for Rubric
 
+0.07_01 2005-03-16
+        began adding (currently laughable) "API" format output for simple XML
+        added /~username/tags+othertags shortcut run mode
+
 0.06    2005-01-25
         fixed stupid bug in Rubric::User->quick_entry that prevented changing
         of URI on an entry
