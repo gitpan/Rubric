@@ -20,9 +20,10 @@
   </channel>
 [% CALL entries.reset %]
 [% WHILE (entry = entries.next) %]
-  <item rdf:about="[% entry.link || uri.entry(entry) %]">
-    <title>[% entry.title %]</title>
-    <link>[% entry.link || uri.entry(entry) %]</link>
+	[% item = entry.link || uri.entry(entry) %]
+  <item rdf:about="[% xml_escape(item) %]">
+    <title>[% xml_escape(entry.title) %]</title>
+    <link>[% xml_escape(item) %]</link>
     <description>[% IF entry.description %][% "<p><em>" _ entry.description _ "</em></p>" | html %][% END %][% entry.body | html %]</description>
     <dc:date>[% entry.created.datetime %]-05:00</dc:date>
     <dc:creator>[% entry.user %]</dc:creator>

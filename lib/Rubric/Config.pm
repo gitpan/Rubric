@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: Config.pm,v 1.18 2005/04/01 04:28:29 rjbs Exp $
+ $Id: Config.pm,v 1.19 2005/04/05 00:38:37 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -105,6 +105,15 @@ if true, each user can have only one entry per link (default: true)
 If undef, all URI schemes are allowed in entries.  If it's an array reference,
 it's the list of allowed schemes.
 
+=item * default_page_size
+
+The number of entries that are displayed on a page of entries, by default.
+
+=item * max_page_size
+
+The maximum number of entries that will be displayed on a page of entries.  If
+more are requested, this many will be displayed.
+
 =back
 
 =head1 METHODS
@@ -144,7 +153,9 @@ my $default = {
 	private_system => undef,
 	template_path  => undef,
 	allowed_schemes     => undef,
+	default_page_size   => 25,
 	entries_query_class => 'Rubric::WebApp::Entries',
+	max_page_size       => 100,
 	one_entry_per_link  => 1,
 	registration_closed => undef,
 	skip_newuser_verification => undef,

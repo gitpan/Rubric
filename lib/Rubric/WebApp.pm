@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.07_06
+version 0.07_07
 
- $Id: WebApp.pm,v 1.92 2005/04/02 14:51:13 rjbs Exp $
+ $Id: WebApp.pm,v 1.98 2005/04/05 01:16:26 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.07_06';
+our $VERSION = '0.07_07';
 
 =head1 SYNOPSIS
 
@@ -151,11 +151,13 @@ sub check_pager_data {
 	my ($self) = @_;
 
 	$self->session->param('per_page', int(
-		$self->query->param('per_page') || $self->session->param('per_page') || 25
+		$self->query->param('per_page')
+		|| $self->session->param('per_page')
+		|| Rubric::Config->default_page_size
 	));
  
-	$self->session->param('per_page', 100)
- 		if $self->session->param('per_page') > 100;
+	$self->session->param('per_page', Rubric::Config->max_page_size)
+ 		if $self->session->param('per_page') > Rubric::Config->max_page_size;
 
 	$self->param('per_page', $self->session->param('per_page'));
 	$self->param('page',     int(($self->query->param('page') || 1)));
@@ -258,8 +260,8 @@ This displays the single requested entry.
 sub entry {
 	my ($self) = @_;
 
-	return $self->redirect_root("No such entry...")
-		unless ($self->get_entry);
+	return $self->template('no_entry', { reason => 'missing' })
+		unless $self->get_entry->param('entry');
 
 	$self->template('entry_long' => {
 		entry => $self->param('entry'),
@@ -694,6 +696,7 @@ sub render_entries {
 		pages   => $self->param('pages'),
 		%$options,
 		remove       => sub { [ grep { $_ ne $_[0] } @{$_[1]} ] },
+		self_url     => $self->query->self_url(),
 		long_form    => scalar $self->query->param('long_form'),
 		recent_tags  => $self->param('recent_tags'),
 	});
@@ -709,9 +712,11 @@ displays a post form, completed with the given entry's data.
 sub edit {
 	my ($self) = @_;
 
-	return $self->redirect_root("...huh?")
-		unless $self->get_entry
-		and $self->param('entry')->user eq $self->param('current_user');
+	return $self->template('no_entry', { reason => 'missing' })
+		unless $self->get_entry->param('entry');
+	
+	return $self->template('no_entry', { reason => 'access' })
+		unless $self->param('entry')->user eq $self->param('current_user');
 
 	$self->param('existing_entry', $self->param('entry'));
 	return $self->post_form();
@@ -741,6 +746,7 @@ sub _post_form_contents {
 	if (
 		$form{uri}
 		and not $error{uri}
+		and defined Rubric::Config->allowed_schemes
 		and not grep { $_ eq $form{uri}->scheme } @{ Rubric::Config->allowed_schemes }
 	) {
 		$error{uri} = "Invalid URI; valid schemes are: "
@@ -770,7 +776,7 @@ sub post {
 	return $self->login unless my $user = $self->param('current_user');	
 
 	my ($form, $error) = $self->_post_form_contents;
-	
+
 	return $self->post_form($form, $error) if
 		(($self->query->param('submit') || '') ne 'save')
 		or %$error
@@ -780,10 +786,18 @@ sub post {
 
 	return $self->template('close_window') if $when_done eq 'close';
 
-	my $goto_uri = ($when_done eq 'go_back') && $form->{uri}
-		? $form->{uri}
-		: Rubric::WebApp::URI->entries({ user => $self->param('current_user') });
-	
+	my $then_goto = $self->query->param('then_goto');
+
+	my $goto_uri;
+
+	if ($then_goto) {
+		$goto_uri = $then_goto;
+	} elsif ($when_done eq 'go_back' && $form->{uri}) {
+		$goto_uri = $form->{uri};
+	} else {
+		$goto_uri = Rubric::WebApp::URI->entries({ user => $self->param('current_user') });
+	}
+
 	return $self->redirect( $goto_uri, "Posted..." );
 }
 
@@ -801,7 +815,8 @@ sub post_form {
 		error          => $error,
 		user           => scalar $self->param('current_user'),
 		existing_entry => scalar $self->param('existing_entry'),
-		when_done      => scalar $self->query->param('when_done')
+		then_goto      => scalar $self->query->param('then_goto'),
+		when_done      => scalar $self->query->param('when_done'),
 	});
 }
 

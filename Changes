@@ -1,5 +1,16 @@
 Revision history for Rubric
 
+0.07_07 2005-04-04
+        +/- filter on taglist centers on gecko; gecko bug must die
+        updated "related tags" taglist for clarity of add/remove tags
+        RSS should now validate and work everywhere (I think)
+        expand/collapse entry bodies on default entries templates
+        the numeric tag "0" now works
+        the (edit) links will now include a redirect to your previous query
+        /edit or /entry links to missing entries (or non-owned for edit)
+					produce better error messages
+				max/default entries per page is now configurable
+
 0.07_06 2005-04-02
         duplicate tags are now dropped; they no longer break posting
         report bad uri/tags at post-time and reproduce form

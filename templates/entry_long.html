@@ -9,7 +9,7 @@
 				[% entry.title | html %]
 			[% END %]
 			[% IF current_user == entry.user %]
-			<a href='[% uri.edit_entry(entry) %]'>(edit)</a>
+			<a href="[% uri.edit_entry(entry) %]?then_goto=[% self_url | uri %]">(edit)</a>
 			[% END %]
 		</h2>
 		[% IF entry.description %]

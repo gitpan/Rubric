@@ -8,7 +8,7 @@ Rubric::Entry::Query - construct and execute a complex query
 
 version 0.04
 
- $Id: Query.pm,v 1.6 2005/03/31 01:02:53 rjbs Exp $
+ $Id: Query.pm,v 1.7 2005/04/04 22:04:45 rjbs Exp $
 
 =cut
 
@@ -101,8 +101,13 @@ sub constraint_for_user {
 
 =head3 constraint_for_tags(\@tags)
 
+=head3 constraint_for_exact_tags(\@tags)
+
 Given an arrayref of tag names, this returns SQL to limit results to entries
 marked with the given tags.
+
+The C<exact> version of this constraint returns SQL for entries with only the
+given tags.
 
 =cut
 
@@ -116,6 +121,17 @@ sub constraint_for_tags {
 		map { "id IN (SELECT entry FROM entrytags WHERE tag=$_)" }
 		map { Rubric::Entry->db_Main->quote($_) }
 		@$tags;
+}
+
+sub constraint_for_exact_tags {
+	my ($self, $tags) = @_;
+
+	return undef unless $tags and ref $tags eq 'ARRAY';
+	return unless my $count = @$tags;
+
+	return
+		"(SELECT COUNT(tag) FROM entrytags WHERE entry = entries.id) = $count",
+		$self->constraint_for_tags($tags);
 }
 
 =head3 constraint_for_has_body($bool)

@@ -10,7 +10,7 @@
 			[% END %]
 			[% IF current_user %]
 			[% IF current_user == entry.user %]
-			<a href='[% uri.edit_entry(entry) %]'>(edit)</a>
+			<a href="[% uri.edit_entry(entry) %]?then_goto=[% self_url | uri %]">(edit)</a>
 			[% ELSE %]
 			<a href="[% uri.post_entry %]?uri=[% xml_escape(entry.link) %]&title=[% xml_escape(entry.title) %]">(copy)</a>
 			[% END %]

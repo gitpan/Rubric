@@ -49,7 +49,8 @@ div.delete {
 	padding-left: 1em;
 }
 
-div.rss {
+div.rss,
+div.expandcollapse {
 	margin-left: 1em;
 }
 
@@ -110,6 +111,14 @@ div.taglist h3 {
 	border-bottom: thin #eee solid;
 	margin-top: 0;
 	padding-right: 0.75em;
+}
+
+div.taglist.related h4 {
+	margin-top: 0;
+	margin-bottom: 0;
+	padding-top: 0;
+	padding-bottom: 0;
+	margin-left: 1em;
 }
 
 span.tag_count { float: left; text-align: right; width: 2em; }

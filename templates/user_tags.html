@@ -34,13 +34,13 @@
 
 	<div class='taglist all' id='user_tags'>
 	<h3>all tags</h3>
-	<table style='margin-left:5%;width:90%'><tr>
-		<td><a href='javascript:show_more(5)'>--</a></td>
-		<td><a href='javascript:show_more(1)'>-</a></td>
-		<td style='text-align:center' id='filter_below'>??</td>
-		<td style='text-align:right'><a href='javascript:show_fewer(1)'>+</a></td>
-		<td style='text-align:right'><a href='javascript:show_fewer(5)'>++</a></td>
-	</tr></table>
+	<div style='text-align:center'>
+		<span><a href='javascript:show_more(5)'>--</a></span>
+		<span><a href='javascript:show_more(1)'>-</a></span>
+		<span style='text-align:center' id='filter_below'>??</span>
+		<span style='text-align:right'><a href='javascript:show_fewer(1)'>+</a></span>
+		<span style='text-align:right'><a href='javascript:show_fewer(5)'>++</a></span>
+	</div>
 	[% FOREACH tag = user.tags_counted %]
 	<div class='tag'>
 		<span class='tag_count'>[% tag.1 %]</span>

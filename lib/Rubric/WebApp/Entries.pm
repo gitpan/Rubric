@@ -8,7 +8,7 @@ Rubric::WebApp::Entries - process the /entries run method
 
 version 0.05
 
- $Id: Entries.pm,v 1.10 2005/03/26 14:10:46 rjbs Exp $
+ $Id: Entries.pm,v 1.12 2005/04/04 22:55:17 rjbs Exp $
 
 =cut
 
@@ -96,6 +96,8 @@ sub arg_for_user {
 
 =head3 arg_for_tags($tagstring)
 
+=head3 arg_for_exact_tags($tagstring)
+
 Given "happy fuzzy bunnies" this returns C< [ qw(happy fuzzy bunnies) ] >
 
 =cut
@@ -103,10 +105,12 @@ Given "happy fuzzy bunnies" this returns C< [ qw(happy fuzzy bunnies) ] >
 sub arg_for_tags {
 	my ($self, $tagstring) = @_;
 
-	($tagstring) = ($tagstring || '') =~ /^([+\s\w\d:.*]*)$/; 
+	($tagstring) = (defined $tagstring ? $tagstring : '') =~ /^([+\s\w\d:.*]*)$/; 
 	my $tags = [ split /\+|\s/, $tagstring ];
 	return $tags;
 }
+
+sub arg_for_exact_tags { (shift)->arg_for_tags(@_) }
 
 =head3 arg_for_has_body($bool)
 

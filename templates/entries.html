@@ -5,22 +5,22 @@
 	[% IF user && tags.size %]
 	<div class='taglist related'>
 	<h3>related tags</h3>
+	<h4>add to query</h4>
 	[% FOREACH tag = user.related_tags_counted(tags) %]
 	<div class='tag'>
 	<span class='tag_count'>[% tag.1 %]</span>
 	&nbsp;
-	<a class='plus' href='[% uri.entries(user => user, tags => tags.merge( [ tag.0 ] )) %]'>+</a>
-	<a href='[% uri.entries(user => user, tags => [ tag.0 ] ) %]'>[% tag.0 %]</a>
+	<a class='plus' href='[% uri.entries(user => user, tags => tags.merge( [ tag.0 ] )) %]'>[% tag.0 %]</a>
 	&nbsp;
 	</div>
 	[% END %]
 	<br />
+	<h4>remove</h4>
 	[% FOREACH tag = tags %]
 	<div class='tag'>
 	<span class='tag_count'>&nbsp;</span>
 	&nbsp;
-	<a class='plus' href='[% uri.entries(user => user, tags => remove(tag, tags)) %]'>-</a>
-	<a href='[% uri.entries(user => user, tags => [ tag ] ) %]'>[% tag %]</a>
+	<a class='plus' href='[% uri.entries(user => user, tags => remove(tag, tags)) %]'>[% tag %]</a>
 	&nbsp;</div>
 	[% END %]
 	</div>
@@ -43,6 +43,9 @@
 	<h2>entries</h2>
 	<div class='rss'><a href='[% uri.entries(user => user, tags => tags, has_link => has_link, has_body => has_body, format => "rss" ) %]'>RSS</a> available
 	for this query</div>
+	<div class='expandcollapse'><a href='?long_form=[% long_form ? 0 : 1 %]'>[%
+	long_form ? "collapse" : "expand"
+	%]</a> entry bodies</div>
 	<div class='entries'>
 	[% IF entries.count %]
 		[% WHILE (entry = entries.next) %]
