@@ -6,13 +6,16 @@
 			not logged in
 		[% END %]
 		</span>
-		[% url_for('root') %]
-		[% "| " _ url_for('entries', current_user, [], 'entries') IF current_user %]
-		[% "| " _ url_for('post', user) IF current_user %]
-		|
+		<a href='[% uri.root %]'>(root)</a>
 		[% IF current_user %]
-		[% url_for('logout') %]
+		| <a href='[% uri.entries( user => current_user ) %]'>entries</a>
+		[% END %]
+		[% IF current_user %]
+		| <a href='[% uri.post_entry %]'>new entry</a>
+		[% END %]
+		[% IF current_user %]
+		| <a href='[% uri.logout %]'>logout</a>
 		[% ELSE %]
-		[% url_for('login') %]
+		| <a href='[% uri.login %]'>login</a>
 		[% END %]
 	</div>

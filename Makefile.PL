@@ -17,7 +17,8 @@ WriteMakefile(
 		'Template'         => 2.00,
 		'Time::Piece'      => 0.00,
 		'YAML'             => 0.00,
-		'Class::DBI::AbstractSearch' => 0
+		'Class::DBI::AbstractSearch' => 0,
+		'Template::Plugin::Class'    => '0.12',
 	},
 	dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 	clean               => { FILES => 'Rubric-*' },

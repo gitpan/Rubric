@@ -1,5 +1,12 @@
 Revision history for Rubric
 
+0.00_07 2004-11-25 Happy Thanksgiving!
+        eliminated &url_for, replaced with Rubric::WebApp::URI
+        rewrote template structure (use one master template via PROCESS)
+        added linkless entries
+        added body to entries
+        added updatedb.pl
+
 0.00_06 2004-11-19
         added lots of documentation
 

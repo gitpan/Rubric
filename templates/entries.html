@@ -1,24 +1,14 @@
-<html>
-<head>
-	<title>Rubric</title>
-	<link href='[% url_for('css') %]' rel='stylesheet' type='text/css' />
-</head>
-<body>
-	<h1>
-		rubric
-		[% "/~" IF user %]
-		[% user IF current_user != user %]
-		[% "/" _ tags.join("+") IF tags.size %]
-	</h1>
-	[% PROCESS "toolbar.html" %]
-
 	[% IF user %]
 	<div class='taglist'>
 	<h3>all tags</h3>
 	[% FOREACH tag = user.tags_counted %]
 	<div class='tag'>
 		<span class='tag_count'>[% tag.1 %]</span>
-		&nbsp;[% url_for('entries', user, [ tag.0 ], tag.0) %]&nbsp;
+		&nbsp;
+		<a href='[% uri.entries(user => user, tags => [ tag.0 ]) %]'>
+			[% tag.0 %]
+		</a>
+		&nbsp;
 	</div>
 	[% END %]
 	</div>
@@ -31,17 +21,18 @@
 	<div class='tag'>
 	<span class='tag_count'>[% tag.1 %]</span>
 	&nbsp;
-	[%- url_for('entries', user, tags.merge( [ tag.0 ] ), "+", "plus") %]
-	[% url_for('entries', user, [ tag.0 ], tag.0) -%]
-	&nbsp;</div>
+	<a class='plus' href='[% uri.entries(user => user, tags => tags.merge( [ tag.0 ] )) %]'>+</a>
+	<a href='[% uri.entries(user => user, tags => [ tag.0 ] ) %]'>[% tag.0 %]</a>
+	&nbsp;
+	</div>
 	[% END %]
 	<br />
 	[% FOREACH tag = tags %]
 	<div class='tag'>
 	<span class='tag_count'>&nbsp;</span>
 	&nbsp;
-	[%- url_for('entries', user, remove(tag, tags), "-", "plus") %]
-	[% url_for('entries', user, [tag], tag) -%]
+	<a class='plus' href='[% uri.entries(user => user, tags => remove(tag, tags)) %]'>-</a>
+	<a href='[% uri.entries(user => user, tags => [ tag ] ) %]'>[% tag %]</a>
 	&nbsp;</div>
 	[% END %]
 	</div>
@@ -53,7 +44,9 @@
 	[% FOREACH tag = recent_tags %]
 	<div class='tag'>
 		<span class='tag_count'>[% tag.1 %]</span>
-		&nbsp;[% url_for('entries', user, [ tag.0 ], tag.0) %]&nbsp;
+		&nbsp;
+		<a href='[% uri.entries(tags => [ tag.0 ]) %]'>[% tag.0 %]</a>
+		&nbsp;
 	</div>
 	[% END %]
 	</div>
@@ -66,20 +59,4 @@
 	[% END %]
 	</div>
 
-	<div class='prev_page'>
-		[% IF page > 1 %]<a href='?page=[% page - 1 %]'>prev page</a>
-		[% ELSE %]prev page[% END %]
-	</div>
-	<div class='next_page'>
-		[% IF page < pages %]<a href='?page=[% page + 1 %]'>next page</a>
-		[% ELSE %]next page[% END %]
-	</div>
-	<div class='page_num'>
-		page [% page %] of [% pages %]
-	</div>
-	<div class='page_size'>
-		[% count %] entries, [% per_page %] per page
-	</div>
-
-	</body>
-</html>
+	[% PROCESS "page_data.html" %]

@@ -1,14 +1,3 @@
-<html>
-<head>
-	<title>Rubric</title>
-	<link href='[% url_for('css') %]' rel='stylesheet' type='text/css' />
-</head>
-<body>
-	<h1>
-		rubric :: login
-	</h1>
-
-	[% PROCESS "toolbar.html" %]
 	<h2>login</h2>
 	[% IF user %]
 	<h3 class='error'>That username/password combination doesn't match.</h3>
@@ -24,6 +13,3 @@
 			</table>
 		</form>
 	</div>
-
-	</body>
-</html>

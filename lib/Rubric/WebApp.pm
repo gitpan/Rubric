@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.00_06
+version 0.00_07
 
- $Id: WebApp.pm,v 1.18 2004/11/19 20:57:32 rjbs Exp $
+ $Id: WebApp.pm,v 1.21 2004/11/25 03:29:26 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.00_06';
+our $VERSION = '0.00_07';
 
 =head1 SYNOPSIS
 
@@ -40,7 +40,7 @@ basic dispatch table looks something like this:
  /login       | log in to a user account                  | login
  /logout      | log out                                   | logout
  /post        | post or edit an entry (must be logged in) | post
- /edit        | post or edit an entry (must be logged in) | post
+ /edit        | edit an entry (must be logged in)         | edit
  /delete      | delete an entry (must be logged in)       | delete_entry
  /recent      | see recent entries (the default)          | recent
  /user/NAME   | see a user's entries                      | user
@@ -67,7 +67,20 @@ use URI;
 
 =head1 METHODS
 
+=head2 redirect($uri, $message)
+
+This method simplifies redirection; it redirects to the given URI, printing the
+given message as the body of the HTTP response.
+
 =cut
+
+sub redirect {
+	my ($self, $uri, $message) = @_;
+
+	$self->header_type('redirect');
+	$self->header_props(-url=> $uri);
+	return $message;
+}
 
 =head2 cgiapp_init
 
@@ -157,13 +170,12 @@ sub check_pager_data {
 This method is used to render a template with both provided and default
 variables.
 
-Templates are rendered by calling the C<process> method on the template renderer,
-which is retrieved by calling the C<renderer> method on the WebApp.
+Templates are rendered by calling the C<process> method on the template
+renderer, which is retrieved by calling the C<renderer> method on the WebApp.
 
 The following variables are passed by default:
 
  current_user - the currently logged-in user (a Rubric::User object)
- url_for      - a coderef for generating links (see &url_for)
  per_page     - entries per page (see check_pager_data)
  page         - which page (see check_pager_data)
 
@@ -175,7 +187,6 @@ sub template {
 	$stash->{current_user} = $self->param('current_user');
 	$stash->{per_page} = $self->param('per_page');
 	$stash->{page} = $self->param('page');
-	$stash->{url_for} = \&url_for;
 
 	$self->renderer->process($template, $stash, \(my $output));
 	return $output;
@@ -193,6 +204,7 @@ sub renderer {
 	return $self->param('renderer') if $self->param('renderer');
 
 	my $renderer = Template->new({
+		PROCESS => 'template.html',
 		INCLUDE_PATH => Rubric::Config->template_path()
 	});
 	$self->param('renderer', $renderer);
@@ -211,9 +223,36 @@ sub setup {
 	$self->mode_param(path_info => 1);
 	$self->start_mode('recent');
 	
-	$self->run_modes([qw[login logout post recent user tag]]);
-	$self->run_modes(edit   => 'post');
+	$self->run_modes([qw[edit entry login logout post recent user tag]]);
 	$self->run_modes(delete => 'delete_entry');
+}
+
+=head2 entry
+
+This displays the single requested entry.
+
+=cut
+
+sub entry {
+	my ($self) = @_;
+
+	unless ($self->get_entry) {
+		return $self->redirect( Rubric::Config->url_root, "No such entry..." );
+	}
+	$self->template('entry.html' => {
+		entry => $self->param('entry'),
+		single_entry => 1
+	});
+}
+
+sub get_entry {
+	my ($self) = @_;
+
+	my $entryid = shift @{$self->param('path')};
+	if ($entryid =~ /^\d+$/) {
+		return $self->param(entry => Rubric::Entry->retrieve($entryid));
+	}
+	return;
 }
 
 =head2 login
@@ -226,29 +265,26 @@ the Rubric site.  Otherwise, a login form is provided.
 sub login {
 	my ($self) = @_;
 	if ($self->param('current_user')) {
-		$self->header_type('redirect');
-		$self->header_props(-url=> Rubric::Config->url_root);
-		return "Logged in...";
+		return $self->redirect( Rubric::Config->url_root, "Logged in..." );
 	}
-	$self->template('login.html' => { user => $self->query->param('user') });
+	$self->template('login.html' => {
+		user => scalar $self->query->param('user')
+	});
 }
 
 =head2 logout
 
-This run mode deletes the user's session and redirects him to the root of the
-Rubric site.
+This run mode unsets the "current_user" parameter in the session and the WebApp
+object, then redirects the user to the root of the Rubric site.
 
 =cut
 
 sub logout {
 	my ($self) = @_;
-	$self->session->clear;
-	$self->session->delete;
+	$self->session->param('current_user', undef);
 	$self->param('current_user', undef);
 
-	$self->header_type('redirect');
-	$self->header_props(-url=> Rubric::Config->url_root);
-	return "Logged out...";
+	return $self->redirect( Rubric::Config->url_root, "Logged out..." );
 }
 
 =head2 user
@@ -301,7 +337,7 @@ sub recent {
 	my ($self) = @_;
 
 	my $entries = Rubric::Entry->retrieve_all;
-	$self->param('recent_tags', [ Rubric::Entry->recent_tags_counted ]);
+	$self->param('recent_tags', Rubric::Entry->recent_tags_counted);
 	$self->page_entries($entries)->render_entries;
 }
 
@@ -371,6 +407,24 @@ sub render_entries {
 	});
 }
 
+=head2 edit
+
+If the user isn't logged in, it redirects to demand a login.  If he is, it
+displays a post form, completed with the given entry's data.
+
+=cut
+
+sub edit {
+	my ($self) = @_;
+
+	return $self->redirect(Rubric::Config->url_root, "...huh?")
+		unless $self->get_entry
+		and $self->param('entry')->user eq $self->param('current_user');
+
+	$self->param('existing_entry', $self->param('entry'));
+	return $self->post_form();
+}
+
 =head2 post
 
 This method wants to be simplified.
@@ -391,30 +445,27 @@ sub post {
 
 	my %entry;
 	$entry{$_} = $self->query->param($_)
-		for qw(uri title description tags);
+		for qw(entryid uri title description tags body);
 	eval { $entry{uri} = URI->new($entry{uri})->canonical->as_string; };
 
-	if (my ($link) = Rubric::Link->search({uri => $entry{uri}})) {
-		if (my ($existing_entry) = Rubric::Entry->search({link => $link, user => $user})) {
-			$self->param('existing_entry', $existing_entry);
+	if ($entry{uri}) {
+		if (my ($link) = Rubric::Link->search({uri => $entry{uri}})) {
+			if (my ($existing_entry) = Rubric::Entry->search({link => $link, user => $user})) {
+				$self->param('existing_entry', $existing_entry);
+			}
 		}
 	}
 	
-	unless (
+	return $self->post_form(\%entry) unless
 		(($self->query->param('submit') || '') eq 'save')
-		and
-		$self->param('current_user')->quick_entry(\%entry)
-	) {
-		return $self->post_form(\%entry)
-	}
+		and	
+		$self->param('current_user')->quick_entry(\%entry);
 
 	my $goto_url = $self->query->param('go_back')
 		? $entry{uri}
 		: Rubric::Config->url_root() . "/user/" . $self->param('current_user');
-
-	$self->header_type('redirect');
-	$self->header_props( -url => $goto_url);
-	return "Posted...";
+	
+	return $self->redirect( $goto_url, "Posted..." );
 }
 
 =head2 post_form
@@ -430,6 +481,7 @@ sub post_form {
 		form           => $entry,
 		user           => scalar $self->param('current_user'),
 		existing_entry => scalar $self->param('existing_entry'),
+		go_back        => scalar $self->query->param('go_back')
 	});
 }
 
@@ -460,67 +512,31 @@ sub delete_entry {
 
 	return $self->must_login unless my $user = $self->param('current_user');	
 
-	my $uri = $self->query->param('uri');
-	eval { $uri = URI->new($uri)->canonical->as_string; };
+	return $self->redirect( Rubric::Config->url_root, "No such entry..." )
+		unless $self->get_entry;
 
-	if (my ($link) = Rubric::Link->search({uri => $uri})) {
-		if (my ($entry) = Rubric::Entry->search({link => $link, user => $user})) {
-			$entry->delete;
-		}
-	}
+	return $self->redirect( Rubric::Config->url_root, "Not your entry..." )
+		unless $self->param('entry')->user eq $self->param('current_user');
+
+	$self->param('entry')->delete;
 
 	my $goto_url = 
 		Rubric::Config->url_root() . "/user/" . $self->param('current_user');
 
-	$self->header_type('redirect');
-	$self->header_props( -url => $goto_url);
-	return "Deleted...";
-}
-
-=head1 FUNCTIONS
-
-=head2 url_for(@stuff)
-
-This is a horrible, horrible piece of code.  It's misnamed and just ugly.  I
-hateses it.  It's passed as a coderef to rendered templates, which use it to
-create hrefs.
-
-This function will be replaced ASAP.
-
-=cut
-
-sub url_for {
-	my ($what, $user, $tags, $text) = @_;
-	my $root = Rubric::Config->url_root;
-	if ($what eq 'root') {
-		return "<a href='$root'>(root)</a>";
-	} elsif ($what eq 'css') {
-		return Rubric::Config->css_href;
-	} elsif ($what eq 'logout') {
-		return "<a href='$root/logout'>logout</a>";
-	} elsif ($what eq 'login') {
-		return "<a href='$root/login'>login</a>";
-	} elsif ($what eq 'entry_edit') {
-		return unless UNIVERSAL::isa($user,  'Rubric::Entry');
-		my $uri = $user->link->uri;
-		return "<a href='$root/post?uri=$uri'>(edit)</a>";
-	} elsif ($what eq 'entry_delete') {
-		return unless UNIVERSAL::isa($user,  'Rubric::Entry');
-		my $uri = $user->link->uri;
-		return "<a href='$root/delete?uri=$uri'>(delete this entry)</a>";
-	} elsif ($what eq 'entries') {
-		if ($user) {
-			return "<a href='$root/user/$user/" . join('+',@$tags) . "'>$text</a>";
-		} elsif ($tags and @$tags) {
-			return "<a href='$root/tag/" . join('+',@$tags) . "'>$text</a>";
-		}
-		return url_for('root');
-	} elsif ($what eq 'post') {
-		return "<a href='$root/post/'>new entry</a>";
-	}
+	return $self->redirect( $goto_url, "Deleted..." );
 }
 
 =head1 TODO
+
+=over 4
+
+=item * Entries without links.
+
+=item * Automated new user registration.
+
+=item * Large-body documents on entries.
+
+=back
 
 =head1 AUTHOR
 

@@ -1,7 +1,8 @@
+[% USE uri = Class('Rubric::WebApp::URI') %]
 <html>
 <head>
 	<title>Rubric</title>
-	<link href='[% url_for('css') %]' rel='stylesheet' type='text/css' />
+	<link href='[% uri.stylesheet %]' rel='stylesheet' type='text/css' />
 </head>
 <body>
 	<h1>

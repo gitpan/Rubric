@@ -5,6 +5,9 @@ body {
 	font-size: 80%;
 }
 
+a { color: rgb(0,80,191) }
+a:visited { color: rgb(44,127,113) }
+
 h1 { 
 	padding: 0;
 	background-color: #ddd;
@@ -44,7 +47,9 @@ div.delete {
 }
 
 div.entry {
-	padding-bottom: .75em;
+	margin-left: 1em;
+	margin-right: 1em;
+	padding: .5em;
 }
 
 div.entry div.uri {
@@ -97,10 +102,7 @@ form#loginform td.submit, form#entryform td.submit {
 }
 
 div.entries {
-	margin-left: 1em;
-	margin-right: 1em;
 	border-bottom: thin black solid;
-	padding: .5em;
 }
 
 div.next_page { float: right; padding-right: 1em; }

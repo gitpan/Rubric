@@ -30,12 +30,13 @@ CREATE TABLE users (
 
 CREATE TABLE entries (
 	id INTEGER PRIMARY KEY,
-	link integer NOT NULL,
+	link integer,
 	user varchar NOT NULL,
 	title varchar NOT NULL,
 	created NOT NULL,
 	modified NOT NULL,
-	description varchar
+	description varchar,
+	body TEXT
 );
 
 CREATE TABLE entrytags (

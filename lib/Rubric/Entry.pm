@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.9 2004/11/19 20:37:12 rjbs Exp $
+ $Id: Entry.pm,v 1.10 2004/11/25 03:29:26 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -27,12 +27,15 @@ __PACKAGE__->table('entries');
  user        - the user who made the entry
  title       - the title of the link's destination
  description - a short description of the entry
+ body        - a long body of text for the entry
  created     - the time when the entry was first created
  modified    - the time when the entry was last modified
 
 =cut
 
-__PACKAGE__->columns(All => qw(id link user title description created modified));
+__PACKAGE__->columns(
+	All => qw(id link user title description body created modified)
+);
 
 =head1 RELATIONSHIPS
 
@@ -43,6 +46,8 @@ The link attribute returns a Rubric::Link.
 =cut
 
 __PACKAGE__->has_a(link => 'Rubric::Link');
+
+sub uri { my ($self) = @_; return unless $self->link; $self->link->uri; }
 
 =head2 user
 

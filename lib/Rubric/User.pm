@@ -6,7 +6,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
- $Id: User.pm,v 1.8 2004/11/19 20:37:12 rjbs Exp $
+ $Id: User.pm,v 1.9 2004/11/25 03:29:26 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -88,7 +88,7 @@ sub tags_counted {
 	my $sth = $self->sql_tags_counted;
 	$sth->execute($self);
 	my $tags = $sth->fetchall_arrayref;
-	return @$tags;
+	return $tags;
 }
 
 =head3 related_tags(\@tags)
@@ -156,6 +156,7 @@ include the following data:
  tags        - the tags for the entry, as a space delimited string
  title       - the title for the entry
  description - the description for the entry
+ body        - the body for the entry
 
 If an entry for the link exists, it is updated.  Existing tags are replaced
 with the new tags.  If no entry exists, the Rubric::Link is created if needed,
@@ -168,18 +169,21 @@ The Rubric::Entry object is returned.
 sub quick_entry {
 	my ($self, $entry) = @_;
 
-	return unless $entry->{uri} and $entry->{title};
+	return unless $entry->{title};
 	$entry->{tags} = [ grep /\w+/, split /\s+/, $entry->{tags} ];
 
-	my $link = Rubric::Link->find_or_create({ uri => $entry->{uri} });
+	my $link = Rubric::Link->find_or_create({ uri => $entry->{uri} })
+		if $entry->{uri};
 
-	my $new_entry = Rubric::Entry->find_or_create({
-		link => $link,
-		user => $self
-	});
+	return unless my $new_entry = $entry->{entryid}
+		? Rubric::Entry->retrieve($entry->{entryid})
+		: $entry->{uri}
+			? Rubric::Entry->find_or_create({ link => $link, user => $self })
+			: Rubric::Entry->create({ user => $self });
 
 	$new_entry->title($entry->{title});
 	$new_entry->description($entry->{description});
+	$new_entry->body($entry->{body});
 	$new_entry->update;
 	$new_entry->set_new_tags($entry->{tags});
 
