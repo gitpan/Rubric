@@ -1,5 +1,12 @@
 Revision history for Rubric
 
+0.00_03 2004-11-16
+        actually /use/ the template_path config data, thanks
+        when finding entry to update, include username in search
+        updated install instructions
+        added Entry->set_new_tags
+        updated WebApp->post to, well, work
+
 0.00_01 2004-11-16
         abstracted enough that it can be installed without hours of removing my
         absolute URLs.

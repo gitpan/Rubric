@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.00_01
+version 0.00_03
 
- $Id: WebApp.pm,v 1.2 2004/11/16 14:20:25 rjbs Exp $
+ $Id: WebApp.pm,v 1.8 2004/11/16 16:10:47 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.00_01';
+our $VERSION = '0.00_03';
 
 use base qw(CGI::Application);
 use CGI::Application::Session;
@@ -34,7 +34,7 @@ sub renderer {
 	return $self->param('renderer') if $self->param('renderer');
 
 	my $renderer = Template->new({
-		INCLUDE_PATH => 'templates'
+		INCLUDE_PATH => Rubric::Config->template_path()
 	});
 	$self->param('renderer', $renderer);
 }
@@ -221,7 +221,6 @@ sub post {
 	return $self->must_login unless $self->param('current_user');	
 
 	my %entry = (
-		user	=> $self->param('current_user'),
 		uri   => scalar $self->query->param('uri'),
 		title => scalar $self->query->param('title'),
 		description => scalar $self->query->param('description'),
@@ -232,20 +231,22 @@ sub post {
 		(($self->query->param('submit') || '') eq 'save')
 		and $entry{uri} and $entry{title};
 
-	warn "URI: " . $entry{uri};
+	use URI;
+	$entry{uri} = URI->new($entry{uri})->canonical;
 
 	my $link = Rubric::Link->find_or_create({ uri => $entry{uri} });
 
-	my $entry = Rubric::Entry->find_or_create({ link => $link });
+	my $entry = Rubric::Entry->find_or_create({
+		link => $link,
+		user => $self->param('current_user')
+	});
 
-	$entry->entrytags->delete_all;
-
-	$entry->user($self->param('current_user'));
 	$entry->title($entry{title});
 	$entry->description($entry{description});
 
-	$entry->add_to_tags({ tag => $_ })
-		for grep /\w+/, split /\s+/, $entry{tags};
+	$entry->update;
+	
+	$entry->set_new_tags(grep /\w+/, split /\s+/, $entry{tags});
 
 	$self->display_entries;
 }

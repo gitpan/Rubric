@@ -1,5 +1,6 @@
 package Rubric::Entry;
 use base qw(Rubric::DBI);
+use Time::Piece;
 
 __PACKAGE__->table('entries');
 
@@ -14,26 +15,25 @@ __PACKAGE__->has_a($_ => 'Time::Piece', deflate => 'epoch')
 __PACKAGE__->has_many(entrytags => 'Rubric::EntryTag' );
 __PACKAGE__->has_many(tags => [ 'Rubric::EntryTag' => tag ]);
 
-__PACKAGE__->add_trigger(before_create => \&title_default);
-__PACKAGE__->add_trigger(before_update => \&title_default);
+__PACKAGE__->add_trigger(before_create => \&default_title);
 
 __PACKAGE__->add_trigger(before_create => \&create_times);
 __PACKAGE__->add_trigger(before_update => \&update_times);
 
-sub title_default {
+sub default_title {
 	my $self = shift;
-	$self->title($self->{title} || 'default');
+	$self->title('(default)') unless $self->{title}
 }
 
 sub create_times {
 	my $self = shift;
-	$self->created(time) unless $self->{created};
-	$self->modified(time) unless $self->{modified};
+	$self->created(scalar gmtime) unless $self->{created};
+	$self->modified(scalar gmtime) unless $self->{modified};
 }
 
 sub update_times {
 	my $self = shift;
-	$self->modified(gmtime);
+	$self->modified(scalar gmtime);
 }
 
 sub by_tag {
@@ -51,6 +51,14 @@ sub by_tag {
 	%wheres
 		? $self->search_where(\%wheres, { order_by => "created DESC" })
 		: $self->retrieve_all;
+}
+
+sub set_new_tags {
+	my ($self, @tags) = @_;
+	$self->entrytags->delete_all;
+	$self->update;
+
+	$self->add_to_tags({ tag => $_ }) for @tags;
 }
 
 __PACKAGE__->set_sql(RetrieveAll => <<'');

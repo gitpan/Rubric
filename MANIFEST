@@ -20,7 +20,6 @@ style/rubric.css
 t/00_load.t
 t/pod.t
 templates/entries.html
-templates/entries.txt
 templates/entry.html
 templates/link.html
 templates/links.html
