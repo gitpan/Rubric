@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: Config.pm,v 1.3 2004/11/25 05:58:54 rjbs Exp $
+ $Id: Config.pm,v 1.4 2004/12/07 14:40:47 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -73,6 +73,22 @@ template renderer.
 =cut
 
 sub template_path { (shift)->read_config->{template_path} }
+
+=head2 email_from
+
+This method returns the email address from which Rubric will send email.
+
+=cut
+
+sub email_from { (shift)->read_config->{email_from} }
+
+=head2 smtp_server
+
+This method returns the SMTP server used to send email.
+
+=cut
+
+sub smtp_server { (shift)->read_config->{smtp_server} }
 
 =head1 TODO
 

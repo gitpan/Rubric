@@ -25,7 +25,8 @@ CREATE TABLE users (
 	username PRIMARY KEY,
 	password NOT NULL,
 	email NOT NULL,
-	validation_code
+	created NOT NULL,
+	verification_code
 );
 
 CREATE TABLE entries (
@@ -50,4 +51,4 @@ CREATE TABLE rubric (
 	schema_version NOT NULL
 );
 
-INSERT INTO rubric (schema_version) VALUES (10);
+INSERT INTO rubric (schema_version) VALUES (6);

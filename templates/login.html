@@ -1,6 +1,10 @@
 	<h2>login</h2>
 	[% IF user %]
+	[% IF user_pending %]
+	<h3 class='error'>You haven't verified your account.  Check your mail.</h3>
+	[% ELSE %]
 	<h3 class='error'>That username/password combination doesn't match.</h3>
+	[% END %]
 	[% END %]
 	<div class='loginform'>
 		<form id='loginform' action='login' method='POST'>

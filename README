@@ -4,6 +4,16 @@ Rubric is a note-keeping system that also serves as a bookmark manager.  Users
 store entries, which are small (or large) notes with a set of categorizing
 "tags."  Entries may also refer to URIs.
 
+--- UPGRADING ---
+
+Things you'll have to do:
+
+1. install the new templates (and probably the css)
+2. install the modules
+3. run updatedb.pl (from the location of rubric.cgi/.yml)
+4. update your config
+   (recently new: smtp_server and email_from)
+
 --- INSTALLATION ---
 
 Things you'll have to do to use it:

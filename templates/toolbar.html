@@ -12,10 +12,9 @@
 		[% END %]
 		[% IF current_user %]
 		| <a href='[% uri.post_entry %]'>new entry</a>
-		[% END %]
-		[% IF current_user %]
 		| <a href='[% uri.logout %]'>logout</a>
 		[% ELSE %]
+		| <a href='[% uri.newuser %]'>register</a>
 		| <a href='[% uri.login %]'>login</a>
 		[% END %]
 	</div>

@@ -102,23 +102,23 @@ div.taglist h3 { text-align: center; }
 
 span.tag_count { float: left; text-align: right; width: 2em; }
 
-div.entryform table th {
-	text-align: right;
-}
-
 div.must_login {
 	margin-left: 1em;
 	margin-right: 1em;
 	padding: .5em;
 }
 
-div.loginform, div.entryform {
+form th {
+	text-align: right;
+}
+
+form {
 	margin-left: 1em;
 	margin-right: 1em;
 	padding: .5em;
 }
 
-form#loginform td.submit, form#entryform td.submit {
+form td.submit {
 	text-align: right
 }
 

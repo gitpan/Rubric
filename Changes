@@ -1,5 +1,9 @@
 Revision history for Rubric
 
+0.00_20 2004-12-07
+        new user registration works, but is horribly coded
+        "copy" link to copy other users' links also works, but is ugly
+
 0.00_13 2004-12-02
         cvs had sticky-rev'd some files which were released despite being old
         all files updated

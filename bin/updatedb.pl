@@ -170,7 +170,83 @@ END_SQL
 	$dbh->do($_) for split /\n\n/, $sql;
 };
 
-$from{5} = last_version;
+# from 5 to 6
+#  add "created" column to users
+
+$from{5} = sub {
+	my $sql = <<'END_SQL';
+	CREATE TABLE new_users (
+		username PRIMARY KEY,
+		password NOT NULL,
+		email NOT NULL,
+		created NOT NULL,
+		validation_code
+	);
+
+	INSERT INTO new_users
+	SELECT username, password, email, 0, validation_code
+	FROM users;
+
+	DROP TABLE users;
+
+	CREATE TABLE users (
+		username PRIMARY KEY,
+		password NOT NULL,
+		email NOT NULL,
+		created NOT NULL,
+		validation_code
+	);
+
+	INSERT INTO users
+	SELECT * FROM new_users;
+
+	DROP TABLE new_users;
+
+	UPDATE rubric SET schema_version = 6;
+END_SQL
+
+	$dbh->do($_) for split /\n\n/, $sql;
+};
+
+# from 6 to 7
+#  validation_code is now verification_code
+
+$from{6} = sub {
+	my $sql = <<'END_SQL';
+	CREATE TABLE new_users (
+		username PRIMARY KEY,
+		password NOT NULL,
+		email NOT NULL,
+		created NOT NULL,
+		verification_code
+	);
+
+	INSERT INTO new_users
+	SELECT username, password, email, 0, validation_code
+	FROM users;
+
+	DROP TABLE users;
+
+	CREATE TABLE users (
+		username PRIMARY KEY,
+		password NOT NULL,
+		email NOT NULL,
+		created NOT NULL,
+		verification_code
+	);
+
+	INSERT INTO users
+	SELECT * FROM new_users;
+
+	DROP TABLE new_users;
+
+	UPDATE rubric SET schema_version = 7;
+END_SQL
+
+	$dbh->do($_) for split /\n\n/, $sql;
+};
+
+$from{7} = last_version;
 
 while ($_ = determine_version) {
 	print "updating from version $_...\n";

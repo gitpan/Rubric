@@ -6,7 +6,7 @@ Rubric::WebApp::URI - URIs for Rubric web requests
 
 =head1 VERSION
 
- $Id: URI.pm,v 1.3 2004/11/25 05:58:54 rjbs Exp $
+ $Id: URI.pm,v 1.6 2004/12/07 14:40:47 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -52,6 +52,14 @@ URI to form for log in
 =cut
 
 sub login { Rubric::Config->uri_root . '/login' }
+
+=head2 newuser
+
+URI to form for new user registration form
+
+=cut
+
+sub newuser { Rubric::Config->uri_root . '/newuser' }
 
 =head2 entries(\%arg)
 
@@ -121,6 +129,17 @@ URI for new entry form
 =cut
 
 sub post_entry { Rubric::Config->uri_root . "/post"; }
+
+=head2 verify_user
+
+URI for new entry form
+
+=cut
+
+sub verify_user {
+	my ($class, $user, $code) = @_;
+	Rubric::Config->uri_root . "/verify/$user/" . $user->verification_code;
+}
 
 =head1 TODO
 

@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.00_13
+version 0.00_20
 
- $Id: WebApp.pm,v 1.30 2004/12/02 13:56:55 rjbs Exp $
+ $Id: WebApp.pm,v 1.38 2004/12/07 14:44:48 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.00_13';
+our $VERSION = '0.00_20';
 
 =head1 SYNOPSIS
 
@@ -39,6 +39,8 @@ basic dispatch table looks something like this:
  -------------+-------------------------------------------+--------------
  /login       | log in to a user account                  | login
  /logout      | log out                                   | logout
+ /newuser     | create a new user account                 | newuser
+ /verify      | verify a pending user account             | verify
  /post        | post or edit an entry (must be logged in) | post
  /edit        | edit an entry (must be logged in)         | edit
  /delete      | delete an entry (must be logged in)       | delete_entry
@@ -57,11 +59,15 @@ use Digest::MD5 qw(md5_hex);
 use strict;
 use warnings;
 
+use Email::Address;
+use Email::Send;
+
 use Rubric::Config;
 use Rubric::Entry;
 use Rubric::Link;
 use Rubric::Renderer;
 use Rubric::User;
+use Rubric::WebApp::URI;
 
 use Template;
 use URI; 
@@ -124,7 +130,9 @@ sub check_for_login {
 
 	my $login_pass = $self->query->param('password');
 	if (md5_hex($login_pass) eq $login_user->password) {
-		$self->session->param('current_user',$self->query->param('user'));
+		$login_user->verification_code
+			? $self->param('user_pending', 1)
+			: $self->session->param('current_user',$self->query->param('user'))
 	}
 }
 
@@ -212,7 +220,9 @@ sub setup {
 	$self->mode_param(path_info => 1);
 	$self->start_mode('recent');
 	
-	$self->run_modes([qw[edit entry login logout post recent user tag]]);
+	$self->run_modes([
+		qw[ edit entry login logout newuser post recent user verify tag ]
+	]);
 	$self->run_modes(delete => 'delete_entry');
 }
 
@@ -253,11 +263,13 @@ the Rubric site.  Otherwise, a login form is provided.
 
 sub login {
 	my ($self) = @_;
-	if ($self->param('current_user')) {
-		return $self->redirect( Rubric::Config->uri_root, "Logged in..." );
-	}
+
+	return $self->redirect( Rubric::Config->uri_root, "Logged in..." )
+		if $self->param('current_user');
+
 	$self->template('login' => {
-		user => scalar $self->query->param('user')
+		user => scalar $self->query->param('user'),
+		user_pending => scalar $self->param('user_pending')
 	});
 }
 
@@ -276,6 +288,130 @@ sub logout {
 	return $self->redirect( Rubric::Config->uri_root, "Logged out..." );
 }
 
+=head2 newuser
+
+If the proper form information is present, this runmode creates a new user
+account.  If not, it presents a form.
+
+If a user is already logged in, the user is redirected to the root of the
+Rubric.
+
+=cut
+
+sub newuser {
+	my ($self) = @_;
+
+	return $self->redirect( Rubric::Config->uri_root, "Already logged in..." )
+		if $self->param('current_user');
+	
+	my %newuser;
+	$newuser{$_} = $self->query->param($_)
+		for qw(username password_1 password_2 email);
+
+	my %errors = $self->validate_newuser_form(\%newuser);
+	if (%errors) {
+		$self->template('newuser' => { %newuser, %errors});
+	} else {
+		$self->create_newuser(%newuser);
+	}
+}
+
+sub validate_newuser_form {
+	my ($self, $newuser) = @_;
+	my %errors;
+
+	if ($newuser->{username} and $newuser->{username} !~ /^[\w\d.]+$/) {
+		undef $newuser->{username};
+		$errors{username_invalid} = 1;
+	} elsif (Rubric::User->retrieve($newuser->{username})) {
+		undef $newuser->{username};
+		$errors{username_taken} = 1;
+	}
+	
+	unless ($newuser->{email}) {
+		$errors{email_missing} = 1;
+	} elsif ($newuser->{email} and $newuser->{email} !~ $Email::Address::addr_spec) {
+		undef $newuser->{email};
+		$errors{email_invalid} = 1;
+	}
+
+	if (
+		$newuser->{password_1} and $newuser->{password_2}
+		and $newuser->{password_1} ne $newuser->{password_2}
+	) {
+		undef $newuser->{password_1};
+		undef $newuser->{password_2};
+		$errors{password_mismatch} = 1;
+	}
+	return %errors;
+}
+
+sub create_newuser {
+	my ($self, %newuser) = @_;
+
+	my $verification_code = md5_hex("%newuser".time);
+
+	my $user = Rubric::User->create({
+		username => $newuser{username},
+		password => md5_hex($newuser{password_1}),
+		email    => $newuser{email},
+		verification_code => $verification_code
+	});
+
+	my $verification_link = Rubric::WebApp::URI->verify_user($user);
+
+	my $email_from = Rubric::Config->email_from;
+
+	my $message = <<"EMAIL";
+To: $newuser{email}
+From: $email_from
+Subject: new user registration
+
+You have created a new Rubric account, $newuser{username}.
+
+Please verify it by following this link:
+	$verification_link
+
+-- 
+Rubric
+EMAIL
+
+	send SMTP => $message => Rubric::Config->smtp_server;
+
+	$self->template("account_created");
+}
+
+=head2 verify
+
+This runmode attempts to verify a user account.  It expects a request to be
+in the form: C< /verify/username/verification_code >
+
+=cut
+
+sub verify {
+	my ($self) = @_;
+
+	return $self->redirect( Rubric::Config->uri_root, "Already logged in..." )
+		if $self->param('current_user');
+
+	$self->get_user->get_verification_code;
+	return $self->redirect(Rubric::Config->uri_root, "no such user")
+		if defined $self->param('user') and $self->param('user') eq '';
+
+	return $self->param('user')->verify($self->param('verification_code'))
+		? $self->template('verified')
+		: $self->redirect(Rubric::Config->uri_root, "BAD USER NO VALIDATION");
+}
+
+sub get_verification_code {
+	my ($self) = @_;
+
+	my $verification_code = shift @{$self->param('path')};
+	$self->param(verification_code => $verification_code || '');
+
+	return $self;
+}
+
 =head2 user
 
 This method will find the user requested (the name after "/user/" in the path)
@@ -286,13 +422,18 @@ method.
 
 sub user {
 	my ($self) = @_;
+	$self->get_user->get_tags->display_entries;
+}
+
+sub get_user {
+	my ($self) = @_;
 
 	my $username = shift @{$self->param('path')};
-	if ($username =~ /^\w+$/) {
-		$self->param(user => Rubric::User->retrieve($username));
+	if ($username =~ /^[\w\d.]+$/) {
+		$self->param(user => Rubric::User->retrieve($username) || '');
 	}
 
-	$self->tag;
+	return $self;
 }
 
 =head2 tag
@@ -305,11 +446,17 @@ path) and redispatches to C<display_entries>.
 sub tag {
 	my ($self) = @_;
 
+	$self->get_tags->display_entries;
+}
+
+sub get_tags {
+	my ($self) = @_;
+
 	my $tags = shift @{$self->param('path')};
 
 	$self->param(tags => [ split /\+/, ($tags || '') ]);
 
-	$self->display_entries;
+	return $self;
 }
 
 =head2 recent
@@ -340,7 +487,10 @@ resulting page with C<render_entries>.
 sub display_entries {
 	my ($self) = @_;
 
-	my %search  = (
+	return $self->redirect(Rubric::Config->uri_root, "no such user")
+		if defined $self->param('user') and $self->param('user') eq '';
+
+	my %search = (
 		user => $self->param('user'),
 		tags => $self->param('tags'),
 		link => scalar $self->query->param('link'),

@@ -6,6 +6,7 @@ bin/load_yml.pl
 bin/makedb.pl
 bin/rubric.cgi
 bin/updatedb.pl
+bin/vacuumdb.pl
 Changes
 etc/rubric.yml
 lib/Rubric/Config.pm
@@ -24,19 +25,22 @@ README
 style/rubric.css
 t/00_load.t
 t/pod.t
+templates/account_created.html
 templates/entries.html
 templates/entry.html
 templates/entry_long.html
+templates/footer.html
+templates/header.html
 templates/link.html
 templates/links.html
 templates/login.html
 templates/must_login.html
-templates/post.html
-templates/toolbar.html
+templates/newuser.html
 templates/page_data.html
+templates/post.html
 templates/template.html
-templates/footer.html
-templates/header.html
+templates/toolbar.html
+templates/verified.html
 
-templates/template.rss
 templates/entries.rss
+templates/template.rss

@@ -14,6 +14,8 @@ WriteMakefile(
 		'Config::Auto'     => 0.11,
 		'DBD::SQLite'      => 1.07,
 		'Digest::MD5'      => 0.00,
+		'Email::Address'   => 0.00,
+		'Email::Send'      => 0.00,
 		'Template'         => 2.00,
 		'Time::Piece'      => 0.00,
 		'YAML'             => 0.00,

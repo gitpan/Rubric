@@ -8,8 +8,12 @@
 			[% UNLESS long_form %]
 			[% IF entry.body %]<a href='[% uri.entry(entry) %]'>(body)</a>[% END %]
 			[% END %]
+			[% IF current_user %]
 			[% IF current_user == entry.user %]
 			<a href='[% uri.edit_entry(entry) %]'>(edit)</a>
+			[% ELSE %]
+			<a href="[% uri.post_entry %]?uri=[% entry.link | uri %]&[% entry.title | uri %]">(copy)</a>
+			[% END %]
 			[% END %]
 		</div>
 		[% IF entry.description %]
