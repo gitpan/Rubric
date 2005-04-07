@@ -10,7 +10,7 @@ Rubric::WebApp::Login - web login processing
 
 version 0.01
 
- $Id: Login.pm,v 1.2 2005/01/20 20:58:59 rjbs Exp $
+ $Id: Login.pm,v 1.3 2005/04/07 22:44:42 rjbs Exp $
 
 =cut
 
@@ -26,9 +26,22 @@ the Rubric.
 =head2 Rubric::WebApp::Login->check_for_login($webapp)
 
 This method is called by the WebApp's C<cgiapp_init>, and checks for a login
-attempt in the submitted request.  First, it checks for an HTTP login with
-C<check_for_http_login>, then for a login via POSTed parameters with
-C<check_for_post_login>.
+attempt in the submitted request.  
+
+It looks for a login username by calling C<get_login_username>, then converts
+the login name to a Rubric name by calling C<map_username> and returns
+immediately if the name can't be shown valid by calling C<valid_username>.
+
+It retrieves the User object by calling C<get_login_user> or, if needed,
+C<autocreate_user>, and returns if it can't get a User object.  It tries to
+authenticate by calling C<authenticate_login>.  If the user is authorized but
+isn't verified, he won't be logged in and the C<user_pending> parameter will be
+set on the Rubric::WebApp object.  Otherwise, he will be logged in with
+C<set_current_user>.
+
+Most of the methods above are virtual methods in this class, and should be
+implemented in subclasses.  The bundled L<Rubric::WebApp::Login::Post> (the
+default) and L<Rubric::WebApp::Login::HTTP> serve as examples.
 
 =cut
 
@@ -42,9 +55,11 @@ sub check_for_login {
 	return unless my $user =
 		$self->get_login_user($username) || $self->autocreate_user($username);
 	return unless $self->authenticate_login($webapp, $user);
-	$webapp->param('user_pending', 1) if $user->verification_code;
-
-	$self->set_current_user($webapp, $user);
+	if ($user->verification_code) {
+		$webapp->param('user_pending', 1);
+	} else {
+		$self->set_current_user($webapp, $user);
+	}
 }
 
 =head2 get_login_username($webapp)

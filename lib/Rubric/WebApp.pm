@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.07_07
+version 0.08
 
- $Id: WebApp.pm,v 1.98 2005/04/05 01:16:26 rjbs Exp $
+ $Id: WebApp.pm,v 1.99 2005/04/07 22:44:42 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.07_07';
+our $VERSION = '0.08';
 
 =head1 SYNOPSIS
 
@@ -374,8 +374,7 @@ settings may be changed.
 sub preferences {
 	my ($self) = @_;
 
-	return $self->redirect_root("permission denied")
-		unless $self->param('current_user');
+	return $self->login unless $self->param('current_user');	
 	
 	return $self->template("preferences")
 		unless my %prefs = $self->_get_prefs_form;

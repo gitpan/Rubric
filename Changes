@@ -1,6 +1,13 @@
 Revision history for Rubric
 
+0.08    2005-04-07
+        use normal must-login/redirect-on-login behavior for /preferences
+        honor requirement for verification on unverified users
+        use html_line_breaks in RSS feed for paragraphing
+        POD corrections
+
 0.07_07 2005-04-04
+        added exact_tags query string
         +/- filter on taglist centers on gecko; gecko bug must die
         updated "related tags" taglist for clarity of add/remove tags
         RSS should now validate and work everywhere (I think)
