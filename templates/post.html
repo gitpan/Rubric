@@ -1,4 +1,29 @@
-	[% PROCESS "user_tags.html" %]
+	[% PROCESS "user_tags.html" reason = "post" %]
+
+	<script type='text/javascript'>
+		function addTag2(tagToAdd) {
+			tagInput = document.getElementsByName('tags')[0];
+			var tags = [];
+			if (tagInput.value) tags = tagInput.value.split(/\s+/);
+			for (i in tags) { if (tags[i] == tagToAdd) return; }
+			tags = tags.concat(tagToAdd).sort();
+			tagInput.value = tags.join(" ");
+		}
+	</script>
+
+	<div class='taglist link'>
+	<h3>link's tags</h3>
+	[% FOREACH tag = existing_link.tags_counted %]
+	<div class='tag'>
+		<span class='tag_count'>[% tag.1 %]</span>
+		&nbsp;
+		<a href='javascript:addTag2("[% tag.0 %]")'>
+			[% tag.0 %]
+		</a>
+		&nbsp;
+	</div>
+	[% END %]
+	</div>
 
 	[% IF existing_entry.created %]
 	<h2>revise entry</h2>
@@ -7,7 +32,7 @@
 	<h3>last modified: [% existing_entry.modified %]</h3>
 	[% END %]
 	<div class='delete'>
-		<a href='[% uri.delete_entry(existing_entry) %]'>delete this entry</a>
+		<a href="[% uri.delete_entry(existing_entry) %]?then_goto=[% then_goto | uri %]">delete this entry</a>
 	</div>
 	[% ELSE %]
 	<h2>new entry</h2>
@@ -39,7 +64,7 @@
 				</tr>
 				<tr><td class='submit' colspan='2'>
 					<input type='hidden' name='entryid'   value='[%existing_entry.id%]' />
-					<input type='hidden' name='then_goto' value='[% then_goto %]' />
+					<input type='hidden' name='then_goto' value="[% then_goto | uri %]" />
 					<input type='hidden' name='when_done' value='[% when_done %]' />
 					<input type='submit' name='submit' value='save' />
 				</td></tr>

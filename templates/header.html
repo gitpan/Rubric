@@ -3,7 +3,7 @@
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-	<title>Rubric</title>
+	<title>Rubric[% ": " _ query_description IF query_description %]</title>
 	<link href='[% uri.stylesheet %]' rel='stylesheet' type='text/css' />
 	<link rel="alternate" type="application/rss+xml" title="RSS"
 		href='[% uri.entries(user => user, tags => tags, has_link => has_link,

@@ -8,7 +8,7 @@ Rubric::Entry::Query - construct and execute a complex query
 
 version 0.04
 
- $Id: Query.pm,v 1.7 2005/04/04 22:04:45 rjbs Exp $
+ $Id: Query.pm,v 1.9 2005/04/08 01:53:18 rjbs Exp $
 
 =cut
 
@@ -154,6 +154,20 @@ This returns SQL to limit the results to entries with links.
 sub constraint_for_has_link {
 	my ($self, $bool) = @_;
 	return $bool ? "link IS NOT NULL" : "link IS NULL";
+}
+
+=head3 constraint_for_first_only($bool)
+
+This returns SQL to limit the results to the first entry posted for any given
+link.
+
+=cut
+
+sub constraint_for_first_only {
+	my ($self, $bool) = @_;
+	return $bool
+		? "(link is NULL OR id IN (SELECT MIN(id) FROM entries GROUP BY link))"
+		: ();
 }
 
 =head3 constraint_for_urimd5($md5)

@@ -25,6 +25,10 @@ h2 {
 	margin-bottom: 0;
 }
 
+h2.query {
+	margin-bottom: .25em;
+}
+
 h3 {
 	padding-left: 1em;
 	margin-bottom: .25em;

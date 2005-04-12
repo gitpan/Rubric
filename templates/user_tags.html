@@ -1,4 +1,14 @@
 	<script type='text/javascript'>
+		[% IF reason == "post" %]
+		function addTag(tagToAdd) {
+			tagInput = document.getElementsByName('tags')[0];
+			var tags = [];
+			if (tagInput.value) tags = tagInput.value.split(/\s+/);
+			for (i in tags) { if (tags[i] == tagToAdd) return; }
+			tags = tags.concat(tagToAdd).sort();
+			tagInput.value = tags.join(" ");
+		}
+		[% END %]
 		var filter_below = 1;
 
 		function refilter_tags() {
@@ -32,8 +42,8 @@
 		}
 	</script>
 
-	<div class='taglist all' id='user_tags'>
-	<h3>all tags</h3>
+	<div class='taglist user' id='user_tags'>
+	<h3>your tags</h3>
 	<div style='text-align:center'>
 		<span><a href='javascript:show_more(5)'>--</a></span>
 		<span><a href='javascript:show_more(1)'>-</a></span>
@@ -45,7 +55,11 @@
 	<div class='tag'>
 		<span class='tag_count'>[% tag.1 %]</span>
 		&nbsp;
+		[% IF reason == "post" %]
+		<a href='javascript:addTag("[% tag.0 %]")'>
+		[% ELSE %]
 		<a href='[% uri.entries(user => user, tags => [ tag.0 ]) %]'>
+		[% END %]
 			[% tag.0 %]
 		</a>
 		&nbsp;

@@ -8,7 +8,7 @@ Rubric::WebApp::Entries - process the /entries run method
 
 version 0.05
 
- $Id: Entries.pm,v 1.12 2005/04/04 22:55:17 rjbs Exp $
+ $Id: Entries.pm,v 1.18 2005/04/10 17:02:08 rjbs Exp $
 
 =cut
 
@@ -53,11 +53,41 @@ sub entries {
 	if (my $uri = $webapp->query->param('uri')) {
 		$arg{urimd5} = md5_hex($uri) unless $arg{urimd5};
 	}
-	$webapp->param(recent_tags => Rubric::Entry->recent_tags_counted)
-		unless %arg;
+
+	unless (%arg) {
+		$webapp->param(recent_tags => Rubric::Entry->recent_tags_counted);
+		$arg{first_only} = 1 unless %arg;
+	}
+
 	my $entries = Rubric::Entry->query(\%arg);
+	$webapp->param(query_description => $self->describe_query(\%arg));
 
 	$webapp->page_entries($entries)->render_entries(\%arg);
+}
+
+=head2 describe_query(\%arg)
+
+returns a human-readable description of the query described by C<%args>
+
+=cut
+
+sub describe_query {
+	my ($self, $arg) = @_;
+	my $description;
+	$description .= "$arg->{user}'s " if $arg->{user};
+	$description .= "entries";
+	for (qw(body link)) {
+		if (defined $arg->{"has_$_"}) {
+			$description .= " with" . ($arg->{"has_$_"} ? "" : "out") . " a $_,";
+		}
+	}
+	if ($arg->{exact_tags} and @{ $arg->{exact_tags} }) {
+		$description .= " filed under { " . join(', ', @{$arg->{exact_tags}}) . " } only";
+	} elsif ($arg->{tags} and @{ $arg->{tags} }) {
+		$description .= " filed under { " . join(', ', @{$arg->{tags}}) . " }";
+	}
+	$description =~ s/,\Z//;
+	return $description;
 }
 
 =head2 get_arg($param => $value)
@@ -130,6 +160,17 @@ Returns the given boolean as 0 or 1.
 =cut
 
 sub arg_for_has_link {
+	my ($self, $bool) = @_;
+	return $bool ? 1 : 0;
+}
+
+=head3 arg_for_first_only($bool)
+
+Returns the given boolean as 0 or 1.
+
+=cut
+
+sub arg_for_first_only {
 	my ($self, $bool) = @_;
 	return $bool ? 1 : 0;
 }

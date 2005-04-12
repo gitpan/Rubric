@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.08
+version 0.09_01
 
- $Id: WebApp.pm,v 1.99 2005/04/07 22:44:42 rjbs Exp $
+ $Id: WebApp.pm,v 1.104 2005/04/12 11:53:47 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.08';
+our $VERSION = '0.09_01';
 
 =head1 SYNOPSIS
 
@@ -62,6 +62,7 @@ use CGI::Application::Session;
 use CGI::Carp qw(fatalsToBrowser);
 
 use Digest::MD5 qw(md5_hex);
+use Encode qw(decode_utf8);
 
 use strict;
 use warnings;
@@ -698,6 +699,7 @@ sub render_entries {
 		self_url     => $self->query->self_url(),
 		long_form    => scalar $self->query->param('long_form'),
 		recent_tags  => $self->param('recent_tags'),
+		query_description => $self->param('query_description'),
 	});
 }
 
@@ -718,6 +720,7 @@ sub edit {
 		unless $self->param('entry')->user eq $self->param('current_user');
 
 	$self->param('existing_entry', $self->param('entry'));
+	$self->param('existing_link',  $self->param('entry')->link);
 	return $self->post_form();
 }
 
@@ -740,6 +743,15 @@ sub _post_form_contents {
 
 	$form{$_} = $self->query->param($_)
 		for qw(entryid uri title description tags body);
+
+	for (qw(uri title description body)) {
+		eval { decode_utf8($form{$_}, Encode::FB_CROAK) };
+		$error{$_} = "Invalid UTF-8 characters in $_." if $@;
+	}
+
+	$form{$_} = $self->query->param($_)
+		for qw(entryid uri title description tags body);
+
 	eval { $form{uri} = URI->new($form{uri})->canonical; };
 	$error{uri} = "Invalid URI" if $@;
 	if (
@@ -753,11 +765,12 @@ sub _post_form_contents {
 	}
 	$error{tags} =
 		"Tags may only contain letters, numbers, dot, colon, and asterisk."
-		if $form{tags} =~ /[^\s\w\d:.*]/;
+		if ($form{tags} || '') =~ /[^\s\w\d:.*]/;
 
 	if ($form{uri} and Rubric::Config->one_entry_per_link) {
 		if (my ($link) = Rubric::Link->search({uri => $form{uri}})) {
-			my $existing_entry = Rubric::Entry->search(
+			$self->param('existing_link', $link);
+			my ($existing_entry) = Rubric::Entry->search(
 				{link => $link, user => $self->param('current_user') }
 			);
 			if ($existing_entry) {
@@ -814,6 +827,7 @@ sub post_form {
 		error          => $error,
 		user           => scalar $self->param('current_user'),
 		existing_entry => scalar $self->param('existing_entry'),
+		existing_link  => scalar $self->param('existing_link'),
 		then_goto      => scalar $self->query->param('then_goto'),
 		when_done      => scalar $self->query->param('when_done'),
 	});
@@ -843,10 +857,17 @@ sub delete {
 
 	$self->param('entry')->delete;
 
-	return $self->redirect(
-		Rubric::WebApp::URI->entries({user=>$self->param('current_user')}),
-		"Deleted..."
-	);
+	my $then_goto = $self->query->param('then_goto');
+
+	my $goto_uri;
+
+	if ($then_goto) {
+		$goto_uri = $then_goto;
+	} else {
+		$goto_uri = Rubric::WebApp::URI->entries({ user => $self->param('current_user') });
+	}
+
+	return $self->redirect( $goto_uri, "Deleted..." );
 }
 
 =head2 doc

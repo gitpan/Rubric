@@ -1,5 +1,15 @@
 Revision history for Rubric
 
+0.09_01 2005-04-12
+        describe queries (badly)
+        redirect to previous query after deleting a link
+        validate that post input is utf-8
+        add first_only query constraint
+        fix RSS more: use rdf:about attr as intended!
+        taglists tags are now "click to add" on post form
+        added "tags for this link"
+				if posting a non-unique uri, previous post defaults in (old bug?)
+
 0.08    2005-04-07
         use normal must-login/redirect-on-login behavior for /preferences
         honor requirement for verification on unverified users
