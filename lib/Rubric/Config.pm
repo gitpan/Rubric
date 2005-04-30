@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: Config.pm,v 1.19 2005/04/05 00:38:37 rjbs Exp $
+ $Id: Config.pm,v 1.20 2005/04/15 13:26:14 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -149,7 +149,7 @@ my $default = {
 	email_from  => undef,
 	login_class => 'Rubric::WebApp::Login::Post',
 	smtp_server => undef,
-	uri_root    => undef,
+	uri_root    => '',
 	private_system => undef,
 	template_path  => undef,
 	allowed_schemes     => undef,

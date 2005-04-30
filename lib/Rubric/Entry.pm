@@ -6,7 +6,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.25 2005/04/05 00:38:37 rjbs Exp $
+ $Id: Entry.pm,v 1.27 2005/04/30 02:18:18 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -181,20 +181,26 @@ sub set_new_tags {
 =head2 tags_from_string($taglist)
 
 This (class) method takes a string of tags, delimited by whitespace, and
-returns a reference to an array of the tags, dropping invalid tags.
+returns an array of the tags, dropping invalid tags.
 
 Valid tags (shouldn't this be documented somewhere else instead?) may contain
-letters, numbers, underscores, colons, dots, and asterisks.
+letters, numbers, underscores, colons, dots, and asterisks.  Hyphens me be
+used, but not as the first character.
 
 =cut
 
 sub tags_from_string {
 	my ($class, $taglist) = @_;
 	my %seen;
-	my @tags = map { $seen{$_}++ ? () : $_ } 
-	           grep /\A\@?[\w\d:.*]+\Z/,
-	           split /\s+/, $taglist;
-	return \@tags;
+
+	my @tags = $tagstring ? map { $seen{$_}++ ? () : $_ }
+	                        split /\s+/, $taglist
+	                      : ();
+
+	die "invalid characters in tagstring" 
+		if grep { $_ !~ /\A[@\w\d:.*][-\w\d:.*]*\Z/o } @tags;
+
+	return @tags;
 }
 
 ## return retrieve_all'd objects in recent-to-older order

@@ -8,7 +8,7 @@ Rubric::Entry::Query - construct and execute a complex query
 
 version 0.04
 
- $Id: Query.pm,v 1.9 2005/04/08 01:53:18 rjbs Exp $
+ $Id: Query.pm,v 1.11 2005/04/13 00:57:55 rjbs Exp $
 
 =cut
 
@@ -130,8 +130,39 @@ sub constraint_for_exact_tags {
 	return unless my $count = @$tags;
 
 	return
-		"(SELECT COUNT(tag) FROM entrytags WHERE entry = entries.id) = $count",
+#		"(SELECT COUNT(tag) FROM entrytags WHERE entry = entries.id) = $count",
+		"id IN (SELECT entry FROM entrytags GROUP BY entry HAVING COUNT(tag) = $count)",
 		$self->constraint_for_tags($tags);
+}
+
+=head3 constraint_for_desc_like($value)
+
+=cut
+
+sub constraint_for_desc_like {
+	my ($self, $value) = @_;
+	my $like = substr Rubric::Entry->db_Main->quote($value), 1, -1;
+	"(description LIKE '\%$like\%' OR title LIKE '\%$like\%')"
+}
+
+=head3 constraint_for_body_like($value)
+
+=cut
+
+sub constraint_for_body_like {
+	my ($self, $value) = @_;
+	my $like = substr Rubric::Entry->db_Main->quote($value), 1, -1;
+	"(body LIKE '\%$like\%')"
+}
+
+=head3 constraint_for_like($value)
+
+=cut
+
+sub constraint_for_like {
+	my ($self, $value) = @_;
+	"("  . $self->constraint_for_desc_like($value) .
+	"OR" . $self->constraint_for_body_like($value) . ")"
 }
 
 =head3 constraint_for_has_body($bool)

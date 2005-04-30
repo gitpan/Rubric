@@ -7,7 +7,8 @@ use Rubric::Config;
 
 my $dbh = DBI->connect(
 	Rubric::Config->dsn,
-	undef, undef,
+	Rubric::Config->db_user,
+	Rubric::Config->db_pass,
 	{PrintError => 0}
 ) or die "can't connect to db";
 

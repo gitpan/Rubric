@@ -6,7 +6,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
- $Id: User.pm,v 1.20 2005/03/31 01:02:53 rjbs Exp $
+ $Id: User.pm,v 1.22 2005/04/30 02:18:18 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -174,7 +174,7 @@ sub _create_times {
 
 =head2 quick_entry(\%entry)
 
-This method creates or udpates an entry for the user.  The passed entry should
+This method creates or updates an entry for the user.  The passed entry should
 include the following data:
 
  uri         - the URI for the entry
@@ -195,7 +195,7 @@ sub quick_entry {
 	my ($self, $entry) = @_;
 
 	return unless $entry->{title};
-	$entry->{tags} = Rubric::Entry->tags_from_string($entry->{tags});
+	$entry->{tags} = [ Rubric::Entry->tags_from_string($entry->{tags}) ];
 
 	my $link;
 	if ($entry->{uri}) {

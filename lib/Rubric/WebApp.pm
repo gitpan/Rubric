@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.09_01
+version 0.09_02
 
- $Id: WebApp.pm,v 1.104 2005/04/12 11:53:47 rjbs Exp $
+ $Id: WebApp.pm,v 1.106 2005/04/15 13:26:14 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.09_01';
+our $VERSION = '0.09_02';
 
 =head1 SYNOPSIS
 
@@ -763,9 +763,11 @@ sub _post_form_contents {
 		$error{uri} = "Invalid URI; valid schemes are: "
 			. join(" ", @{ Rubric::Config->allowed_schemes });
 	}
+
+	eval { Rubric::Entry->tags_from_string($form{tags}) };
 	$error{tags} =
 		"Tags may only contain letters, numbers, dot, colon, and asterisk."
-		if ($form{tags} || '') =~ /[^\s\w\d:.*]/;
+		if $@;
 
 	if ($form{uri} and Rubric::Config->one_entry_per_link) {
 		if (my ($link) = Rubric::Link->search({uri => $form{uri}})) {

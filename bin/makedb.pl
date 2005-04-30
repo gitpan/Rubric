@@ -16,34 +16,34 @@ my $dbh = DBI->connect(Rubric::Config->dsn,undef,undef);
 
 __DATA__
 CREATE TABLE links (
-	id INTEGER PRIMARY KEY,
+	id  integer PRIMARY KEY,
 	uri varchar UNIQUE NOT NULL,
 	md5 varchar NOT NULL
 );
 
 CREATE TABLE users (
-	username PRIMARY KEY,
-	password NOT NULL,
-	email NOT NULL,
-	created NOT NULL,
+	username    PRIMARY KEY,
+	password    NOT NULL,
+	email       NOT NULL,
+	created     NOT NULL,
 	verification_code
 );
 
 CREATE TABLE entries (
-	id INTEGER PRIMARY KEY,
-	link integer,
-	user varchar NOT NULL,
-	title varchar NOT NULL,
-	created NOT NULL,
-	modified NOT NULL,
+	id          integer PRIMARY KEY,
+	link        integer,
+	user        varchar NOT NULL,
+	title       varchar NOT NULL,
+	created             NOT NULL,
+	modified            NOT NULL,
 	description varchar,
-	body TEXT
+	body                TEXT
 );
 
 CREATE TABLE entrytags (
-	id INTEGER PRIMARY KEY,
-	entry NOT NULL,
-	tag NOT NULL,
+	id          INTEGER PRIMARY KEY,
+	entry       NOT NULL,
+	tag         NOT NULL,
 	UNIQUE(entry, tag)
 );
 

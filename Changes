@@ -1,5 +1,10 @@
 Revision history for Rubric
 
+0.09_02 2005-04-??
+        basic experimental searching
+        hyphens allowed as non-first char in tag
+        uri_root defaults to "" not undef
+
 0.09_01 2005-04-12
         describe queries (badly)
         redirect to previous query after deleting a link

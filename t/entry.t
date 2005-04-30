@@ -17,7 +17,7 @@ BEGIN { use_ok("Rubric::Entry"); }
 }
 
 {
-	my $entry = Rubric::Entry->create({ user => 'rjbs' });
+	my $entry = Rubric::Entry->create({ user => 'jjj' });
 	my $tags = Rubric::Entry->tags_from_string("test more simple");
 	$entry->set_new_tags($tags);
 
@@ -27,7 +27,7 @@ BEGIN { use_ok("Rubric::Entry"); }
 
 {
 	my $entry = Rubric::Entry->create({
-		user => 'rjbs',
+		user => 'eb',
 		title => 'poot',
 		created => 0,
 		modified => 1000000000
@@ -42,5 +42,3 @@ BEGIN { use_ok("Rubric::Entry"); }
 	isa_ok($tags, 'ARRAY', 'recent_tags_counted');
 	isa_ok($tags->[0], 'ARRAY', 'recent_tags_counted->[0]');
 }
-
-

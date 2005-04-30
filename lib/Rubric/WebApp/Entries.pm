@@ -8,7 +8,7 @@ Rubric::WebApp::Entries - process the /entries run method
 
 version 0.05
 
- $Id: Entries.pm,v 1.18 2005/04/10 17:02:08 rjbs Exp $
+ $Id: Entries.pm,v 1.19 2005/04/13 00:57:55 rjbs Exp $
 
 =cut
 
@@ -52,6 +52,13 @@ sub entries {
 	}
 	if (my $uri = $webapp->query->param('uri')) {
 		$arg{urimd5} = md5_hex($uri) unless $arg{urimd5};
+	}
+
+	for (qw(like desc_like body_like)) {
+		if (my $param = $webapp->query->param($_)) {
+			warn "got param $_ with value $param";
+			$arg{$_} = $self->get_arg($_, $param);
+		}
 	}
 
 	unless (%arg) {
@@ -141,6 +148,33 @@ sub arg_for_tags {
 }
 
 sub arg_for_exact_tags { (shift)->arg_for_tags(@_) }
+
+=head3 arg_for_desc_like
+
+=cut
+
+sub arg_for_desc_like {
+	my ($self, $value) = @_;
+	return $value;
+}
+
+=head3 arg_for_body_like
+
+=cut
+
+sub arg_for_body_like {
+	my ($self, $value) = @_;
+	return $value;
+}
+
+=head3 arg_for_like
+
+=cut
+
+sub arg_for_like {
+	my ($self, $value) = @_;
+	return $value;
+}
 
 =head3 arg_for_has_body($bool)
 

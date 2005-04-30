@@ -38,7 +38,7 @@ BEGIN { use_ok("Rubric::User"); }
 	my $entry = $user->quick_entry({
 		title => "Quick Entry!!",
 		link  => "http://www.quick.com/",
-		tags  => [qw(quick entry test)]
+		tags  => "quick entry test"
 	});
 }
 
