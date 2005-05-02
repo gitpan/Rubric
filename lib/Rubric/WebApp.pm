@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.09_02
+version 0.09_03
 
- $Id: WebApp.pm,v 1.106 2005/04/15 13:26:14 rjbs Exp $
+ $Id: WebApp.pm,v 1.107 2005/05/02 13:40:16 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.09_02';
+our $VERSION = '0.09_03';
 
 =head1 SYNOPSIS
 

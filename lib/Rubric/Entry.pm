@@ -1,12 +1,15 @@
 package Rubric::Entry;
 
+use strict;
+use warnings;
+
 =head1 NAME
 
 Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.27 2005/04/30 02:18:18 rjbs Exp $
+ $Id: Entry.pm,v 1.28 2005/05/02 13:40:16 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -190,11 +193,11 @@ used, but not as the first character.
 =cut
 
 sub tags_from_string {
-	my ($class, $taglist) = @_;
+	my ($class, $tagstring) = @_;
 	my %seen;
 
 	my @tags = $tagstring ? map { $seen{$_}++ ? () : $_ }
-	                        split /\s+/, $taglist
+	                        split /\s+/, $tagstring
 	                      : ();
 
 	die "invalid characters in tagstring" 

@@ -1,6 +1,9 @@
 Revision history for Rubric
 
-0.09_02 2005-04-??
+0.09_03 2005-05-02
+        fix tag-destroying bug
+
+0.09_02 2005-04-29
         basic experimental searching
         hyphens allowed as non-first char in tag
         uri_root defaults to "" not undef

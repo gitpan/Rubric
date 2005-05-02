@@ -8,7 +8,7 @@ Rubric::WebApp::Entries - process the /entries run method
 
 version 0.05
 
- $Id: Entries.pm,v 1.19 2005/04/13 00:57:55 rjbs Exp $
+ $Id: Entries.pm,v 1.20 2005/05/02 13:40:16 rjbs Exp $
 
 =cut
 
@@ -56,7 +56,6 @@ sub entries {
 
 	for (qw(like desc_like body_like)) {
 		if (my $param = $webapp->query->param($_)) {
-			warn "got param $_ with value $param";
 			$arg{$_} = $self->get_arg($_, $param);
 		}
 	}

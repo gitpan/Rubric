@@ -18,7 +18,7 @@ BEGIN { use_ok("Rubric::Entry"); }
 
 {
 	my $entry = Rubric::Entry->create({ user => 'jjj' });
-	my $tags = Rubric::Entry->tags_from_string("test more simple");
+	my $tags = [ Rubric::Entry->tags_from_string("test more simple") ];
 	$entry->set_new_tags($tags);
 
 	is($entry->link, undef);
