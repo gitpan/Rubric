@@ -11,10 +11,7 @@ my @uris = (
 
 for (@uris) {
 	my $uri = URI->new($_);
-	my $link = Rubric::Link->find_or_create({
-		uri => $uri->canonical
-	});
-	print $link->id, " - ", $link->uri, "\n";
+	my $link = Rubric::Link->find_or_create({ uri => $uri->canonical });
 }
 
 Rubric::User->create({

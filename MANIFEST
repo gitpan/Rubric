@@ -13,6 +13,7 @@ etc/rubric.yml
 lib/Rubric.pm
 lib/Rubric/Config.pm
 lib/Rubric/DBI.pm
+lib/Rubric/DBI/Setup.pm
 lib/Rubric/Entry.pm
 lib/Rubric/Entry/Query.pm
 lib/Rubric/EntryTag.pm
@@ -32,6 +33,8 @@ README
 style/rubric.css
 
 t/00_load.t
+t/10_dbsetup.t
+t/20_testdata.t
 t/pod.t
 t/pod-coverage.t
 t/config_custom.t
@@ -43,7 +46,6 @@ t/link.t
 t/pod.t
 t/renderer.t
 t/user.t
-t/db/rubric.db
 
 templates/account_created.html
 templates/close_window.html

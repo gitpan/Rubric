@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.09_04
+version 0.09_05
 
- $Id: WebApp.pm,v 1.111 2005/05/24 12:58:45 rjbs Exp $
+ $Id: WebApp.pm,v 1.112 2005/05/27 12:24:07 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.09_04';
+our $VERSION = '0.09_05';
 
 =head1 SYNOPSIS
 
@@ -372,11 +372,11 @@ to him.
 
 sub reset_password {
 	my ($self) = @_;
-	my $reset_code = $self->get_reset_code;
 	my $user       = $self->get_user
-	                 ||
-                   Rubric::User->retrieve($self->query->param('user'));
+	                 || $self->query->param('user')
+	                 && Rubric::User->retrieve($self->query->param('user'));
 	# ^^ allow for username in path or query, though it shouldn't be in path
+	my $reset_code = $self->get_reset_code;
 
 	return $self->template("reset_login") unless $user;
 

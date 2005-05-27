@@ -1,5 +1,9 @@
 Revision history for Rubric
 
+0.09_05 2005-05-25
+        fixed bug that snuck back into _04, reset_password was broken
+        introduced Rubric::DBI::Setup for db maintenance
+
 0.09_04 2005-05-24
         refactor get_* to return property, not WebApp
         add stubby password-reset functionality
