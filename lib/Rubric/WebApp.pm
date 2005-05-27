@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.09_03
+version 0.09_04
 
- $Id: WebApp.pm,v 1.107 2005/05/02 13:40:16 rjbs Exp $
+ $Id: WebApp.pm,v 1.111 2005/05/24 12:58:45 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.09_03';
+our $VERSION = '0.09_04';
 
 =head1 SYNOPSIS
 
@@ -210,7 +210,7 @@ sub setup {
 	$self->mode_param(path_info => 1);
 	
 	$self->start_mode('login');
-	$self->run_modes([ qw(doc login newuser verify) ]);
+	$self->run_modes([ qw(doc login newuser reset_password verify) ]);
 
 	if ($self->param('current_user') or not Rubric::Config->private_system) {
 		$self->start_mode('entries');
@@ -262,7 +262,7 @@ sub entry {
 	my ($self) = @_;
 
 	return $self->template('no_entry', { reason => 'missing' })
-		unless $self->get_entry->param('entry');
+		unless $self->get_entry;
 
 	$self->template('entry_long' => {
 		entry => $self->param('entry'),
@@ -282,7 +282,6 @@ sub get_entry {
 
 	my $entry = Rubric::Entry->retrieve($self->next_path_part);
 	$self->param(entry => $entry);
-	return $self;
 }
 
 =head2 link
@@ -317,7 +316,6 @@ sub get_link {
 	return unless %search;
 	return unless my ($link) = Rubric::Link->search(\%search);
 	$self->param('link', $link);
-	return $self;
 }
 
 =head2 login
@@ -337,7 +335,7 @@ sub login {
 	}
 
 	my $note;
-	if ($self->mode_param ne 'login') {
+	if ($self->get_current_runmode ne 'login') {
 		$note = "You must log in to use this feature.";
 		$self->query->param('then_goto', $self->query->self_url);
 	}
@@ -363,6 +361,48 @@ sub logout {
 	$self->param('current_user', undef);
 
 	return $self->redirect_root("Logged out...");
+}
+
+=head2 reset_password
+
+This run mode allows a user to request that his password be reset and emailled
+to him.
+
+=cut
+
+sub reset_password {
+	my ($self) = @_;
+	my $reset_code = $self->get_reset_code;
+	my $user       = $self->get_user
+	                 ||
+                   Rubric::User->retrieve($self->query->param('user'));
+	# ^^ allow for username in path or query, though it shouldn't be in path
+
+	return $self->template("reset_login") unless $user;
+
+	return $self->setup_reset_code($user) unless $reset_code;
+
+	if (my $password = $user->reset_password($reset_code)) {
+		$self->template("reset", { password => $password });
+	} else {
+		return $self->template("reset_error");
+	}
+
+}
+
+=head2 setup_reset_code
+
+This routine gets a reset code for the user and emails it to him.
+
+=cut
+
+sub setup_reset_code {
+	my ($self, $user) = @_;
+
+	my $reset_code = $user->randomize_reset_code;
+
+	$self->send_reset_email_to($user, $reset_code);
+	$self->template("reset_sent");
 }
 
 =head2 preferences
@@ -540,15 +580,32 @@ sub create_newuser {
 		email    => $newuser{email},
 	);
 
-	$user{verification_code} = md5_hex("%user".time)
-		unless Rubric::Config->skip_newuser_verification;
-
 	my $user = Rubric::User->create(\%user);
 
-	$self->send_verification_email_to($user)
-		unless Rubric::Config->skip_newuser_verification;
+	unless (Rubric::Config->skip_newuser_verification) {
+		$user->randomize_verification_code;
+		$self->send_verification_email_to($user);
+	}
 
 	$self->template("account_created");
+}
+
+=head2 send_reset_email_to($user)
+
+This method sends an email to the given user with a URI to reset his password.
+
+=cut
+
+sub send_reset_email_to {
+	my ($self, $user) = @_;
+
+	my $message = Rubric::Renderer->process(
+		'reset_mail',
+		'txt',
+		{ user => $user, email_from => Rubric::Config->email_from }
+	);
+
+	send SMTP => $message => Rubric::Config->smtp_server;
 }
 
 =head2 send_verification_email_to($user)
@@ -582,14 +639,27 @@ sub verify {
 	return $self->redirect_root("Already logged in...")
 		if $self->param('current_user');
 
-	$self->get_user->get_verification_code;
+	my $user = $self->get_user;
+	my $code = $self->get_verification_code;
 
 	return $self->redirect_root("no such user")
-		if defined $self->param('user') and $self->param('user') eq '';
+		if defined $user and $user eq '';
 
-	return $self->param('user')->verify($self->param('verification_code'))
-		? $self->template('verified')
-		: $self->redirect_root("BAD USER NO VALIDATION");
+	return $user->verify($code) ? $self->template('verified')
+	                            : $self->redirect_root("BAD USER NO VALIDATION");
+}
+
+=head2 get_reset_code
+
+This gets the next part of the path and puts it in the C<reset_code>
+parameter.
+
+=cut
+
+sub get_reset_code {
+	my ($self) = @_;
+
+	$self->param(reset_code => $self->next_path_part);
 }
 
 =head2 get_verification_code
@@ -603,8 +673,6 @@ sub get_verification_code {
 	my ($self) = @_;
 
 	$self->param(verification_code => $self->next_path_part);
-
-	return $self;
 }
 
 =head2 get_user
@@ -617,8 +685,6 @@ sub get_user {
 	my ($self) = @_;
 
 	$self->param(user => Rubric::User->retrieve($self->next_path_part) || '');
-
-	return $self;
 }
 
 =head2 display_entries
@@ -714,7 +780,7 @@ sub edit {
 	my ($self) = @_;
 
 	return $self->template('no_entry', { reason => 'missing' })
-		unless $self->get_entry->param('entry');
+		unless $self->get_entry;
 	
 	return $self->template('no_entry', { reason => 'access' })
 		unless $self->param('entry')->user eq $self->param('current_user');
@@ -768,6 +834,8 @@ sub _post_form_contents {
 	$error{tags} =
 		"Tags may only contain letters, numbers, dot, colon, and asterisk."
 		if $@;
+
+	$error{title} = "You must supply a title." unless length $form{title};
 
 	if ($form{uri} and Rubric::Config->one_entry_per_link) {
 		if (my ($link) = Rubric::Link->search({uri => $form{uri}})) {
@@ -894,9 +962,8 @@ sub get_doc {
 	my ($self) = @_;
 
 	my $doc_page = $self->next_path_part;
-	$self->param(doc_page => $doc_page) if $doc_page =~ /^\w+$/;
-
-	return $self;
+	return $doc_page =~ /^\w+$/ ? $self->param(doc_page => $doc_page)
+	                            : ();
 }
 
 =head1 TODO

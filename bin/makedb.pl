@@ -26,7 +26,8 @@ CREATE TABLE users (
 	password    NOT NULL,
 	email       NOT NULL,
 	created     NOT NULL,
-	verification_code
+	verification_code,
+	reset_code
 );
 
 CREATE TABLE entries (

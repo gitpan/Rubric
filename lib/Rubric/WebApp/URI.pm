@@ -6,7 +6,7 @@ Rubric::WebApp::URI - URIs for Rubric web requests
 
 =head1 VERSION
 
- $Id: URI.pm,v 1.16 2005/04/01 03:58:23 rjbs Exp $
+ $Id: URI.pm,v 1.17 2005/05/24 12:22:13 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -52,6 +52,21 @@ URI to form for log in
 =cut
 
 sub login { Rubric::Config->uri_root . '/login' }
+
+=head2 reset_password
+
+URI to reset user password
+
+=cut
+
+sub reset_password {
+	my ($class, $arg) = @_;
+	my $uri = Rubric::Config->uri_root . '/reset_password';
+	if ($arg->{user} and defined $arg->{reset_code}) {
+		$uri .= "/$arg->{user}/$arg->{reset_code}";
+	}
+	return $uri;
+}
 
 =head2 newuser
 

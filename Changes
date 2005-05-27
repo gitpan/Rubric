@@ -1,5 +1,9 @@
 Revision history for Rubric
 
+0.09_04 2005-05-24
+        refactor get_* to return property, not WebApp
+        add stubby password-reset functionality
+
 0.09_03 2005-05-02
         fix tag-destroying bug
 

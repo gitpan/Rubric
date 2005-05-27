@@ -6,7 +6,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
- $Id: User.pm,v 1.22 2005/04/30 02:18:18 rjbs Exp $
+ $Id: User.pm,v 1.26 2005/05/24 13:04:23 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -18,6 +18,7 @@ Rubric::DBI, which is a Class::DBI class.
 use strict;
 use warnings;
 use base qw(Rubric::DBI);
+use Digest::MD5 qw(md5_hex);
 use Time::Piece;
 
 __PACKAGE__->table('users');
@@ -35,7 +36,7 @@ __PACKAGE__->table('users');
 =cut
 
 __PACKAGE__->columns(
-	All => qw(username password email created verification_code)
+	All => qw(username password email created verification_code reset_code)
 );
 
 =head1 RELATIONSHIPS
@@ -237,6 +238,82 @@ sub verify {
 		return 1;
 	}
 	return;
+}
+
+=head2 reset_password($code)
+
+If the given code matches this user's C<reset_code>, the user's password will be
+reset via C<randomize_password> and his reset code will be undefined.  If
+successful, the new password is returned.  Otherwise, the routine returns
+false.
+
+=cut
+
+sub reset_password {
+	my ($self, $code) = @_;
+
+	return unless $self->reset_code;
+
+	if ($code and $code eq $self->reset_code) {
+		my $password = $self->randomize_password;
+		$self->reset_code(undef);
+		$self->update;
+		return $password;
+	}
+	return;
+}
+
+=head2 randomize_password
+
+This method resets the user's password to a pseudo-random string and returns
+the new password.
+
+=cut
+
+sub __random_string {
+	my $length = 15;
+	my @legal  = ('a'..'z', 'A'..'Z', 0..9);
+	my $string = join '', map { @legal[rand @legal] } 1 .. $length;
+
+	return wantarray ? (md5_hex($string), $string) : md5_hex($string);
+}
+
+sub randomize_password {
+	my ($self) = @_;
+	my ($pass_md5, $password) = $self->__random_string;
+	
+	$self->password($pass_md5);
+	$self->update;
+
+	return $password;
+}
+
+=head2 randomize_reset_code
+
+This method resets the user's reset code to the md5sum of a pseudo-random
+string.
+
+=cut
+
+sub randomize_reset_code {
+	my ($self) = @_;
+	my $reset_code = $self->__random_string;
+	$self->reset_code($reset_code);
+	$self->update;
+}
+
+=head2 randomize_verification_code
+
+This method resets the user's verification code to the md5sum of a
+pseudo-random string.
+
+=cut
+
+sub randomize_verification_code {
+	my ($self) = @_;
+	my $verification_code = $self->__random_string;
+	$self->verification_code($verification_code);
+	$self->update;
 }
 
 =head1 TODO

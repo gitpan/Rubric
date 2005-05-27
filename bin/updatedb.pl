@@ -223,7 +223,7 @@ $from{6} = sub {
 	);
 
 	INSERT INTO new_users
-	SELECT username, password, email, 0, validation_code
+	SELECT username, password, email, created, validation_code
 	FROM users;
 
 	DROP TABLE users;
@@ -247,7 +247,47 @@ END_SQL
 	$dbh->do($_) for split /\n\n/, $sql;
 };
 
-$from{7} = last_version;
+# from 7 to 8
+#  add reset_code
+
+$from{7} = sub {
+	my $sql = <<'END_SQL';
+	CREATE TABLE new_users (
+		username PRIMARY KEY,
+		password NOT NULL,
+		email NOT NULL,
+		created NOT NULL,
+		verification_code,
+		reset_code
+	);
+
+	INSERT INTO new_users
+	SELECT username, password, email, created, verification_code, NULL
+	FROM users;
+
+	DROP TABLE users;
+
+	CREATE TABLE users (
+		username PRIMARY KEY,
+		password NOT NULL,
+		email NOT NULL,
+		created NOT NULL,
+		verification_code,
+		reset_code
+	);
+
+	INSERT INTO users
+	SELECT * FROM new_users;
+
+	DROP TABLE new_users;
+
+	UPDATE rubric SET schema_version = 8;
+END_SQL
+
+	$dbh->do($_) for split /\n\n/, $sql;
+};
+
+$from{8} = last_version;
 
 while ($_ = determine_version) {
 	print "updating from version $_...\n";

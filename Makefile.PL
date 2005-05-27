@@ -17,7 +17,7 @@ WriteMakefile(
 		'Digest::MD5'      => 0.00,
 		'Email::Address'   => 0.00,
 		'Email::Send'      => 0.00,
-		'Encode'           => 0.00,
+		'Encode'           => 2.00,
 		'Template'         => 2.00,
 		'Time::Local'      => 0.00,
 		'Time::Piece'      => 0.00,
