@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: Config.pm,v 1.20 2005/04/15 13:26:14 rjbs Exp $
+ $Id: Config.pm,v 1.21 2005/05/28 00:00:23 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -96,6 +96,12 @@ true if registration new users can't register for accounts via the web
 
 true value if users must have an account to view entries
 
+=item * private_tag
+
+A tag which, if attached to an entry, makes it private.  The default value is
+C<@private>, and I strongly advise against changing it, since I may change the
+way these "system tags" work in the future.
+
 =item * one_entry_per_link
 
 if true, each user can have only one entry per link (default: true)
@@ -150,6 +156,7 @@ my $default = {
 	login_class => 'Rubric::WebApp::Login::Post',
 	smtp_server => undef,
 	uri_root    => '',
+	private_tag => '@private',
 	private_system => undef,
 	template_path  => undef,
 	allowed_schemes     => undef,

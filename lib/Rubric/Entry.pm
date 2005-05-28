@@ -9,7 +9,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.28 2005/05/02 13:40:16 rjbs Exp $
+ $Id: Entry.pm,v 1.29 2005/05/28 00:00:23 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -162,9 +162,9 @@ the result of running it.  (Either a list or an Iterator is returned.)
 =cut
 
 sub query {
-	my ($self, $arg) = @_;
+	my $self = shift;
 	require Rubric::Entry::Query;
-	Rubric::Entry::Query->query($arg);
+	Rubric::Entry::Query->query(@_);
 }
 
 =head2 set_new_tags(\@tags)

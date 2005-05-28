@@ -8,7 +8,7 @@ Rubric::WebApp::Entries - process the /entries run method
 
 version 0.05
 
- $Id: Entries.pm,v 1.20 2005/05/02 13:40:16 rjbs Exp $
+ $Id: Entries.pm,v 1.21 2005/05/28 00:00:23 rjbs Exp $
 
 =cut
 
@@ -65,7 +65,8 @@ sub entries {
 		$arg{first_only} = 1 unless %arg;
 	}
 
-	my $entries = Rubric::Entry->query(\%arg);
+	my $user = $webapp->param('current_user');
+	my $entries = Rubric::Entry->query(\%arg, { user => $user });
 	$webapp->param(query_description => $self->describe_query(\%arg));
 
 	$webapp->page_entries($entries)->render_entries(\%arg);

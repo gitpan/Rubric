@@ -1,5 +1,8 @@
 Revision history for Rubric
 
+0.09_06 2005-05-25
+        added private_tag - SO SETTLE DOWN, SSORICHE!
+
 0.09_05 2005-05-25
         fixed bug that snuck back into _04, reset_password was broken
         introduced Rubric::DBI::Setup for db maintenance

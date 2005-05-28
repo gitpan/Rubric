@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.09_05
+version 0.09_06
 
- $Id: WebApp.pm,v 1.112 2005/05/27 12:24:07 rjbs Exp $
+ $Id: WebApp.pm,v 1.113 2005/05/28 00:00:23 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.09_05';
+our $VERSION = '0.09_06';
 
 =head1 SYNOPSIS
 
@@ -261,8 +261,14 @@ This displays the single requested entry.
 sub entry {
 	my ($self) = @_;
 
-	return $self->template('no_entry', { reason => 'missing' })
-		unless $self->get_entry;
+	my $entry = $self->get_entry;
+
+	return $self->template('no_entry', { reason => 'missing' }) unless $entry;
+
+	return $self->template('no_entry', { reason => 'access' })
+		if  grep { $_ eq Rubric::Config->private_tag } $entry->tags
+		and not $self->param('current_user')
+		or  $entry->user ne $self->param('current_user');
 
 	$self->template('entry_long' => {
 		entry => $self->param('entry'),
@@ -342,7 +348,7 @@ sub login {
 
 	$self->template('login' => {
 		note      => $note,
-		then_goto => $self->query->param('then_goto'),
+		then_goto => scalar $self->query->param('then_goto'),
 		user      => scalar $self->query->param('user'),
 		user_pending => scalar $self->param('user_pending')
 	});
@@ -923,21 +929,14 @@ sub delete {
 		unless $self->get_entry;
 
 	return $self->redirect_root("Not your entry...")
-		unless $self->param('entry')->user eq $self->param('current_user');
+		unless $self->param('entry')->user eq $user;
 
 	$self->param('entry')->delete;
 
-	my $then_goto = $self->query->param('then_goto');
+	my $goto = $self->query->param('then_goto')
+	         || Rubric::WebApp::URI->entries({ user => $user }); 
 
-	my $goto_uri;
-
-	if ($then_goto) {
-		$goto_uri = $then_goto;
-	} else {
-		$goto_uri = Rubric::WebApp::URI->entries({ user => $self->param('current_user') });
-	}
-
-	return $self->redirect( $goto_uri, "Deleted..." );
+	return $self->redirect( $goto, "Deleted..." );
 }
 
 =head2 doc

@@ -8,7 +8,7 @@ Rubric::Entry::Query - construct and execute a complex query
 
 version 0.04
 
- $Id: Query.pm,v 1.11 2005/04/13 00:57:55 rjbs Exp $
+ $Id: Query.pm,v 1.12 2005/05/28 00:00:23 rjbs Exp $
 
 =cut
 
@@ -31,19 +31,42 @@ use Rubric::Config;
 
 =head1 METHODS
 
-=head2 query(\%arg)
+=head2 query(\%arg, \%context)
 
 This is the only interface to this module.  Given a hashref of named arguments,
 it returns the entries that match constraints built from the arguments.  It
 generates these constraints with C<get_constraint> and its helpers.  If any
 constraint is invalid, an empty set of results is returned.
 
+The second hashref passed to the method provides context for generating
+implicit query parameters; for example, if the querying user is indicated in
+the context, private entries for that user will be returned.
+
 =cut
 
+sub _private_constraint {
+	my ($self, $user) = @_;
+	my $priv_tag = Rubric::Config->private_tag;
+	   $priv_tag = Rubric::Entry->db_Main->quote($priv_tag);
+
+	return "id NOT IN (SELECT entry FROM entrytags WHERE tag=$priv_tag)"
+		unless $user;
+	
+	$user = Rubric::Entry->db_Main->quote($user);
+	return
+		"(user = $user) OR " .
+		"id NOT IN (SELECT entry FROM entrytags WHERE tag=$priv_tag)";
+}
+
 sub query {
-	my ($self, $arg, $user) = @_;
+	my ($self, $arg, $context) = @_;
+	$context ||= {};
+
 	my @constraints = map { $self->get_constraint($_, $arg->{$_}) } keys %$arg;
 	@constraints = ("1 = 0") if grep { not defined } @constraints;
+	
+	push @constraints, $self->_private_constraint($context->{user})
+		if exists $context->{user};
 
 	$self->get_entries(\@constraints);
 }
