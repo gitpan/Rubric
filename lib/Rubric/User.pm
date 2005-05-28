@@ -6,7 +6,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
- $Id: User.pm,v 1.26 2005/05/24 13:04:23 rjbs Exp $
+ $Id: User.pm,v 1.28 2005/05/28 02:02:34 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -71,7 +71,7 @@ ORDER BY tag
 sub tags {
 	my ($self) = @_;
 	my $sth = $self->sql_tags;
-	$sth->execute($self);
+	$sth->execute($self->username);
 	my $tags = $sth->fetchall_arrayref;
 	[ map { @$_ } @$tags ];
 }
@@ -94,7 +94,7 @@ ORDER BY tag
 sub tags_counted {
 	my ($self) = @_;
 	my $sth = $self->sql_tags_counted;
-	$sth->execute($self);
+	$sth->execute($self->username);
 	my $tags = $sth->fetchall_arrayref;
 	return $tags;
 }
@@ -122,7 +122,7 @@ sub related_tags {
 		map { $self->db_Main->quote($_) }
 		@tags;
 
-	my $result = $self->db_Main->selectcol_arrayref($query, undef, $self);
+	$self->db_Main->selectcol_arrayref($query, undef, $self->username);
 }
 
 =head3 related_tags_counted(\@tags)
@@ -150,7 +150,7 @@ sub related_tags_counted {
 		@tags;
 	$query .= " GROUP BY tag";
 
-	my $result = $self->db_Main->selectall_arrayref($query, undef, $self);
+	$self->db_Main->selectall_arrayref($query, undef, $self->username);
 }
 
 =head1 INFLATIONS

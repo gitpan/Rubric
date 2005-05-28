@@ -13,7 +13,7 @@ WriteMakefile(
 		'Class::DBI'       => 0.96,
 		'Config::Auto'     => 0.11,
 		'Date::Span'       => 1.12,
-		'DBD::SQLite'      => 1.07,
+		'DBD::SQLite'      => 1.08,
 		'Digest::MD5'      => 0.00,
 		'Email::Address'   => 0.00,
 		'Email::Send'      => 0.00,

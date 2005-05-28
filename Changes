@@ -1,5 +1,9 @@
 Revision history for Rubric
 
+0.09_07 2005-05-25
+        private_tag implementation no longer horribly breaks entry listing
+        fixes to work with DBD::SQLite 1.08, now required
+
 0.09_06 2005-05-25
         added private_tag - SO SETTLE DOWN, SSORICHE!
 
