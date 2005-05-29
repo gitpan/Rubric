@@ -13,13 +13,13 @@
 [% END %]
 
 <p class='bookmarklet'>
-  <a href="javascript:location.href='[% uri.post_entry %]?uri='+escape(location.href)+'&title='+escape(document.title)+'&when_done=go_back'">
+  <a href="javascript:location.href='[% uri.post_entry %]?uri='+escape(location.href)+'&title='+encodeURIComponent(document.title)+'&when_done=go_back'">
     post to rubric
   </a>
 </p>
 
 <p class='bookmarklet'>
-  <a href="javascript:void(open('[% uri.post_entry %]?uri='+escape(location.href)+'&title='+escape(document.title)+'&when_done=close','Rubric','toolbar=no,width=700,height=325,scrollbars'));">
+  <a href="javascript:void(open('[% uri.post_entry %]?uri='+escape(location.href)+'&title='+encodeURIComponent(document.title)+'&when_done=close','Rubric','toolbar=no,width=700,height=325,scrollbars'));">
     post to rubric
   </a> (pop up)
 </p>

@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.09_07
+version 0.09_08
 
- $Id: WebApp.pm,v 1.114 2005/05/28 02:00:36 rjbs Exp $
+ $Id: WebApp.pm,v 1.116 2005/05/29 02:11:36 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.09_07';
+our $VERSION = '0.09_08';
 
 =head1 SYNOPSIS
 
@@ -267,8 +267,8 @@ sub entry {
 
 	return $self->template('no_entry', { reason => 'access' })
 		if  grep { $_ eq Rubric::Config->private_tag } $entry->tags
-		and not $self->param('current_user')
-		or  $entry->user ne $self->param('current_user');
+		and (not $self->param('current_user')
+		     or  $entry->user ne $self->param('current_user'));
 
 	$self->template('entry_long' => {
 		entry => $self->param('entry'),

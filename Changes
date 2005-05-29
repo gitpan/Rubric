@@ -1,10 +1,16 @@
 Revision history for Rubric
 
-0.09_07 2005-05-25
+0.09_08 2005-05-28
+        private_tag implementation no longer completely disables public entries
+        expand/collapse link now preserves page number
+        help page's bookmarklet now uses encodeURIComponent, not escape
+        added an input box for searching
+
+0.09_07 2005-05-27
         private_tag implementation no longer horribly breaks entry listing
         fixes to work with DBD::SQLite 1.08, now required
 
-0.09_06 2005-05-25
+0.09_06 2005-05-27
         added private_tag - SO SETTLE DOWN, SSORICHE!
 
 0.09_05 2005-05-25
