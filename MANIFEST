@@ -2,12 +2,10 @@ rubric.yml
 bin/adduser.pl
 bin/dump_yml.pl
 bin/entries.pl
-bin/filldb.pl
 bin/load_yml.pl
 bin/makedb.pl
 bin/rubric.cgi
 bin/updatedb.pl
-bin/vacuumdb.pl
 Changes
 etc/rubric.yml
 lib/Rubric.pm

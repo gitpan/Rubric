@@ -9,7 +9,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.29 2005/05/28 00:00:23 rjbs Exp $
+ $Id: Entry.pm,v 1.31 2005/05/30 22:31:21 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -19,6 +19,7 @@ Rubric::DBI, which is a Class::DBI class.
 =cut
 
 use base qw(Rubric::DBI);
+use Encode qw(_utf8_on);
 use Time::Piece;
 
 __PACKAGE__->table('entries');
@@ -115,7 +116,8 @@ inflated to Time::Piece objects.
 __PACKAGE__->has_a(
 	$_ => 'Time::Piece',
 	deflate => 'epoch',
-	inflate => sub { gmtime($_[0]) }
+	inflate => Rubric::Config->display_localtime ? sub { localtime($_[0]) }
+	                                             : sub { gmtime($_[0]) }
 ) for qw(created modified);
 
 __PACKAGE__->add_trigger(before_create => \&_default_title);
@@ -199,6 +201,8 @@ sub tags_from_string {
 	my @tags = $tagstring ? map { $seen{$_}++ ? () : $_ }
 	                        split /\s+/, $tagstring
 	                      : ();
+	
+	_utf8_on($_) for @tags;
 
 	die "invalid characters in tagstring" 
 		if grep { $_ !~ /\A[@\w\d:.*][-\w\d:.*]*\Z/o } @tags;

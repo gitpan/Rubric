@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: Config.pm,v 1.21 2005/05/28 00:00:23 rjbs Exp $
+ $Id: Config.pm,v 1.22 2005/05/30 22:31:21 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -111,6 +111,12 @@ if true, each user can have only one entry per link (default: true)
 If undef, all URI schemes are allowed in entries.  If it's an array reference,
 it's the list of allowed schemes.
 
+=item * display_localtime
+
+If true, the local time (of the server) will be displayed for entry
+create/modify times.  Otherwise, all times will be UTC.  (This option is
+probably temporary, until per-user timezones are implemented.)
+
 =item * default_page_size
 
 The number of entries that are displayed on a page of entries, by default.
@@ -161,6 +167,7 @@ my $default = {
 	template_path  => undef,
 	allowed_schemes     => undef,
 	default_page_size   => 25,
+	display_localtime   => 0,
 	entries_query_class => 'Rubric::WebApp::Entries',
 	max_page_size       => 100,
 	one_entry_per_link  => 1,

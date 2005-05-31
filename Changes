@@ -1,5 +1,11 @@
 Revision history for Rubric
 
+0.09_09 2005-05-29
+        enable utf-8 tags
+        fix missing-title error on blank new post form
+        simplify updatedb script, eliminate vacuumdb script
+        display_localtime option
+
 0.09_08 2005-05-28
         private_tag implementation no longer completely disables public entries
         expand/collapse link now preserves page number

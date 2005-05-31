@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.09_08
+version 0.09_09
 
- $Id: WebApp.pm,v 1.116 2005/05/29 02:11:36 rjbs Exp $
+ $Id: WebApp.pm,v 1.118 2005/05/31 02:55:18 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.09_08';
+our $VERSION = '0.09_09';
 
 =head1 SYNOPSIS
 
@@ -816,7 +816,7 @@ sub _post_form_contents {
 	$form{$_} = $self->query->param($_)
 		for qw(entryid uri title description tags body);
 
-	for (qw(uri title description body)) {
+	for (qw(uri title description body tags)) {
 		eval { decode_utf8($form{$_}, Encode::FB_CROAK) };
 		$error{$_} = "Invalid UTF-8 characters in $_." if $@;
 	}
@@ -841,7 +841,9 @@ sub _post_form_contents {
 		"Tags may only contain letters, numbers, dot, colon, and asterisk."
 		if $@;
 
-	$error{title} = "You must supply a title." unless length $form{title};
+	$error{title} = "You must supply a title." if 
+		$self->query->param('submit')
+		and not length $form{title};
 
 	if ($form{uri} and Rubric::Config->one_entry_per_link) {
 		if (my ($link) = Rubric::Link->search({uri => $form{uri}})) {

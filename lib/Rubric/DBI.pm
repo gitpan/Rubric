@@ -6,7 +6,7 @@ Rubric::DBI - Rubric's subclass of Class::DBI
 
 =head1 VERSION
 
- $Id: DBI.pm,v 1.3 2005/04/01 04:28:29 rjbs Exp $
+ $Id: DBI.pm,v 1.4 2005/05/30 02:24:25 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -32,6 +32,23 @@ __PACKAGE__->connection(
 	$db_pass,
 	#{ AutoCommit => 0 }
 );
+
+=head1 METHODS
+
+=head2 vacuum
+
+This method performs periodic maintenance, cleaning up records that are no
+longer needed.
+
+=cut
+
+sub vacuum {
+	my $self = shift;
+	my $dbh = $self->db_Main;
+	my $pruned_links = $dbh->do(
+		"DELETE FROM links WHERE id NOT IN ( SELECT link FROM entries )"
+	);
+}
 
 =head1 TODO
 

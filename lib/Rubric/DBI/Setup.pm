@@ -8,7 +8,7 @@ Rubric::DBI::Setup - db initialization routines
 
 version 0.09_05
 
- $Id: Setup.pm,v 1.2 2005/05/27 12:30:47 rjbs Exp $
+ $Id: Setup.pm,v 1.4 2005/05/31 03:14:41 rjbs Exp $
 
 =cut
 
@@ -82,7 +82,16 @@ sub determine_version {
 	my ($class) = @_;
 
 	my ($version) = $class->dbh->selectrow_array("SELECT schema_version FROM rubric");
-	return $version if $version;
+
+	if ($version) {
+		if ($version == 6) {
+			eval { $class->dbh->selectall_array("SELECT verification_code FROM users"); };
+			return 7 if $@; # some schemata are broken, and claim 6 on 7
+			return 6;       # other are just fine
+		} else {
+			return $version;
+		}
+	}
 
 	# v4 added body column;
 	return 4 if $class->_columns("SELECT * FROM entries LIMIT 1") == 8;
