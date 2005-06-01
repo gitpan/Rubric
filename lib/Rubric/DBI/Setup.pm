@@ -6,13 +6,13 @@ Rubric::DBI::Setup - db initialization routines
 
 =head1 VERSION
 
-version 0.09_05
+version 0.10
 
- $Id: Setup.pm,v 1.4 2005/05/31 03:14:41 rjbs Exp $
+ $Id: Setup.pm,v 1.6 2005/06/01 02:02:55 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.09_05';
+our $VERSION = '0.10';
 
 =head1 SYNOPSIS
 
@@ -85,9 +85,10 @@ sub determine_version {
 
 	if ($version) {
 		if ($version == 6) {
+			# some schemata are broken, and claim 6 on 7
 			eval { $class->dbh->selectall_array("SELECT verification_code FROM users"); };
-			return 7 if $@; # some schemata are broken, and claim 6 on 7
-			return 6;       # other are just fine
+			if ($@) { warn "your db schema label is incorrect; run updatedb"; return 7; }
+			else    { return 6; }
 		} else {
 			return $version;
 		}
@@ -367,6 +368,7 @@ sub update_schema {
 		print "updating from version $_...\n";
 		$from{$_}->();
 	}
+	return $class->determine_version;
 }
 
 =head1 TODO

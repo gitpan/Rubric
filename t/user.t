@@ -51,14 +51,35 @@ BEGIN { use_ok("Rubric::User"); }
 	});
 
 	isa_ok($user, 'Rubric::User', 'newly created user');
-	ok($user->verification_code, "user isn't verified");
-	is($user->verify(), undef, "verify w/o code");
-	ok($user->verification_code, "user still isn't verified");
-	is($user->verify('54321'), undef, "verify w/wrong code");
-	ok($user->verification_code, "user still isn't verified");
-	is($user->verify('12345'), 1, "verify w/correct code");
+
+	$user->randomize_verification_code;
+
+	ok(my $vcode = $user->verification_code, "user isn't verified");
+
+	is($user->verify(),          undef, "verify w/o code");
+	ok($user->verification_code,        "user still isn't verified");
+	is($user->verify('54321'),   undef, "verify w/wrong code");
+	ok($user->verification_code,        "user still isn't verified");
+	is($user->verify($vcode),        1, "verify w/correct code");
 	is($user->verification_code, undef, "user is verified");
-	is($user->verify('12345'), undef, "verify when already verified");
+	is($user->verify($vcode),    undef, "verify when already verified");
+
+	my $pass_md5 = $user->password;
+
+	is($user->reset_code, undef,  "user not waiting to reset pw");
+
+	$user->randomize_reset_code;
+
+	ok(my $rcode = $user->reset_code, "user is waiting to reset pw");
+
+	is($user->reset_password(undef),   undef, "can't reset without code");
+	is($user->reset_password('xyzzy'), undef, "can't reset with wrong code");
+
+	ok(my $new_pass = $user->reset_password($rcode), "reset with reset code");
+
+	ok($user->password, "user still has a password");
+	cmp_ok($pass_md5, 'ne', $user->password, "new password is different than old");
+	like(  $new_pass, qr/\A\w{15}\Z/,       "new password is 15 alphanumerics");
 
 	$user->delete;
 }

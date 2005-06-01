@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.09_09
+version 0.10
 
- $Id: WebApp.pm,v 1.118 2005/05/31 02:55:18 rjbs Exp $
+ $Id: WebApp.pm,v 1.120 2005/06/01 02:02:55 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.09_09';
+our $VERSION = '0.10';
 
 =head1 SYNOPSIS
 
@@ -950,7 +950,8 @@ This runmode returns a mostly-static document from the template path.
 sub doc {
 	my ($self) = @_;
 
-	$self->get_doc->template("docs/" . $self->param('doc_page'));
+	$self->get_doc;
+	$self->template("docs/" . $self->param('doc_page'));
 }
 
 =head2 get_doc

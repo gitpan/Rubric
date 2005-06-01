@@ -1,5 +1,9 @@
 Revision history for Rubric
 
+0.10    2005-06-01
+        a little more and better testing
+        fixed broken 'help' runmode
+
 0.09_09 2005-05-29
         enable utf-8 tags
         fix missing-title error on blank new post form

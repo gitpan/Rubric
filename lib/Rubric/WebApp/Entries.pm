@@ -6,13 +6,13 @@ Rubric::WebApp::Entries - process the /entries run method
 
 =head1 VERSION
 
-version 0.05
+version 0.10
 
- $Id: Entries.pm,v 1.21 2005/05/28 00:00:23 rjbs Exp $
+ $Id: Entries.pm,v 1.22 2005/06/01 02:02:55 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.05';
+our $VERSION = '0.10';
 
 =head1 DESCRIPTION
 

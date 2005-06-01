@@ -21,12 +21,23 @@ BEGIN { use_ok("Rubric::Entry"); }
 
 {
 	my $entries = Rubric::Entry->query({
-		urimd5 => '006d5652f4c43ab9e69328ab5e74f7e4',
+		urimd5 => 'c927a368c7605aace0447f8f7061a145',
 		tags   => [], # empty tags list imposes no constriant
 	});
 
-	isa_ok($entries, 'Class::DBI::Iterator', '2nd query result');
-	cmp_ok($entries->count, '>', 0, "more than zero entries found");
+	isa_ok($entries, 'Class::DBI::Iterator', 'all entries for a URI (by md5)');
+	cmp_ok($entries->count, '==', 3, "three entries found");
+}
+
+{
+	my $entries = Rubric::Entry->query({
+		urimd5 => 'c927a368c7605aace0447f8f7061a145',
+		tags   => [], # empty tags list imposes no constriant
+		first_only => 1,
+	});
+
+	isa_ok($entries, 'Class::DBI::Iterator', 'first entry for a URI');
+	cmp_ok($entries->count, '==', 1, "one entry found");
 }
 
 {
@@ -38,6 +49,13 @@ BEGIN { use_ok("Rubric::Entry"); }
 	cmp_ok($entries->count, '==', 0, "zero entries found");
 }
 
+{
+	my $entries = Rubric::Entry->query({
+		exact_tags => [ 'news' ],
+	});
+	isa_ok($entries, 'Class::DBI::Iterator', 'exact_tags query');
+	cmp_ok($entries->count, '==', 1, "one entry found");
+}
 
 {
 	my $entries = Rubric::Entry->query({});
@@ -83,4 +101,54 @@ BEGIN { use_ok("Rubric::Entry"); }
 
 	isa_ok($entries, 'Class::DBI::Iterator', 'impossible query result (user)');
 	cmp_ok($entries->count, '==', 0, "zero entries found");
+}
+
+{
+	my $entries = Rubric::Entry->query(
+		{ user => 'mxlptlyk' }
+	);
+
+	isa_ok($entries, 'Class::DBI::Iterator', 'context-less query for mxlptlyk');
+	cmp_ok($entries->count, '==', 3, "three entries found");
+}
+
+{
+	my $entries = Rubric::Entry->query(
+		{ user => 'mxlptlyk' },
+		{ user => 'eb'       }
+	);
+
+	isa_ok($entries, 'Class::DBI::Iterator', 'eb querying for mxlptlyk');
+	cmp_ok($entries->count, '==', 2, "two entries found");
+}
+
+{
+	my $entries = Rubric::Entry->query(
+		{ user => 'mxlptlyk' },
+		{ user => 'mxlptlyk' }
+	);
+
+	isa_ok($entries, 'Class::DBI::Iterator', 'mxlptlyk querying for himself');
+	cmp_ok($entries->count, '==', 3, "three entries found");
+}
+
+{
+	my $entries = Rubric::Entry->query({ like => 'lies' });
+
+	isa_ok($entries, 'Class::DBI::Iterator', 'query for "lies"');
+	cmp_ok($entries->count, '==', 1, "1 entry found");
+}
+
+{
+	my $entries = Rubric::Entry->query({ body_like => 'lies' });
+
+	isa_ok($entries, 'Class::DBI::Iterator', 'query bodies for "lies"');
+	cmp_ok($entries->count, '==', 0, "no entries found");
+}
+
+{
+	my $entries = Rubric::Entry->query({ desc_like => 'lies' });
+
+	isa_ok($entries, 'Class::DBI::Iterator', 'query descs for "lies"');
+	cmp_ok($entries->count, '==', 1, "one entry found");
 }

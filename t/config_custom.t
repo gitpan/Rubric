@@ -1,23 +1,17 @@
 #!perl -T
 
 use Test::More 'no_plan';
+use strict;
+use warnings;
 
-BEGIN { use_ok("Rubric::Config", 'rubric.yml'); }
+BEGIN { use_ok("Rubric::Config", 'etc/rubric.yml'); }
+use YAML qw(LoadFile);
 
-my %config = (
-	css_href    => undef,
-	dsn         => 'dbi:SQLite:dbname=t/db/rubric.db',
-	email_from  => undef,
-	login_class => 'Rubric::WebApp::Login::Post',
-	smtp_server => undef,
-	uri_root    => '',
-	private_system => undef,
-	template_path  => 'templates',
-	entries_query_class => 'Rubric::WebApp::Entries',
-	registration_closed => undef,
-	skip_newuser_verification => undef,
-);
+my $config = LoadFile("etc/rubric.yml");
 
-is(Rubric::Config->$_, $config{$_}, "value of $_")
-	for (keys %config);
+for (keys %{Rubric::Config->_default}) {
+	my $expected = exists $config->{$_} ? $config->{$_}
+	                                   : Rubric::Config->_default->{$_};
+	is(Rubric::Config->$_, $expected, "value of $_");
+}
 

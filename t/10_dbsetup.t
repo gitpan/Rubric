@@ -1,5 +1,5 @@
 #!perl -T
-use Test::More tests => 2;
+use Test::More tests => 4;
 use File::Path qw(mkpath);
 
 use_ok('Rubric::DBI::Setup');
@@ -10,3 +10,7 @@ mkpath("t/db") unless -d "t/db/";
 eval { Rubric::DBI::Setup->setup_tables };
 
 ok(not($@), "set up empty rubric testing db");
+
+cmp_ok(Rubric::DBI::Setup->determine_version, '==', 8, "got current schema");
+
+cmp_ok(Rubric::DBI::Setup->update_schema, '==', 8, "update (nop) to current");

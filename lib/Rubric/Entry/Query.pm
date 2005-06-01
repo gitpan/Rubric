@@ -6,13 +6,13 @@ Rubric::Entry::Query - construct and execute a complex query
 
 =head1 VERSION
 
-version 0.04
+version 0.10
 
- $Id: Query.pm,v 1.13 2005/05/28 02:00:36 rjbs Exp $
+ $Id: Query.pm,v 1.15 2005/06/01 02:02:55 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.10';
 
 =head1 DESCRIPTION
 
@@ -152,9 +152,10 @@ sub constraint_for_exact_tags {
 	return undef unless $tags and ref $tags eq 'ARRAY';
 	return unless my $count = @$tags;
 
+	# XXX determine which one is faster
 	return
-#		"(SELECT COUNT(tag) FROM entrytags WHERE entry = entries.id) = $count",
-		"id IN (SELECT entry FROM entrytags GROUP BY entry HAVING COUNT(tag) = $count)",
+		"(SELECT COUNT(tag) FROM entrytags WHERE entry = entries.id) = $count",
+#		"id IN (SELECT entry FROM entrytags GROUP BY entry HAVING COUNT(tag) = $count)",
 		$self->constraint_for_tags($tags);
 }
 

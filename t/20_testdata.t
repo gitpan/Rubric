@@ -1,5 +1,5 @@
 #!perl -T
-use Test::More tests => 14;
+use Test::More tests => 15;
 
 use_ok('Rubric::Link');
 use_ok('Rubric::User');
@@ -54,5 +54,14 @@ ok(
 		title => "DC Comics",
 		description => "they print lies!",
 		tags  => "news lies comics"
+	})
+);
+
+ok(
+	Rubric::User->retrieve('mxlptlyk')->quick_entry({
+		title => "secret plans!",
+		body  => "First, I'm going to need a French" .
+		         "poodle and a three-foot salami...",
+		tags  => 'plans @private'
 	})
 );
