@@ -24,8 +24,18 @@ WriteMakefile(
 		'YAML'             => 0.00,
 		'CGI::Application::Session'  => 0,
 		'Class::DBI::AbstractSearch' => 0,
+    'HTTP::Server::Simple'       => '0.09',
 		'Template::Plugin::Class'    => '0.12',
+    'Test::WWW::Mechanize'       => '1.04',
 	},
+  test => {
+    TESTS => join " ", do {
+      my $w; $w = sub {
+        map { -d $_ ? $w->($_) : /\.t\Z/ ? $_ : () } grep { ! /^\./ } <$_[0]/*>
+      };
+      $w->("t");
+    }
+  },
 	dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 	clean               => { FILES => 'Rubric-*' },
 );

@@ -10,17 +10,19 @@
 	<div class='tag'>
 	<span class='tag_count'>[% tag.1 %]</span>
 	&nbsp;
-	<a class='plus' href='[% uri.entries(user => user, tags => tags.merge( [ tag.0 ] )) %]'>[% tag.0 %]</a>
+	<a class='plus' href='[% uri.entries(user => user, tags => tags.keys.merge([tag.0]) ) %]'>
+    [% tag.0 %]
+  </a>
 	&nbsp;
 	</div>
 	[% END %]
 	<br />
 	<h4>remove</h4>
-	[% FOREACH tag = tags %]
+	[% FOREACH tag = tags.keys %]
 	<div class='tag'>
 	<span class='tag_count'>&nbsp;</span>
 	&nbsp;
-	<a class='plus' href='[% uri.entries(user => user, tags => remove(tag, tags)) %]'>[% tag %]</a>
+	<a class='plus' href='[% uri.entries(user => user, tags => remove(tag, tags.keys)) %]'>[% tag %]</a>
 	&nbsp;</div>
 	[% END %]
 	</div>

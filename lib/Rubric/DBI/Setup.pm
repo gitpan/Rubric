@@ -8,7 +8,7 @@ Rubric::DBI::Setup - db initialization routines
 
 version 0.10
 
- $Id: Setup.pm,v 1.6 2005/06/01 02:02:55 rjbs Exp $
+ $Id: Setup.pm,v 1.8 2005/06/07 02:35:41 rjbs Exp $
 
 =cut
 
@@ -358,7 +358,42 @@ END_SQL
 	$dbh->do($_) for split /\n\n/, $sql;
 };
 
-$from{8} = undef;
+$from{8} = sub {
+	my $sql = <<'END_SQL';
+    CREATE TABLE new_entrytags (
+    id          INTEGER PRIMARY KEY,
+    entry       NOT NULL,
+    tag         NOT NULL,
+    tag_value,
+    UNIQUE(entry, tag)
+	);
+
+	INSERT INTO new_entrytags
+	SELECT id, entry, tag, NULL
+	FROM entrytags;
+
+	DROP TABLE entrytags;
+
+	CREATE TABLE entrytags (
+    id          INTEGER PRIMARY KEY,
+    entry       NOT NULL,
+    tag         NOT NULL,
+    tag_value,
+    UNIQUE(entry, tag)
+	);
+
+	INSERT INTO entrytags
+	SELECT * FROM new_entrytags;
+
+	DROP TABLE new_entrytags;
+
+	UPDATE rubric SET schema_version = 9;
+END_SQL
+
+	$dbh->do($_) for split /\n\n/, $sql;
+};
+
+$from{9} = undef;
 
 sub update_schema {
 	my ($class) = @_;
@@ -424,6 +459,7 @@ CREATE TABLE entrytags (
 	id          INTEGER PRIMARY KEY,
 	entry       NOT NULL,
 	tag         NOT NULL,
+  tag_value,
 	UNIQUE(entry, tag)
 );
 
@@ -431,4 +467,4 @@ CREATE TABLE rubric (
 	schema_version NOT NULL
 );
 
-INSERT INTO rubric (schema_version) VALUES (8);
+INSERT INTO rubric (schema_version) VALUES (9);

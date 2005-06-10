@@ -1,5 +1,15 @@
 Revision history for Rubric
 
+0.11_01 2005-06-09
+        CURRENTLY BROKEN: preference validation
+        CURRENTLY BROKEN: query description
+        QUESTIONABLE DESCISION: @-prefix tags don't list in tagboxes
+        list user's name for "your tags" if user ne current_user
+        begin stubbing out pluggable body rendering
+        begin stubbing out facets
+        allow query for "/exact_tags/" to work (find untagged)
+        re-allow "+" as tag separator in tagstrings
+
 0.10    2005-06-01
         a little more and better testing
         fixed broken 'help' runmode
@@ -47,7 +57,7 @@ Revision history for Rubric
         fix RSS more: use rdf:about attr as intended!
         taglists tags are now "click to add" on post form
         added "tags for this link"
-				if posting a non-unique uri, previous post defaults in (old bug?)
+        if posting a non-unique uri, previous post defaults in (old bug?)
 
 0.08    2005-04-07
         use normal must-login/redirect-on-login behavior for /preferences
@@ -64,14 +74,14 @@ Revision history for Rubric
         the numeric tag "0" now works
         the (edit) links will now include a redirect to your previous query
         /edit or /entry links to missing entries (or non-owned for edit)
-					produce better error messages
-				max/default entries per page is now configurable
+          produce better error messages
+        max/default entries per page is now configurable
 
 0.07_06 2005-04-02
         duplicate tags are now dropped; they no longer break posting
         report bad uri/tags at post-time and reproduce form
         keep long_form param on next/prev page links
-				username and password for db connection can be specified in config
+        username and password for db connection can be specified in config
 
 0.07_05 2005-03-31
         experimental javascript to filter by tag count
@@ -157,7 +167,7 @@ Revision history for Rubric
 0.01    2004-12-16
         released!
 
-0.00_30	2004-12-16
+0.00_30 2004-12-16
         /preferences
 
 0.00_25 2004-12-15

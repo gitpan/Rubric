@@ -12,7 +12,7 @@ my @uris = (
 	'http://rjbs.manxome.org/bryar/'
 );
 
-ok(Rubric::Link->find_or_create({ uri => URI->new($_)->canonical })) for @uris;
+ok(Rubric::Link->find_or_create({ uri => URI->new($_)->canonical }), "added uri") for @uris;
 
 my @users = (
 	{ username => 'jjj',      email => 'jjj@bugle.bz',  password => md5_hex('yellow')  },
@@ -20,7 +20,7 @@ my @users = (
 	{ username => 'mxlptlyk', email => 'mr_m@5th.dim',  password => md5_hex('kyltplxm')},
 );
 
-ok(Rubric::User->create($_)) for (@users);
+ok(Rubric::User->create($_), "added user $_->{username}") for (@users);
 
 for my $user (Rubric::User->retrieve_all) {
 	ok(
@@ -29,7 +29,8 @@ for my $user (Rubric::User->retrieve_all) {
 			title => "rjbs' journal",
 			created  => time - int(rand(5000000)),
 			modified => time,
-		})->add_to_tags({tag => 'blog'})
+		})->add_to_tags({tag => 'blog'}),
+    "entry: { link 2, user $user }"
 	);
 }
 
@@ -37,7 +38,8 @@ ok(
 	Rubric::User->retrieve('eb')->add_to_entries({
 		link  => 1,
 		title => "CNN: This is CNN",
-	})->add_to_tags({ tag => 'news' })
+	})->add_to_tags({ tag => 'news' }),
+  "entry: { link 1, user eb }"
 );
 
 ok(
@@ -45,7 +47,8 @@ ok(
 		uri   => "http://news.bbc.co.uk/",
 		title => "BBC News",
 		tags  => "news bbc"
-	})
+	}),
+  "quick entry: { new link, user eb }"
 );
 
 ok(
@@ -54,7 +57,8 @@ ok(
 		title => "DC Comics",
 		description => "they print lies!",
 		tags  => "news lies comics"
-	})
+	}),
+  "quick entry: { new link, user mxlptlyk }"
 );
 
 ok(
@@ -63,5 +67,6 @@ ok(
 		body  => "First, I'm going to need a French" .
 		         "poodle and a three-foot salami...",
 		tags  => 'plans @private'
-	})
+	}),
+  "quick entry: no link, user mxlptlyk"
 );

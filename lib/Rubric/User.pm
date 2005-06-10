@@ -6,7 +6,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
- $Id: User.pm,v 1.28 2005/05/28 02:02:34 rjbs Exp $
+ $Id: User.pm,v 1.31 2005/06/10 02:18:09 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -57,8 +57,8 @@ number of accessors for his tag list.
 
 =head3 tags
 
-This returns an arrayref of all the user's tags in their database colation
-order.
+This returns an arrayref of all the user's (non-system) tags in their database
+colation order.
 
 =cut
 
@@ -66,6 +66,7 @@ __PACKAGE__->set_sql(tags => <<'' );
 SELECT DISTINCT tag
 FROM entrytags
 WHERE entry IN (SELECT id FROM entries WHERE user = ?)
+  AND tag NOT LIKE '@%%'
 ORDER BY tag
 
 sub tags {
@@ -88,6 +89,7 @@ __PACKAGE__->set_sql(tags_counted => <<'' );
 SELECT DISTINCT tag, COUNT(*) AS count
 FROM entrytags
 WHERE entry IN (SELECT id FROM entries WHERE user = ?)
+  AND tag NOT LIKE '@%%'
 GROUP BY tag
 ORDER BY tag
 
@@ -110,13 +112,12 @@ sub related_tags {
 	my ($self, $tags) = @_;
 	return unless $tags and my @tags = @$tags;
 
-	my $query = "
+	my $query = q|
 	SELECT DISTINCT tag FROM entrytags
-	WHERE entry IN (SELECT id FROM entries WHERE user = ?) AND 
-	tag NOT IN (" . join(',',map { $self->db_Main->quote($_) } @tags) . ")
-	AND ";
-
-	$query .= 
+	WHERE entry IN (SELECT id FROM entries WHERE user = ?)
+    AND tag NOT IN (| . join(',',map { $self->db_Main->quote($_) } @tags) . q|)
+    AND tag NOT LIKE '@%'
+	  AND | .
 		join ' AND ',
 		map { "entry IN (SELECT entry FROM entrytags WHERE tag=$_)" }
 		map { $self->db_Main->quote($_) }
@@ -134,20 +135,22 @@ returns an arrayref of arrayrefs, each a pair of tag/occurance values.
 
 sub related_tags_counted {
 	my ($self, $tags) = @_;
-	return unless $tags and my @tags = @$tags;
+  return unless $tags;
+  $tags = [ keys %$tags ] if ref $tags eq 'HASH';
+	return unless my @tags = @$tags;
 
-	my $query = "
+	my $query = q|
 		SELECT DISTINCT tag, COUNT(*) AS count
 		FROM entrytags
-		WHERE entry IN (SELECT id FROM entries WHERE user = ?) AND 
-		tag NOT IN (" . join(',',map { $self->db_Main->quote($_) } @tags) . ")
-		AND ";
-
-	$query .= 
+		WHERE entry IN (SELECT id FROM entries WHERE user = ?)
+    AND tag NOT IN (| . join(',',map { $self->db_Main->quote($_) } @tags) . q|)
+		AND tag NOT LIKE '@%'
+    AND | .
 		join ' AND ',
 		map { "entry IN (SELECT entry FROM entrytags WHERE tag=$_)" }
 		map { $self->db_Main->quote($_) }
 		@tags;
+
 	$query .= " GROUP BY tag";
 
 	$self->db_Main->selectall_arrayref($query, undef, $self->username);
@@ -196,7 +199,7 @@ sub quick_entry {
 	my ($self, $entry) = @_;
 
 	return unless $entry->{title};
-	$entry->{tags} = [ Rubric::Entry->tags_from_string($entry->{tags}) ];
+	$entry->{tags} = Rubric::Entry->tags_from_string($entry->{tags});
 
 	my $link;
 	if ($entry->{uri}) {

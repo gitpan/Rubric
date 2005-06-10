@@ -6,7 +6,7 @@ Rubric::EntryTag - a tag on an entry
 
 =head1 VERSION
 
- $Id: EntryTag.pm,v 1.2 2004/11/19 20:57:11 rjbs Exp $
+ $Id: EntryTag.pm,v 1.3 2005/06/07 02:32:53 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -21,13 +21,14 @@ __PACKAGE__->table('entrytags');
 
 =head1 COLUMNS
 
- id    - a unique identifier
- entry - the tagged entry
- tag   - the tag itself
+ id        - a unique identifier
+ entry     - the tagged entry
+ tag       - the tag itself
+ tag_value - the value of the tag (for tags in "tag:value" form)
 
 =cut
 
-__PACKAGE__->columns(All => qw(id entry tag));
+__PACKAGE__->columns(All => qw(id entry tag tag_value));
 
 =head1 RELATIONSHIPS
 
@@ -38,6 +39,29 @@ The entry attribute returns a Rubric::Entry.
 =cut
 
 __PACKAGE__->has_a(entry => 'Rubric::Entry');
+
+=head1 TRIGGERS
+
+=cut
+
+__PACKAGE__->add_trigger(before_create => \&_nullify_values);
+__PACKAGE__->add_trigger(before_update => \&_nullify_values);
+
+sub _nullify_values {
+	my $self = shift;
+  $self->tag_value(undef)
+    unless defined $self->{tag_value} and length $self->{tag_value};
+}
+
+=head1 METHODS
+
+=head2 stringify_self
+
+=cut
+
+sub stringify_self {
+  $_[0]->tag . (defined $_[0]->tag_value ? (':' . $_[0]->tag_value) : '')
+}
 
 =head1 TODO
 

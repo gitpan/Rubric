@@ -20,8 +20,8 @@
 		<div class='description'>[% entry.description %]</div>
 		[% END %]
 		<div class='created'>
-			[% FOREACH tag = entry.tags %]
-			<a class='tag' href='[% uri.entries(user => user, tags => [ tag ]) %]'>[% tag %]</a>
+			[% FOREACH tag = entry.entrytags %]
+			<a class='tag' href='[% uri.entries(user => user, tags => [ tag.tag ]) %]'>[% tag %]</a>
 			[% END %]
 			[% IF ! user %]
 			by <a href='[% uri.entries(user => entry.user) %]'>[% entry.user %]</a>

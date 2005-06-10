@@ -8,7 +8,7 @@ Rubric::Entry::Query - construct and execute a complex query
 
 version 0.10
 
- $Id: Query.pm,v 1.15 2005/06/01 02:02:55 rjbs Exp $
+ $Id: Query.pm,v 1.18 2005/06/07 02:32:53 rjbs Exp $
 
 =cut
 
@@ -67,8 +67,11 @@ sub query {
 	
 	push @constraints, $self->_private_constraint($context->{user})
 		if exists $context->{user};
+	
+	my $order_by = "$context->{order_by} DESC"
+		if $context->{order_by}||'' =~ /\A(?:created|modified)\Z/;
 
-	$self->get_entries(\@constraints);
+	$self->get_entries(\@constraints, $order_by);
 }
 
 =head2 get_constraint($param => $value)
@@ -95,11 +98,12 @@ clauses and performs a query with Class::DBI's C<retrieve_from_sql>.
 =cut
 
 sub get_entries {
-	my ($self, $constraints) = @_;
+	my ($self, $constraints, $order_by) = @_;
+	$order_by ||= 'created DESC';
 	return Rubric::Entry->retrieve_all unless @$constraints;
 	Rubric::Entry->retrieve_from_sql(
 		join(" AND ", @$constraints)
-		. " ORDER BY created DESC"
+		. " ORDER BY $order_by"
 	);
 }
 
@@ -122,12 +126,12 @@ sub constraint_for_user {
 	return "user = " . Rubric::Entry->db_Main->quote($user);
 }
 
-=head3 constraint_for_tags(\@tags)
+=head3 constraint_for_tags($tags)
 
-=head3 constraint_for_exact_tags(\@tags)
+=head3 constraint_for_exact_tags($tags)
 
-Given an arrayref of tag names, this returns SQL to limit results to entries
-marked with the given tags.
+Given a set of tags, this returns SQL to limit results to entries marked
+with the given tags.
 
 The C<exact> version of this constraint returns SQL for entries with only the
 given tags.
@@ -137,20 +141,26 @@ given tags.
 sub constraint_for_tags {
 	my ($self, $tags) = @_;
 
-	return undef unless $tags and ref $tags eq 'ARRAY';
-	return unless @$tags;
+	return undef unless $tags and ref $tags eq 'HASH';
+	return unless %$tags;
 
-	return join ' AND ',
-		map { "id IN (SELECT entry FROM entrytags WHERE tag=$_)" }
-		map { Rubric::Entry->db_Main->quote($_) }
-		@$tags;
+  my @snippets;
+  while (my ($tag, $tag_value) = each %$tags) {
+    my $tn = Rubric::Entry->db_Main->quote($tag);
+    my $tv = Rubric::Entry->db_Main->quote($tag_value);
+    push @snippets, defined $tag_value
+      ? "id IN (SELECT entry FROM entrytags WHERE tag=$tn AND tag_value=$tv)"
+      : "id IN (SELECT entry FROM entrytags WHERE tag=$tn)"
+  }
+
+	return join ' AND ', @snippets;
 }
 
 sub constraint_for_exact_tags {
 	my ($self, $tags) = @_;
 
-	return undef unless $tags and ref $tags eq 'ARRAY';
-	return unless my $count = @$tags;
+	return undef unless $tags and ref $tags eq 'HASH';
+  my $count = keys %$tags;
 
 	# XXX determine which one is faster
 	return

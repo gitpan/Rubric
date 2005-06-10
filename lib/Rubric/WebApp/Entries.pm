@@ -8,7 +8,7 @@ Rubric::WebApp::Entries - process the /entries run method
 
 version 0.10
 
- $Id: Entries.pm,v 1.22 2005/06/01 02:02:55 rjbs Exp $
+ $Id: Entries.pm,v 1.25 2005/06/07 02:32:53 rjbs Exp $
 
 =cut
 
@@ -65,8 +65,11 @@ sub entries {
 		$arg{first_only} = 1 unless %arg;
 	}
 
-	my $user = $webapp->param('current_user');
-	my $entries = Rubric::Entry->query(\%arg, { user => $user });
+	my $user     = $webapp->param('current_user');
+	my $order_by = $webapp->query->param('order_by');
+
+	my $entries = Rubric::Entry->query(\%arg,
+	                                   { user => $user, order_by => $order_by });
 	$webapp->param(query_description => $self->describe_query(\%arg));
 
 	$webapp->page_entries($entries)->render_entries(\%arg);
@@ -88,11 +91,15 @@ sub describe_query {
 			$description .= " with" . ($arg->{"has_$_"} ? "" : "out") . " a $_,";
 		}
 	}
-	if ($arg->{exact_tags} and @{ $arg->{exact_tags} }) {
-		$description .= " filed under { " . join(', ', @{$arg->{exact_tags}}) . " } only";
-	} elsif ($arg->{tags} and @{ $arg->{tags} }) {
-		$description .= " filed under { " . join(', ', @{$arg->{tags}}) . " }";
-	}
+#	if ($arg->{exact_tags}) {
+#    if (@{ $arg->{exact_tags} }) {
+#      $description .= " filed under { " . join(', ', @{$arg->{exact_tags}}) . " } only";
+#    } else {
+#      $description .= " without tags"
+#    }
+#	} elsif ($arg->{tags} and @{ $arg->{tags} }) {
+#		$description .= " filed under { " . join(', ', @{$arg->{tags}}) . " }";
+#	}
 	$description =~ s/,\Z//;
 	return $description;
 }
@@ -142,8 +149,8 @@ Given "happy fuzzy bunnies" this returns C< [ qw(happy fuzzy bunnies) ] >
 sub arg_for_tags {
 	my ($self, $tagstring) = @_;
 
-	($tagstring) = (defined $tagstring ? $tagstring : '') =~ /^([+\s\w\d:.*]*)$/; 
-	my $tags = [ split /\+|\s/, $tagstring ];
+	my $tags;
+	eval { $tags = Rubric::Entry->tags_from_string($tagstring) };
 	return $tags;
 }
 
@@ -211,7 +218,7 @@ sub arg_for_first_only {
 
 =head3 arg_for_urimd5($md5sum)
 
-This method returns the passed value, if that value is a valid 16-character
+This method returns the passed value, if that value is a valid 32-character
 md5sum.
 
 =cut

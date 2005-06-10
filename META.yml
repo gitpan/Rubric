@@ -1,7 +1,7 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Rubric
-version:      0.10
+version:      0.11_01
 version_from: lib/Rubric.pm
 installdirs:  site
 requires:
@@ -17,8 +17,10 @@ requires:
     Email::Address:                0
     Email::Send:                   0
     Encode:                        2
+    HTTP::Server::Simple:          0.09
     Template:                      2
     Template::Plugin::Class:       0.12
+    Test::WWW::Mechanize:          1.04
     Time::Local:                   0
     Time::Piece:                   0
     YAML:                          0

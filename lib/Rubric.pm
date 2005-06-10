@@ -6,28 +6,25 @@ Rubric - a notes and bookmarks manager with tagging
 
 =head1 VERSION
 
-version 0.10
+version 0.11_01
 
- $Id: Rubric.pm,v 1.34 2005/06/01 02:02:55 rjbs Exp $
+ $Id: Rubric.pm,v 1.36 2005/06/07 02:32:53 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.10';
+our $VERSION = '0.11_01';
 
 =head1 DESCRIPTION
 
 This module is currently just a placeholder and a container for documentation.
-You don't want to actually C<use Rubric>, even if you use Rubric.
+You don't want to actually C<use Rubric>, even if you want to use Rubric.
 
 Rubric is a note-keeping system that also serves as a bookmark manager.  Users
 store entries, which are small (or large) notes with a set of categorizing
 "tags."  Entries may also refer to URIs.
 
 Rubric was inspired by the excellent L<http://del.icio.us/> service and the
-Notational Velocity note-taking software for Mac OS.  At present, it is
-primarily a del.icio.us clone, but its note-taking features will continue to
-grow.  (It can also be used as a blog, which will become easier in future
-iterations.)
+Notational Velocity note-taking software for Mac OS.
 
 =head1 WARNING
 
@@ -35,8 +32,8 @@ This is young software, likely to have bugs and likely to change in strange
 ways.  I will try to keep the documented API stable, but not if it makes
 writing Rubric too inconvenient.
 
-Basically, just take note that this software is still version 0.0x; it works,
-but it's still very much under construction.
+Basically, just take note that this software works, but it's still very much
+under construction.
 
 =head1 INSTALLING AND UPGRADING
 

@@ -11,6 +11,6 @@ eval { Rubric::DBI::Setup->setup_tables };
 
 ok(not($@), "set up empty rubric testing db");
 
-cmp_ok(Rubric::DBI::Setup->determine_version, '==', 8, "got current schema");
+cmp_ok(Rubric::DBI::Setup->determine_version, '==', 9, "got current schema");
 
-cmp_ok(Rubric::DBI::Setup->update_schema, '==', 8, "update (nop) to current");
+cmp_ok(Rubric::DBI::Setup->update_schema, '==', 9, "update (nop) to current");

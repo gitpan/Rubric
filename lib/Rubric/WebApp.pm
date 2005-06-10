@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.10
+version 0.11_01
 
- $Id: WebApp.pm,v 1.120 2005/06/01 02:02:55 rjbs Exp $
+ $Id: WebApp.pm,v 1.122 2005/06/07 02:32:53 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.10';
+our $VERSION = '0.11_01';
 
 =head1 SYNOPSIS
 
@@ -135,7 +135,7 @@ This method shifts the next item off of the request path and returns it.
 
 sub next_path_part {
 	my ($self) = @_;
-	my $username = shift @{$self->param('path')};
+	shift @{$self->param('path')};
 }
 
 =head2 check_pager_data
@@ -208,7 +208,7 @@ sub setup {
 	my ($self) = @_;
 
 	$self->mode_param(path_info => 1);
-	
+
 	$self->start_mode('login');
 	$self->run_modes([ qw(doc login newuser reset_password verify) ]);
 
@@ -381,7 +381,6 @@ sub reset_password {
 	my $user       = $self->get_user
 	                 || $self->query->param('user')
 	                 && Rubric::User->retrieve($self->query->param('user'));
-	# ^^ allow for username in path or query, though it shouldn't be in path
 	my $reset_code = $self->get_reset_code;
 
 	return $self->template("reset_login") unless $user;
@@ -471,9 +470,30 @@ Don't count on its interface.
 
 sub validate_prefs {
 	my ($self, $prefs) = @_;
+	require Data::FormValidator;
+
+	my $profile = {
+		required     => [qw(password)],
+		optional     => [qw(password_1 password_2 email)],
+		constraints  => {
+			email => 'email',
+			password_1 => {
+				params     => [qw(password_1 password_2)],
+				constraint => sub { $_[0] eq $_[1] },
+			}
+		},
+		dependency_groups => { new_password => [qw(password_1 password_2)] }
+	};
+	
+	my $results = Data::FormValidator->check($prefs, $profile);
+
+}
+
+sub __old_validate_prefs {
+	my ($self, $prefs) = @_;
 	my %errors;
 
-	unless ($prefs->{email}) {
+	if (not $prefs->{email}) {
 		$errors{email_missing} = 1;
 	} elsif ($prefs->{email} and $prefs->{email} !~ $Email::Address::addr_spec) {
 		undef $prefs->{email};
@@ -821,11 +841,9 @@ sub _post_form_contents {
 		$error{$_} = "Invalid UTF-8 characters in $_." if $@;
 	}
 
-	$form{$_} = $self->query->param($_)
-		for qw(entryid uri title description tags body);
-
 	eval { $form{uri} = URI->new($form{uri})->canonical; };
 	$error{uri} = "Invalid URI" if $@;
+
 	if (
 		$form{uri}
 		and not $error{uri}
@@ -833,27 +851,21 @@ sub _post_form_contents {
 		and not grep { $_ eq $form{uri}->scheme } @{ Rubric::Config->allowed_schemes }
 	) {
 		$error{uri} = "Invalid URI; valid schemes are: "
-			. join(" ", @{ Rubric::Config->allowed_schemes });
+			          . "@{ Rubric::Config->allowed_schemes }";
 	}
 
 	eval { Rubric::Entry->tags_from_string($form{tags}) };
-	$error{tags} =
-		"Tags may only contain letters, numbers, dot, colon, and asterisk."
-		if $@;
+	$error{tags} = "Tags may only contain letters, numbers, dot, colon, and asterisk." if $@;
 
 	$error{title} = "You must supply a title." if 
-		$self->query->param('submit')
-		and not length $form{title};
+		$self->query->param('submit') and not length $form{title};
 
 	if ($form{uri} and Rubric::Config->one_entry_per_link) {
 		if (my ($link) = Rubric::Link->search({uri => $form{uri}})) {
 			$self->param('existing_link', $link);
-			my ($existing_entry) = Rubric::Entry->search(
-				{link => $link, user => $self->param('current_user') }
-			);
-			if ($existing_entry) {
-				$self->param('existing_entry', $existing_entry);
-			}
+			my ($existing_entry) = $self->param('current_user')->entries(link => $link);
+			$error{uri} = "You already have an entry for this URI."
+				if $existing_entry and not $form{entryid};
 		}
 	}
 	
@@ -868,27 +880,21 @@ sub post {
 	my ($form, $error) = $self->_post_form_contents;
 
 	return $self->post_form($form, $error) if
-		(($self->query->param('submit') || '') ne 'save')
+		not $self->query->param('submit')
 		or %$error
-		or not $self->param('current_user')->quick_entry($form);
+		or not my $entry = $self->param('current_user')->quick_entry($form);
 	
 	my $when_done = $self->query->param('when_done');
+	my $goto;
 
-	return $self->template('close_window') if $when_done eq 'close';
+	   if ($when_done eq 'close')   { return $self->template('close_window')     }
+	elsif ($when_done eq 'entry')   { $goto = Rubric::WebApp::URI->entry($entry) }
+	elsif ($when_done eq 'go_back') { $goto = $form->{uri}                       }
+	 else                           { $goto = $self->query->param('then_goto')   }
 
-	my $then_goto = $self->query->param('then_goto');
+	$goto ||= Rubric::WebApp::URI->entries({user=> $self->param('current_user')});
 
-	my $goto_uri;
-
-	if ($then_goto) {
-		$goto_uri = $then_goto;
-	} elsif ($when_done eq 'go_back' && $form->{uri}) {
-		$goto_uri = $form->{uri};
-	} else {
-		$goto_uri = Rubric::WebApp::URI->entries({ user => $self->param('current_user') });
-	}
-
-	return $self->redirect( $goto_uri, "Posted..." );
+	$self->redirect( $goto, "Posted..." );
 }
 
 =head2 post_form

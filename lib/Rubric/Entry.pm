@@ -9,7 +9,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.31 2005/05/30 22:31:21 rjbs Exp $
+ $Id: Entry.pm,v 1.34 2005/06/10 02:18:09 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -88,8 +88,8 @@ pair for tags used on the week's 50 most recent entries.
 __PACKAGE__->set_sql(recent_tags_counted => <<'');
 SELECT tag, COUNT(*) as count
 FROM   entrytags
-WHERE
-	entry IN (SELECT id FROM entries WHERE created > ? LIMIT 100)
+WHERE entry IN (SELECT id FROM entries WHERE created > ? LIMIT 100)
+  AND tag NOT LIKE '@%%'
 GROUP BY tag
 ORDER BY count DESC
 LIMIT 50
@@ -169,7 +169,7 @@ sub query {
 	Rubric::Entry::Query->query(@_);
 }
 
-=head2 set_new_tags(\@tags)
+=head2 set_new_tags(\%tags)
 
 This method replaces all entry's current tags with the new set of tags.
 
@@ -180,7 +180,9 @@ sub set_new_tags {
 	$self->entrytags->delete_all;
 	$self->update;
 
-	$self->add_to_tags({ tag => $_ }) for @$tags;
+  while (my ($tag, $value) = each %$tags) {
+    $self->add_to_tags({ tag => $tag, tag_value => $value });
+  }
 }
 
 =head2 tags_from_string($taglist)
@@ -198,16 +200,19 @@ sub tags_from_string {
 	my ($class, $tagstring) = @_;
 	my %seen;
 
-	my @tags = $tagstring ? map { $seen{$_}++ ? () : $_ }
-	                        split /\s+/, $tagstring
+	_utf8_on($tagstring);
+
+	my %tags = $tagstring ? map { (index($_, ':') > 0) ? split(/:/, $_, 2) : ($_ => undef) }
+	                        split /(?:\+|\s)+/, $tagstring
 	                      : ();
-	
-	_utf8_on($_) for @tags;
 
 	die "invalid characters in tagstring" 
-		if grep { $_ !~ /\A[@\w\d:.*][-\w\d:.*]*\Z/o } @tags;
+		if grep { defined $_ and $_ !~ /\A[@\w\d:.*][-\w\d:.*]*\Z/ } keys %tags;
 
-	return @tags;
+	die "invalid characters in tagstring" 
+		if grep { defined $_ and $_ !~ /\A[-\w\d:.*]*\Z/ } values %tags;
+
+	return \%tags;
 }
 
 ## return retrieve_all'd objects in recent-to-older order

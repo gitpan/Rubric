@@ -6,7 +6,7 @@ Rubric::Renderer - the rendering interface for Rubric
 
 =head1 VERSION
 
- $Id: Renderer.pm,v 1.10 2005/03/31 01:02:53 rjbs Exp $
+ $Id: Renderer.pm,v 1.11 2005/06/01 23:27:51 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -22,6 +22,7 @@ use Carp;
 use Rubric;
 use Rubric::Config;
 use Template;
+use Template::Filters;
 
 =head1 METHODS
 
@@ -78,17 +79,28 @@ my $xml_escape = sub {
 	}
 };
 
+sub _body_filter {
+	my $filters = Template::Filters->new;
+	my $body_filter = $filters->fetch('html_line_break');
+}
+
 sub process { 
 	my ($class, $template, $type, $stash) = @_;
 	return unless $renderer{$type};
 
+	if ($template =~ /entr/ and ($type eq 'html' or $type eq 'rss')) {
+		$stash->{body_filter} = $class->_body_filter;
+	}
+
 	$stash->{xml_escape} = $xml_escape;
-	$stash->{version} = $Rubric::VERSION;
+	$stash->{version}    = $Rubric::VERSION;
 
 	$template .= '.' . $renderer{$type}{extension};
 	$renderer{$type}{renderer}->process($template, $stash, \(my $output))
 		or die "Couldn't render template: " . $renderer{$type}{renderer}->error;
+
 	die "template produced no content" unless $output;
+
 	return wantarray
 		? ($renderer{$type}{content_type}, $output)
 		:  $output;

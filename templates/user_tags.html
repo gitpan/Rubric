@@ -43,7 +43,7 @@
 	</script>
 
 	<div class='taglist user' id='user_tags'>
-	<h3>your tags</h3>
+	<h3>[% IF user==current_user %]your[% ELSE %][%user%]'s[% END %] tags</h3>
 	<div style='text-align:center'>
 		<span><a href='javascript:show_more(5)'>--</a></span>
 		<span><a href='javascript:show_more(1)'>-</a></span>
