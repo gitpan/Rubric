@@ -25,7 +25,7 @@ $mech->title_is('Rubric: entries', 'Correct <title>');
 
 { # general information-finding
   my @tag_links = $mech->find_all_links( url_regex => qr/\A\Q$root\Eentries\/tags/ );
-  is(scalar(@tag_links), 24, 'Count tag entry urls');
+  is(scalar(@tag_links), 23, 'Count tag entry urls');
 }
 
 { # test all internal links

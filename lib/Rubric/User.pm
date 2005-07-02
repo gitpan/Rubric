@@ -6,7 +6,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
- $Id: User.pm,v 1.31 2005/06/10 02:18:09 rjbs Exp $
+ $Id: User.pm,v 1.32 2005/07/02 21:57:30 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -110,6 +110,7 @@ tags.  Tags are related if they occur together on entries.
 
 sub related_tags {
 	my ($self, $tags) = @_;
+  $tags = [ keys %$tags ] if ref $tags eq 'HASH';
 	return unless $tags and my @tags = @$tags;
 
 	my $query = q|

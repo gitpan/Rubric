@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.11_01
+version 0.11_02
 
- $Id: WebApp.pm,v 1.122 2005/06/07 02:32:53 rjbs Exp $
+ $Id: WebApp.pm,v 1.126 2005/07/02 22:13:27 rjbs Exp $
 
 =cut
 
-our $VERSION = '0.11_01';
+our $VERSION = '0.11_02';
 
 =head1 SYNOPSIS
 
@@ -468,6 +468,8 @@ Don't count on its interface.
 
 =cut
 
+=begin future
+
 sub validate_prefs {
 	my ($self, $prefs) = @_;
 	require Data::FormValidator;
@@ -489,7 +491,11 @@ sub validate_prefs {
 
 }
 
-sub __old_validate_prefs {
+=end future
+
+=cut
+
+sub validate_prefs {
 	my ($self, $prefs) = @_;
 	my %errors;
 
@@ -791,6 +797,8 @@ sub render_entries {
 		self_url     => $self->query->self_url(),
 		long_form    => scalar $self->query->param('long_form'),
 		recent_tags  => $self->param('recent_tags'),
+    related_tags => scalar (($options->{user} || 'Rubric::EntryTag')
+                    ->related_tags_counted($options->{tags})),
 		query_description => $self->param('query_description'),
 	});
 }

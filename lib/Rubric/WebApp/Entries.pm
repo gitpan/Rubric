@@ -8,7 +8,7 @@ Rubric::WebApp::Entries - process the /entries run method
 
 version 0.10
 
- $Id: Entries.pm,v 1.25 2005/06/07 02:32:53 rjbs Exp $
+ $Id: Entries.pm,v 1.26 2005/06/10 18:41:10 rjbs Exp $
 
 =cut
 
@@ -83,25 +83,33 @@ returns a human-readable description of the query described by C<%args>
 
 sub describe_query {
 	my ($self, $arg) = @_;
-	my $description;
-	$description .= "$arg->{user}'s " if $arg->{user};
-	$description .= "entries";
+	my $desc;
+	$desc .= "$arg->{user}'s " if $arg->{user};
+	$desc .= "entries";
 	for (qw(body link)) {
 		if (defined $arg->{"has_$_"}) {
-			$description .= " with" . ($arg->{"has_$_"} ? "" : "out") . " a $_,";
+			$desc .= " with" . ($arg->{"has_$_"} ? "" : "out") . " a $_,";
 		}
 	}
-#	if ($arg->{exact_tags}) {
-#    if (@{ $arg->{exact_tags} }) {
-#      $description .= " filed under { " . join(', ', @{$arg->{exact_tags}}) . " } only";
-#    } else {
-#      $description .= " without tags"
-#    }
-#	} elsif ($arg->{tags} and @{ $arg->{tags} }) {
-#		$description .= " filed under { " . join(', ', @{$arg->{tags}}) . " }";
-#	}
-	$description =~ s/,\Z//;
-	return $description;
+	if ($arg->{exact_tags}) {
+    if (%{ $arg->{exact_tags} }) {
+      $desc .= " filed under { "
+            .  join(', ',
+               map { defined $arg->{exact_tags}{$_}
+                   ? "$_:$arg->{exact_tags}{$_}"
+                   : $_ }
+               keys %{$arg->{exact_tags}}) . " } exactly";
+    } else {
+      $desc .= " without tags"
+    }
+	} elsif ($arg->{tags} and %{ $arg->{tags} }) {
+		$desc .= " filed under { "
+          .  join(', ',
+             map { defined $arg->{tags}{$_} ?  "$_:$arg->{tags}{$_}" : $_ }
+             keys %{$arg->{tags}}) . " }";
+	}
+	$desc =~ s/,\Z//;
+	return $desc;
 }
 
 =head2 get_arg($param => $value)

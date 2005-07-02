@@ -6,7 +6,7 @@ Rubric::EntryTag - a tag on an entry
 
 =head1 VERSION
 
- $Id: EntryTag.pm,v 1.3 2005/06/07 02:32:53 rjbs Exp $
+ $Id: EntryTag.pm,v 1.4 2005/07/02 21:42:44 rjbs Exp $
 
 =head1 DESCRIPTION
 
@@ -54,6 +54,61 @@ sub _nullify_values {
 }
 
 =head1 METHODS
+
+=head2 related_tags(\@tags)
+
+This method returns a reference to an array of tags related to all the given
+tags.  Tags are related if they occur together on entries.  
+
+=cut
+
+sub related_tags {
+	my ($self, $tags) = @_;
+	return unless $tags and my @tags = @$tags;
+
+	my $query = q|
+	SELECT DISTINCT tag FROM entrytags
+	WHERE
+    tag NOT IN (| . join(',',map { $self->db_Main->quote($_) } @tags) . q|)
+    AND tag NOT LIKE '@%'
+	  AND | .
+		join ' AND ',
+		map { "entry IN (SELECT entry FROM entrytags WHERE tag=$_)" }
+		map { $self->db_Main->quote($_) }
+		@tags;
+
+	$self->db_Main->selectcol_arrayref($query, undef);
+}
+
+=head3 related_tags_counted(\@tags)
+
+This is the obvious conjunction of C<related_tags> and C<tags_counted>.  It
+returns an arrayref of arrayrefs, each a pair of tag/occurance values.
+
+=cut
+
+sub related_tags_counted {
+	my ($self, $tags) = @_;
+  return unless $tags;
+  $tags = [ keys %$tags ] if ref $tags eq 'HASH';
+	return unless my @tags = @$tags;
+
+	my $query = q|
+		SELECT DISTINCT tag, COUNT(*) AS count
+		FROM entrytags
+		WHERE tag NOT IN (|
+      . join(',',map { $self->db_Main->quote($_) } @tags) . q|)
+		AND tag NOT LIKE '@%'
+    AND | .
+		join ' AND ',
+		map { "entry IN (SELECT entry FROM entrytags WHERE tag=$_)" }
+		map { $self->db_Main->quote($_) }
+		@tags;
+
+	$query .= " GROUP BY tag";
+
+	$self->db_Main->selectall_arrayref($query, undef);
+}
 
 =head2 stringify_self
 

@@ -40,11 +40,17 @@
 	<div class='entryform'>
 		<form id='entryform' action="[% xml_escape(uri.post_entry) %]" method='POST'>
 			<table>
+      [%# Yup.  This is really, really ugly. %]
 			[% FOREACH param = [ "uri", "title", "description", "tags" ] %]
+        [% IF param == "tags" %]
+          [% accessor = "entrytags" %]
+        [% ELSE %]
+          [% accessor = param %]
+        [% END %]
 				<tr>
-					<th>[% param %]</th>
+					<th>[% accessor %]</th>
 					<td><input name='[% param %]' value="[% 
-					field_value = form.$param.join(" ") OR existing_entry.$param.join(" ");
+					field_value = form.$param.join(" ") OR existing_entry.$accessor.join(" ");
 					xml_escape(field_value);
 					%]" size='75' />
 				</tr>

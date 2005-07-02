@@ -2,11 +2,11 @@
 	[% PROCESS "user_tags.html" %]
 	[% END %]
 
-	[% IF user && tags.size %]
+	[% IF tags.size %]
 	<div class='taglist related'>
 	<h3>related tags</h3>
 	<h4>add to query</h4>
-	[% FOREACH tag = user.related_tags_counted(tags) %]
+	[% FOREACH tag = related_tags %]
 	<div class='tag'>
 	<span class='tag_count'>[% tag.1 %]</span>
 	&nbsp;
@@ -25,6 +25,12 @@
 	<a class='plus' href='[% uri.entries(user => user, tags => remove(tag, tags.keys)) %]'>[% tag %]</a>
 	&nbsp;</div>
 	[% END %]
+  <br />
+  [% IF user %]
+  <h4><a href='[% uri.entries(tags => tags) %]'>just your entries</a></h4>
+  [% ELSE %]
+  <h4><a href='[% uri.entries(user => current_user, tags => tags) %]'>for you</a></h4>
+  [% END %]
 	</div>
 	[% END %]
 

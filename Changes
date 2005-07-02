@@ -1,5 +1,11 @@
 Revision history for Rubric
 
+0.11_02 2005-07-02
+        work on unbreaking tags/facets
+        rolled back Data::FormValidator use
+        provide link on related tags to add/remove user constraint
+        show related tags even when no user selected
+
 0.11_01 2005-06-09
         CURRENTLY BROKEN: preference validation
         CURRENTLY BROKEN: query description
