@@ -10,7 +10,7 @@ Rubric::WebApp::Login - web login processing
 
 version 0.01
 
- $Id: Login.pm,v 1.3 2005/04/07 22:44:42 rjbs Exp $
+ $Id: /my/rjbs/code/rubric/trunk/lib/Rubric/WebApp/Login.pm 2680 2005-08-20T18:14:28.122231Z rjbs  $
 
 =cut
 

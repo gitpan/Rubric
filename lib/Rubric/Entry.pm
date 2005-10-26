@@ -9,7 +9,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: Entry.pm,v 1.34 2005/06/10 02:18:09 rjbs Exp $
+ $Id: /my/rjbs/code/rubric/trunk/lib/Rubric/Entry.pm 2680 2005-08-20T18:14:28.122231Z rjbs  $
 
 =head1 DESCRIPTION
 

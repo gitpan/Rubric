@@ -6,7 +6,7 @@ Rubric::Renderer - the rendering interface for Rubric
 
 =head1 VERSION
 
- $Id: Renderer.pm,v 1.11 2005/06/01 23:27:51 rjbs Exp $
+ $Id: /my/rjbs/code/rubric/trunk/lib/Rubric/Renderer.pm 2680 2005-08-20T18:14:28.122231Z rjbs  $
 
 =head1 DESCRIPTION
 
