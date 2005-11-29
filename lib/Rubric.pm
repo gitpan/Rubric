@@ -8,13 +8,13 @@ Rubric - a notes and bookmarks manager with tagging
 
 =head1 VERSION
 
-version 0.12
+version 0.13_01
 
- $Id: /my/rjbs/code/rubric/trunk/lib/Rubric.pm 15753 2005-10-26T23:41:53.670331Z rjbs  $
+ $Id: /rjbs/code/rubric/trunk/lib/Rubric.pm 104 2005-11-29T05:28:52.598035Z rjbs  $
 
 =cut
 
-our $VERSION = '0.12';
+our $VERSION = '0.13_01';
 
 =head1 DESCRIPTION
 
@@ -50,6 +50,11 @@ L<http://rjbs.manxome.org/rubric/docs/todo>.
 =head1 AUTHOR
 
 Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+
+=head1 THANKS
+
+...to a lot of people whom I will try to name, in time.  Among these helpful
+people are Ian Langworth, Shawn Sorichetti, John Cappiello, and Dave O'Neill.
 
 =head1 BUGS
 

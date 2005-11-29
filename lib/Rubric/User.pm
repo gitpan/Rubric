@@ -6,7 +6,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
- $Id: /my/rjbs/code/rubric/trunk/lib/Rubric/User.pm 2680 2005-08-20T18:14:28.122231Z rjbs  $
+ $Id: /rjbs/code/rubric/trunk/lib/Rubric/User.pm 32 2005-08-20T18:14:53.017296Z rjbs  $
 
 =head1 DESCRIPTION
 

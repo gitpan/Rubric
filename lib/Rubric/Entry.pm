@@ -9,7 +9,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: /my/rjbs/code/rubric/trunk/lib/Rubric/Entry.pm 2680 2005-08-20T18:14:28.122231Z rjbs  $
+ $Id: /rjbs/code/rubric/trunk/lib/Rubric/Entry.pm 103 2005-11-29T05:28:49.023742Z rjbs  $
 
 =head1 DESCRIPTION
 
@@ -202,9 +202,17 @@ sub tags_from_string {
 
 	_utf8_on($tagstring);
 
-	my %tags = $tagstring ? map { (index($_, ':') > 0) ? split(/:/, $_, 2) : ($_ => undef) }
-	                        split /(?:\+|\s)+/, $tagstring
-	                      : ();
+  return {} unless $tagstring;
+
+  # remove leading and trailing spaces
+  $tagstring =~ s/\A\s*//;
+  # I originally used this line, but trimming trailing space is not needed, so
+  # I reverted to the simpler code, above: $tagstring =~ s/\A\s*(.+?)\s*\z/$1/;
+
+	my %tags = $tagstring
+           ? map { (index($_, ':') > 0) ? split(/:/, $_, 2) : ($_ => undef) }
+	               split /(?:\+|\s)+/, $tagstring
+	         : ();
 
 	die "invalid characters in tagstring" 
 		if grep { defined $_ and $_ !~ /\A[@\w\d:.*][-\w\d:.*]*\Z/ } keys %tags;

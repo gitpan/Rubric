@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.12
+version 0.13_01
 
- $Id: /my/rjbs/code/rubric/trunk/lib/Rubric/WebApp.pm 15753 2005-10-26T23:41:53.670331Z rjbs  $
+ $Id: /rjbs/code/rubric/trunk/lib/Rubric/WebApp.pm 104 2005-11-29T05:28:52.598035Z rjbs  $
 
 =cut
 
-our $VERSION = '0.12';
+our $VERSION = '0.13_01';
 
 =head1 SYNOPSIS
 
@@ -254,8 +254,11 @@ users.
 sub teardown {
   my ($self) = @_;
 
-  $self->session->delete unless $self->param('current_user')
-                             or $self->get_current_runmode eq 'login';
+  if (Rubric::Config->purge_anonymous_sessions) {
+    $self->session->delete unless $self->param('current_user')
+                               or $self->get_current_runmode eq 'login'
+                               or $self->get_current_runmode eq 'post';
+  }
 }
 
 =head2 entries

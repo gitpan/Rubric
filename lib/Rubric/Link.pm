@@ -1,4 +1,6 @@
 package Rubric::Link;
+use strict;
+use warnings;
 
 =head1 NAME
 
@@ -6,7 +8,7 @@ Rubric::Link - a link (URI) against which entries have been made
 
 =head1 VERSION
 
- $Id: /my/rjbs/code/rubric/trunk/lib/Rubric/Link.pm 2680 2005-08-20T18:14:28.122231Z rjbs  $
+ $Id: /rjbs/code/rubric/trunk/lib/Rubric/Link.pm 85 2005-11-20T16:59:52.231131Z rjbs  $
 
 =head1 DESCRIPTION
 
