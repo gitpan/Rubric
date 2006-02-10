@@ -6,7 +6,7 @@ Rubric::Renderer - the rendering interface for Rubric
 
 =head1 VERSION
 
- $Id: /rjbs/code/rubric/trunk/lib/Rubric/Renderer.pm 104 2005-11-29T05:28:52.598035Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Renderer.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
 
 =head1 DESCRIPTION
 
@@ -80,18 +80,9 @@ my $xml_escape = sub {
   }
 };
 
-sub _body_filter {
-  my $filters = Template::Filters->new;
-  my $body_filter = $filters->fetch('html_line_break');
-}
-
 sub process { 
   my ($class, $template, $type, $stash) = @_;
   return unless $renderer{$type};
-
-  if ($template =~ /entr/ and ($type eq 'html' or $type eq 'rss')) {
-    $stash->{body_filter} = $class->_body_filter;
-  }
 
   $stash->{xml_escape} = $xml_escape;
   $stash->{version}    = $Rubric::VERSION;

@@ -6,7 +6,7 @@ Rubric::WebApp::URI - URIs for Rubric web requests
 
 =head1 VERSION
 
- $Id: /rjbs/code/rubric/trunk/lib/Rubric/WebApp/URI.pm 32 2005-08-20T18:14:53.017296Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp/URI.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
 
 =head1 DESCRIPTION
 

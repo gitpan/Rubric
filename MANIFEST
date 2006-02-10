@@ -1,13 +1,11 @@
 bin/dump_yml.pl
 bin/entries.pl
 bin/load_yml.pl
-bin/makedb.pl
-bin/rubric-user
+bin/rubric
 bin/rubric.cgi
-bin/updatedb.pl
 Changes
 etc/rubric.yml
-inc/Module/Install.pm
+inc/Module/Install.pm  
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
 inc/Module/Install/Fetch.pm
@@ -20,6 +18,9 @@ lib/Rubric/Config.pm
 lib/Rubric/DBI.pm
 lib/Rubric/DBI/Setup.pm
 lib/Rubric/Entry.pm
+lib/Rubric/Entry/Formatter.pm
+lib/Rubric/Entry/Formatter/HTMLEscape.pm
+lib/Rubric/Entry/Formatter/Nil.pm
 lib/Rubric/Entry/Query.pm
 lib/Rubric/EntryTag.pm
 lib/Rubric/Link.pm
@@ -87,3 +88,4 @@ templates/template.txt
 templates/toolbar.html
 templates/user_tags.html
 templates/verified.html
+SIGNATURE                                Public-key signature (added by MakeMaker)

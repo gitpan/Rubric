@@ -12,7 +12,7 @@ Rubric::WebApp::Login::HTTP - process web login from HTTP authentication
 
 version 0.01
 
- $Id: /rjbs/code/rubric/trunk/lib/Rubric/WebApp/Login/HTTP.pm 32 2005-08-20T18:14:53.017296Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp/Login/HTTP.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
 
 =cut
 

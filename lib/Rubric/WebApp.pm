@@ -8,7 +8,7 @@ Rubric::WebApp - the web interface to Rubric
 
 version 0.13_01
 
- $Id: /rjbs/code/rubric/trunk/lib/Rubric/WebApp.pm 104 2005-11-29T05:28:52.598035Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
 
 =cut
 
@@ -106,9 +106,8 @@ sub redirect_root {
 
 =head2 cgiapp_init
 
-This method is called during CGI::Application's initialization.  It finds (or
-creates) a CGI::Session, checks for a login, checks for updates to result-set
-paging, and starts processing the request path. 
+This method is called during CGI::Application's initialization.  It sets up the
+session configuration.
 
 =cut
 
@@ -123,6 +122,18 @@ sub cgiapp_init {
       -name    => 'rubric_session'
     }
   );
+}
+
+=head2 cgiapp_prerun
+
+This method is called before the selected runmode.  It checks for a login,
+checks for updates to result-set paging, and starts processing the request
+path. 
+
+=cut
+
+sub cgiapp_prerun {
+  my ($self) = @_;
   
   my $login_class = Rubric::Config->login_class;
   eval "require $login_class";

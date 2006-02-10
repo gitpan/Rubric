@@ -8,7 +8,7 @@ Rubric::DBI::Setup - db initialization routines
 
 version 0.10
 
- $Id: /rjbs/code/rubric/trunk/lib/Rubric/DBI/Setup.pm 102 2005-11-24T03:54:42.993206Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/DBI/Setup.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
 
 =cut
 

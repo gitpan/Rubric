@@ -9,7 +9,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: /rjbs/code/rubric/trunk/lib/Rubric/Entry.pm 103 2005-11-29T05:28:49.023742Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
 
 =head1 DESCRIPTION
 
@@ -20,6 +20,7 @@ Rubric::DBI, which is a Class::DBI class.
 
 use base qw(Rubric::DBI);
 use Encode qw(_utf8_on);
+use Rubric::Entry::Formatter;
 use Time::Piece;
 
 __PACKAGE__->table('entries');
@@ -221,6 +222,31 @@ sub tags_from_string {
 		if grep { defined $_ and $_ !~ /\A[-\w\d:.*]*\Z/ } values %tags;
 
 	return \%tags;
+}
+
+=head2 C< body_as >
+
+  my $formatted_body = $entry->body_as("html");
+
+This method returns the body of the entry, formatted into the given format.  If
+the entry cannot be rendered into the given format, an exception is thrown.
+
+=cut
+
+sub body_as {
+  my ($self, $format) = @_;
+
+  my $markup;
+  my ($tag)
+    = Rubric::EntryTag->search({ entry => $self->id, tag => '@markup' });
+
+  $markup = ($tag and $tag->tag_value) ? $tag->tag_value : '_default';
+
+  Rubric::Entry::Formatter->format({
+    text   => $self->body,
+    markup => $markup,
+    format => $format
+  });
 }
 
 ## return retrieve_all'd objects in recent-to-older order

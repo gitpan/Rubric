@@ -8,7 +8,7 @@ Rubric::Entry::Query - construct and execute a complex query
 
 version 0.10
 
- $Id: /rjbs/code/rubric/trunk/lib/Rubric/Entry/Query.pm 32 2005-08-20T18:14:53.017296Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Query.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
 
 =cut
 

@@ -8,7 +8,7 @@ Rubric::WebApp::Entries - process the /entries run method
 
 version 0.10
 
- $Id: /rjbs/code/rubric/trunk/lib/Rubric/WebApp/Entries.pm 32 2005-08-20T18:14:53.017296Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp/Entries.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
 
 =cut
 
