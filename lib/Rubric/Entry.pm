@@ -9,7 +9,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry.pm 18888 2006-02-20T16:24:13.027374Z rjbs  $
 
 =head1 DESCRIPTION
 
@@ -39,7 +39,7 @@ __PACKAGE__->table('entries');
 =cut
 
 __PACKAGE__->columns(
-	All => qw(id link user title description body created modified)
+  All => qw(id link user title description body created modified)
 );
 
 =head1 RELATIONSHIPS
@@ -91,16 +91,17 @@ SELECT tag, COUNT(*) as count
 FROM   entrytags
 WHERE entry IN (SELECT id FROM entries WHERE created > ? LIMIT 100)
   AND tag NOT LIKE '@%%'
+  AND entry NOT IN (SELECT entry FROM entrytags WHERE tag = '@private')
 GROUP BY tag
 ORDER BY count DESC
 LIMIT 50
 
 sub recent_tags_counted {
-	my ($class) = @_;
-	my $sth = $class->sql_recent_tags_counted;
-	$sth->execute(time - (86400 * 7));
-	my $result = $sth->fetchall_arrayref;
-	return $result;
+  my ($class) = @_;
+  my $sth = $class->sql_recent_tags_counted;
+  $sth->execute(time - (86400 * 7));
+  my $result = $sth->fetchall_arrayref;
+  return $result;
 }
 
 =head1 INFLATIONS
@@ -115,10 +116,10 @@ inflated to Time::Piece objects.
 =cut
 
 __PACKAGE__->has_a(
-	$_ => 'Time::Piece',
-	deflate => 'epoch',
-	inflate => Rubric::Config->display_localtime ? sub { localtime($_[0]) }
-	                                             : sub { gmtime($_[0]) }
+  $_ => 'Time::Piece',
+  deflate => 'epoch',
+  inflate => Rubric::Config->display_localtime ? sub { localtime($_[0]) }
+                                               : sub { gmtime($_[0]) }
 ) for qw(created modified);
 
 __PACKAGE__->add_trigger(before_create => \&_default_title);
@@ -127,19 +128,19 @@ __PACKAGE__->add_trigger(before_create => \&_create_times);
 __PACKAGE__->add_trigger(before_update => \&_update_times);
 
 sub _default_title {
-	my $self = shift;
-	$self->title('(default)') unless $self->{title}
+  my $self = shift;
+  $self->title('(default)') unless $self->{title}
 }
 
 sub _create_times {
-	my $self = shift;
-	$self->created(scalar gmtime) unless defined $self->{created};
-	$self->modified(scalar gmtime) unless defined $self->{modified};
+  my $self = shift;
+  $self->created(scalar gmtime) unless defined $self->{created};
+  $self->modified(scalar gmtime) unless defined $self->{modified};
 }
 
 sub _update_times {
-	my $self = shift;
-	$self->modified(scalar gmtime);
+  my $self = shift;
+  $self->modified(scalar gmtime);
 }
 
 =head1 METHODS
@@ -165,9 +166,9 @@ the result of running it.  (Either a list or an Iterator is returned.)
 =cut
 
 sub query {
-	my $self = shift;
-	require Rubric::Entry::Query;
-	Rubric::Entry::Query->query(@_);
+  my $self = shift;
+  require Rubric::Entry::Query;
+  Rubric::Entry::Query->query(@_);
 }
 
 =head2 set_new_tags(\%tags)
@@ -177,19 +178,21 @@ This method replaces all entry's current tags with the new set of tags.
 =cut
 
 sub set_new_tags {
-	my ($self, $tags) = @_;
-	$self->entrytags->delete_all;
-	$self->update;
+  my ($self, $tags) = @_;
+  $self->entrytags->delete_all;
+  $self->update;
 
   while (my ($tag, $value) = each %$tags) {
     $self->add_to_tags({ tag => $tag, tag_value => $value });
   }
 }
 
-=head2 tags_from_string($taglist)
+=head2 tags_from_string
+
+  my $tags = Rubric::Entry->tags_from_string($string);
 
 This (class) method takes a string of tags, delimited by whitespace, and
-returns an array of the tags, dropping invalid tags.
+returns an array of the tags, throwing an exception if it finds invalid tags.
 
 Valid tags (shouldn't this be documented somewhere else instead?) may contain
 letters, numbers, underscores, colons, dots, and asterisks.  Hyphens me be
@@ -198,31 +201,43 @@ used, but not as the first character.
 =cut
 
 sub tags_from_string {
-	my ($class, $tagstring) = @_;
-	my %seen;
+  my ($class, $tagstring) = @_;
 
-	_utf8_on($tagstring);
+  return {} unless $tagstring and $tagstring =~ /\S/;
 
-  return {} unless $tagstring;
+  _utf8_on($tagstring);
 
   # remove leading and trailing spaces
   $tagstring =~ s/\A\s*//;
-  # I originally used this line, but trimming trailing space is not needed, so
-  # I reverted to the simpler code, above: $tagstring =~ s/\A\s*(.+?)\s*\z/$1/;
 
-	my %tags = $tagstring
-           ? map { (index($_, ':') > 0) ? split(/:/, $_, 2) : ($_ => undef) }
-	               split /(?:\+|\s)+/, $tagstring
-	         : ();
+  my %tags = map { (index($_, ':') > 0) ? split(/:/, $_, 2) : ($_ => undef) }
+                 split /(?:\+|\s)+/, $tagstring;
 
-	die "invalid characters in tagstring" 
-		if grep { defined $_ and $_ !~ /\A[@\w\d:.*][-\w\d:.*]*\Z/ } keys %tags;
+  die "invalid characters in tagstring" 
+    if grep { defined $_ and $_ !~ /\A[@\pL\d_:.*][-\pL\d_:.*]*\z/ } keys %tags;
 
-	die "invalid characters in tagstring" 
-		if grep { defined $_ and $_ !~ /\A[-\w\d:.*]*\Z/ } values %tags;
+  die "invalid characters in tagstring" 
+    if grep { defined $_ and $_ !~ /\A[-\pL\d:_.*]*\z/ } values %tags;
 
-	return \%tags;
+  return \%tags;
 }
+
+=head2 C< markup >
+
+This method returns the value of the entry's @markup tag, or C<_default> if
+there is no such tag.
+
+=cut
+
+sub markup {
+  my ($self) = @_;
+
+  my ($tag)
+    = Rubric::EntryTag->search({ entry => $self->id, tag => '@markup' });
+
+  return ($tag and $tag->tag_value) ? $tag->tag_value : '_default';
+}
+
 
 =head2 C< body_as >
 
@@ -236,11 +251,7 @@ the entry cannot be rendered into the given format, an exception is thrown.
 sub body_as {
   my ($self, $format) = @_;
 
-  my $markup;
-  my ($tag)
-    = Rubric::EntryTag->search({ entry => $self->id, tag => '@markup' });
-
-  $markup = ($tag and $tag->tag_value) ? $tag->tag_value : '_default';
+  my $markup = $self->markup;
 
   Rubric::Entry::Formatter->format({
     text   => $self->body,

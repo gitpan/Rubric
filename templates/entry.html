@@ -26,7 +26,7 @@
       [% widget.link(
         href => uri.entries(user => user, tags => [ tag.tag ]),
         text => tag.tag
-      ) %][% IF tag.tag_value %]:[% widget.link(
+      ) | trim %][% IF tag.tag_value %]:[% widget.link(
         href => uri.entries(user => user, tags => [ tag ]),
         text => tag.tag_value
       ) %][% END %]
@@ -36,10 +36,10 @@
 			[% END %]
 			(created: [% entry.created.strftime("%Y-%m-%d %H:%M") %])
 		</div>
-		[% IF entry.link.entry_count %]
+		[% IF entry.link.entry_count > 1 %]
 		<div class='other_entries'>
 			(<a href='[% uri.entries(urimd5 => entry.link.md5) %]'>[% entry.link.entry_count %]
-      [% (entry.link.entry_count > 1) && "entries" || "entry" %]</a> for this link)
+      entries</a> for this link)
 		</div>
 		[% END %]
 		[% IF long_form AND entry.body %]

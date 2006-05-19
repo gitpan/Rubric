@@ -6,7 +6,7 @@ Rubric::Entry::Formatter - a base class for entry body formatters
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Formatter.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Formatter.pm 18875 2006-02-20T04:23:34.793198Z rjbs  $
 
 =head1 DESCRIPTION
 
@@ -41,23 +41,46 @@ C<markup_formatter>.
 
 =cut
 
-my $markup_formatter = Rubric::Config->markup_formatter;
+sub _load_formatter {
+  my ($class, $formatter) = @_;
 
-$markup_formatter->{_default} = 'Rubric::Entry::Formatter::Nil'
-  unless $markup_formatter->{_default};
+  return 1 if eval { $formatter->can('as_text'); };
+  return 1 if eval qq{require $formatter;};
+  return 0;
+}
+
+sub _formatter_for {
+  my ($class, $markup) = @_;
+
+  my $markup_formatter = Rubric::Config->markup_formatter;
+  $markup_formatter->{_default} = 'Rubric::Entry::Formatter::Nil'
+    unless $markup_formatter->{_default};
+
+  Carp::croak "no formatter is registered for $markup markup"
+    unless my $formatter = $markup_formatter->{ $markup };
+
+  return $formatter;
+}
 
 sub format {
   my ($class, $arg) = @_;
+  my $config = {}; # extra configuration for formatter code
 
-  my $formatter = $markup_formatter->{ $arg->{markup} }
-    or Carp::croak "no formatter is registered for $arg->{markup} markup";
+  my $formatter = $class->_formatter_for($arg->{markup});
 
-  eval "require $formatter" or Carp::croak $@;
+  if (ref $formatter) {
+    $config = { %$formatter };
+    Carp::croak "formatter config for $arg->{markup} includes no class"
+      unless $formatter = delete $config->{class};
+  }
+
+  $class->_load_formatter($formatter)
+    or Carp::croak "couldn't load formatter '$formatter': $@";
 
   my $formatter_code = $formatter->can("as_$arg->{format}")
     or Carp::croak "$formatter does not implement formatting to $arg->{format}";
 
-  $formatter_code->($formatter, $arg);
+  $formatter_code->($formatter, $arg, $config);
 }
 
 =head1 WRITING FORMATTERS

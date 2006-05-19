@@ -28,14 +28,16 @@ requires('HTML::Widget::Factory'      => '0.03'); # 0.03: links w/classes
 requires('HTTP::Server::Simple'       => '0.09');
 requires('Getopt::Long::Descriptive'  => '0.03');
 requires('Template::Plugin::Class'    => '0.12');
+requires('Test::HTTP::Server::Simple' => '0.02');
 requires('Test::WWW::Mechanize'       => '1.04');
 requires('CGI::Application::Plugin::Session' => 0);
+
+install_script('bin/rubric');
 
 my $files = '';
 find( sub { $files .= " $File::Find::name" if -f && /\.t$/ }, "t" );
 
 tests         ($files);
 
-sign(1);
-
+auto_install;
 WriteAll();

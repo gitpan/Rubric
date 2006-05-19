@@ -6,7 +6,7 @@ Rubric::Entry::Formatter::Nil - format entries by formatting nearly not at all
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Formatter/Nil.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Formatter/Nil.pm 18629 2006-02-11T17:09:48.521002Z rjbs  $
 
 =head1 DESCRIPTION
 
@@ -29,12 +29,13 @@ my $filter = Template::Filters->new->fetch('html_para');
 
 sub as_html {
   my ($class, $arg) = @_;
+  return '' unless $arg->{text};
   return $filter->($arg->{text});
 }
 
 sub as_text {
   my ($class, $arg) = @_;
-
+  return '' unless $arg->{text};
   return $arg->{text};
 }
 

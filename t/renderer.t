@@ -1,8 +1,8 @@
-#!perl
 #!perl -T
 
 use Test::More 'no_plan';
 
+BEGIN { use_ok("Rubric::Config", 't/config/rubric.yml'); }
 BEGIN { use_ok("Rubric::Renderer"); }
 
 my @output = Rubric::Renderer->process(login => html => {});

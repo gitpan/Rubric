@@ -1,7 +1,6 @@
-
 author: Ricardo SIGNES <rjbs@cpan.org>
 distribution_type: module
-generated_by: Module::Install version 0.55
+generated_by: Module::Install version 0.62
 license: perl
 name: Rubric
 no_index: 
@@ -26,9 +25,10 @@ requires:
   HTTP::Server::Simple: 0.09
   Template: 2
   Template::Plugin::Class: 0.12
+  Test::HTTP::Server::Simple: 0.02
   Test::WWW::Mechanize: 1.04
   Time::Local: 0
   Time::Piece: 0
   YAML: 0
-tests: " t/00_load.t t/10_dbsetup.t t/20_testdata.t t/config_custom.t t/config_default.t t/entry.t t/entry_query.t t/link.t t/pod-coverage.t t/pod.t t/renderer.t t/user.t t/www/www_main.t"
-version: 0.13_02
+tests: " t/00-load.t t/10-dbsetup.t t/20-testdata.t t/config_custom.t t/config_default.t t/entry.t t/entry_format.t t/entry_query.t t/link.t t/pod-coverage.t t/pod.t t/privacy.t t/renderer.t t/tagstrings.t t/uri.t t/user.t t/www/www_main.t"
+version: 0.140

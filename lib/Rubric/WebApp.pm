@@ -6,13 +6,13 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.13_01
+version 0.140
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp.pm 22357 2006-05-19T03:28:41.586236Z rjbs  $
 
 =cut
 
-our $VERSION = '0.13_01';
+our $VERSION = '0.140';
 
 =head1 SYNOPSIS
 
@@ -122,6 +122,10 @@ sub cgiapp_init {
       -name    => 'rubric_session'
     }
   );
+
+  my $login_class = Rubric::Config->login_class;
+  eval "require $login_class";
+  $login_class->check_for_login($self);
 }
 
 =head2 cgiapp_prerun
@@ -135,10 +139,6 @@ path.
 sub cgiapp_prerun {
   my ($self) = @_;
   
-  my $login_class = Rubric::Config->login_class;
-  eval "require $login_class";
-  $login_class->check_for_login($self);
-
   $self->check_pager_data;
 
   my @path = split '/', $self->query->path_info;
@@ -206,7 +206,7 @@ sub template {
   $stash->{page} = $self->param('page');
 
   my $type = $self->query->param('format');
-     $type = 'html' unless $type and $type =~ /^\w+$/;
+     $type = 'html' unless $type and $type =~ /^[\pL\d_]+$/;
 
   my ($content_type, $output) =
     Rubric::Renderer->process($template, $type, $stash);
@@ -251,7 +251,13 @@ sub _default_handler {
 sub _entries_shortcut {
   my ($self, $user) = @_;
   my $path = $self->param('path');
-  unshift @$path, 'user', $user, 'tags';
+
+  # If there the number of elements in the path is odd, the first one is tags;
+  # otherwise, it's a normal query; this may or may not be safe, in the end.  I
+  # guess we'll find out. -- rjbs, 2006-02-20
+  unshift @$path, 'tags' if @$path % 2;
+  unshift @$path, 'user', $user;
+
   $self->entries;
 }
 
@@ -306,7 +312,8 @@ sub entry {
          or  $entry->user ne $self->param('current_user'));
 
   $self->template('entry_long' => {
-    entry => $self->param('entry'),
+    entry     => $self->param('entry'),
+    self_url  => $self->query->self_url(),
     long_form => 1
   });
 }
@@ -397,7 +404,7 @@ object, then redirects the user to the root of the Rubric site.
 
 sub logout {
   my ($self) = @_;
-  $self->session->param('current_user', undef);
+  $self->session->clear('current_user');
   $self->param('current_user', undef);
 
   return $self->redirect_root("Logged out...");
@@ -522,7 +529,6 @@ sub validate_prefs {
   };
   
   my $results = Data::FormValidator->check($prefs, $profile);
-
 }
 
 =end future
@@ -604,7 +610,7 @@ sub validate_newuser_form {
   my ($self, $newuser) = @_;
   my %errors;
 
-  if ($newuser->{username} and $newuser->{username} !~ /^[\w\d.]+$/) {
+  if ($newuser->{username} and $newuser->{username} !~ /^[\pL\d_.]+$/) {
     undef $newuser->{username};
     $errors{username_invalid} = 1;
   } elsif (Rubric::User->retrieve($newuser->{username})) {
@@ -1002,7 +1008,10 @@ sub doc {
   my ($self) = @_;
 
   $self->get_doc;
-  $self->template("docs/" . $self->param('doc_page'));
+  my $output = eval { $self->template("docs/" . $self->param('doc_page')); };
+
+  # XXX: this should instead redirect to a 404-page
+  return $output ? $output : $self->redirect_root("no such document");
 }
 
 =head2 get_doc
@@ -1015,8 +1024,8 @@ sub get_doc {
   my ($self) = @_;
 
   my $doc_page = $self->next_path_part;
-  return $doc_page =~ /^\w+$/ ? $self->param(doc_page => $doc_page)
-                              : ();
+  return $doc_page =~ /^[\pL\d_]+$/ ? $self->param(doc_page => $doc_page)
+                                    : ();
 }
 
 =head1 TODO

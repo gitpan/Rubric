@@ -10,7 +10,7 @@ Rubric::WebApp::Login - web login processing
 
 version 0.01
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp/Login.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp/Login.pm 18706 2006-02-16T04:37:20.091139Z rjbs  $
 
 =cut
 
@@ -91,7 +91,7 @@ is a valid username.
 
 sub valid_username {
 	my ($self, $username) = @_;
-	$username =~ /^\w+$/;
+	$username =~ /^[\pL\d_]+$/;
 }
 
 =head2 get_login_user($username)

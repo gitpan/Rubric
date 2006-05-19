@@ -8,13 +8,13 @@ Rubric - a notes and bookmarks manager with tagging
 
 =head1 VERSION
 
-version 0.13_02
+version 0.140
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric.pm 18601 2006-02-10T12:04:21.459296Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric.pm 22357 2006-05-19T03:28:41.586236Z rjbs  $
 
 =cut
 
-our $VERSION = '0.13_02';
+our $VERSION = '0.140';
 
 =head1 DESCRIPTION
 

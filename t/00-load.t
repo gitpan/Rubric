@@ -1,9 +1,8 @@
-#!perl
 #!perl -T
 
 use Test::More tests => 16;
 
-BEGIN { use_ok("Rubric::Config"); }
+BEGIN { use_ok("Rubric::Config", 't/config/rubric.yml'); }
 BEGIN { use_ok("Rubric"); }
 BEGIN { use_ok("Rubric::Config"); }
 BEGIN { use_ok("Rubric::DBI"); }

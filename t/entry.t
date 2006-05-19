@@ -1,8 +1,8 @@
-#!perl
 #!perl -T
 
 use Test::More 'no_plan';
 
+BEGIN { use_ok("Rubric::Config", 't/config/rubric.yml'); }
 BEGIN { use_ok("Rubric::Entry"); }
 
 {
@@ -12,7 +12,7 @@ BEGIN { use_ok("Rubric::Entry"); }
 
 	isa_ok($entry->link, "Rubric::Link");
 
-	is($entry->uri, "http://rjbs.manxome.org/bryar/");
+	is($entry->uri, "http://rjbs.manxome.org/journal/");
 	isa_ok($entry->created, 'Time::Piece', 'created time');
 	isa_ok($entry->modified, 'Time::Piece', 'modified time');
 }

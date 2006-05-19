@@ -8,7 +8,7 @@ Rubric::DBI::Setup - db initialization routines
 
 version 0.10
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/DBI/Setup.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/DBI/Setup.pm 18650 2006-02-12T03:33:59.648082Z rjbs  $
 
 =cut
 
@@ -44,8 +44,11 @@ This method returns a connection to the Rubric database.
 =cut
 
 my $dbh;
+
 sub dbh {
-	return $dbh ||= DBI->connect(
+	return $dbh if $dbh;
+
+  return $dbh = DBI->connect(
 		Rubric::Config->dsn,
 		Rubric::Config->db_user,
 		Rubric::Config->db_pass

@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Config.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Config.pm 19187 2006-02-26T20:00:15.946075Z rjbs  $
 
 =head1 DESCRIPTION
 
@@ -27,7 +27,7 @@ use base qw(Class::Accessor);
 use Config::Auto;
 use YAML;
 
-my $config_filename = 'rubric.yml';
+my $config_filename = $ENV{RUBRIC_CONFIG_FILE} || 'rubric.yml';
 
 sub import {
 	my ($class) = shift;

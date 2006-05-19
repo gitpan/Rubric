@@ -8,7 +8,7 @@ Rubric::Entry::Query - construct and execute a complex query
 
 version 0.10
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Query.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Query.pm 18809 2006-02-20T00:04:05.908025Z rjbs  $
 
 =cut
 
@@ -58,6 +58,10 @@ sub _private_constraint {
 		"id NOT IN (SELECT entry FROM entrytags WHERE tag=$priv_tag))";
 }
 
+sub _nolist_constraint {
+	return q{id NOT IN (SELECT entry FROM entrytags WHERE tag='@nolist')};
+}
+
 sub query {
 	my ($self, $arg, $context) = @_;
 	$context ||= {};
@@ -65,6 +69,7 @@ sub query {
 	my @constraints = map { $self->get_constraint($_, $arg->{$_}) } keys %$arg;
 	@constraints = ("1 = 0") if grep { not defined } @constraints;
 	
+  push @constraints, $self->_nolist_constraint;
 	push @constraints, $self->_private_constraint($context->{user})
 		if exists $context->{user};
 	

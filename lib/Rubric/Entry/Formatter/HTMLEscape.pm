@@ -6,7 +6,7 @@ Rubric::Entry::Formatter::HTMLEscape - format into HTML by escaping entities
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Formatter/HTMLEscape.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Formatter/HTMLEscape.pm 18650 2006-02-12T03:33:59.648082Z rjbs  $
 
 =head1 DESCRIPTION
 
@@ -27,11 +27,11 @@ use Template::Filters;
 
 =cut
 
-my $filter;
+my ($filter, $html, $para);
 {
   my $filters = Template::Filters->new;
-  my $html = $filters->fetch('html');
-  my $para = $filters->fetch('html_para');
+  $html = $filters->fetch('html');
+  $para = $filters->fetch('html_para');
 
   $filter = sub {
     $para->( $html->($_[0]) );
@@ -40,7 +40,14 @@ my $filter;
 
 sub as_html {
   my ($class, $arg) = @_;
+  return '' unless $arg->{text};
   return $filter->($arg->{text});
+}
+
+sub as_text {
+  my ($class, $arg) = @_;
+  return '' unless $arg->{text};
+  return $html->($arg->{text});
 }
 
 =head1 TODO
