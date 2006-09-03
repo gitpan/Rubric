@@ -7,7 +7,7 @@ Rubric::CLI::Command::db - database management
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/CLI/Command/db.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/CLI/Command/db.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
 
 =cut
 
@@ -16,9 +16,10 @@ use warnings;
 
 use Rubric::DBI::Setup;
 
-sub describe_options {
-  my ($opt, $usage) = Getopt::Long::Descriptive::describe_options(
-    "rubric database %o",
+sub usage_desc { "rubric database %o" }
+
+sub opt_spec {
+  return (
     [ mode => hidden => {
       one_of => [
         [ "setup|s",  "set up a new database"       ],
@@ -27,18 +28,20 @@ sub describe_options {
       }
     ],
   );
-
-  die $usage->text unless $opt->{mode};
-  return ($opt, $usage);
 }
 
-sub execute {
-  my ($class) = @_;
-  my ($opt, $usage) = $class->describe_options;
+sub validate_args {
+  my ($self, $opt, $arg) = @_;
 
-  if ($opt->{mode} eq 'super') {
+  die $self->usage->text unless $opt->{mode};
+}
+
+sub run {
+  my ($self, $opt, $arg) = @_;
+
+  if ($opt->{mode} eq 'setup') {
     Rubric::DBI::Setup->setup_tables;
-  } elsif ($opt->{update} eq 'update') {
+  } elsif ($opt->{mode} eq 'update') {
     Rubric::DBI::Setup->update_schema;
   }
 }

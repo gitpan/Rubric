@@ -8,7 +8,7 @@ Rubric::Link - a link (URI) against which entries have been made
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Link.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Link.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
 
 =head1 DESCRIPTION
 

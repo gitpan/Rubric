@@ -8,7 +8,7 @@ Rubric::WebApp - the web interface to Rubric
 
 version 0.140
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp.pm 22357 2006-05-19T03:28:41.586236Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
 
 =cut
 
@@ -993,7 +993,7 @@ sub delete {
   $self->param('entry')->delete;
 
   my $goto = $self->query->param('then_goto')
-           || Rubric::WebApp::URI->entries({ user => $user }); 
+           || Rubric::WebApp::URI->entries({ username => $user }); 
 
   return $self->redirect( $goto, "Deleted..." );
 }

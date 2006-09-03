@@ -6,7 +6,7 @@ Rubric::Entry::Formatter - a base class for entry body formatters
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Formatter.pm 18875 2006-02-20T04:23:34.793198Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Formatter.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
 
 =head1 DESCRIPTION
 

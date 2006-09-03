@@ -14,7 +14,7 @@ Rubric::WebApp::Login::Post - process web login from query parameters
 
 version 0.01
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp/Login/Post.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp/Login/Post.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
 
 =cut
 

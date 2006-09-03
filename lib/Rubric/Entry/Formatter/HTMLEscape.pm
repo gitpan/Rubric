@@ -6,7 +6,7 @@ Rubric::Entry::Formatter::HTMLEscape - format into HTML by escaping entities
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Formatter/HTMLEscape.pm 18650 2006-02-12T03:33:59.648082Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Formatter/HTMLEscape.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
 
 =head1 DESCRIPTION
 

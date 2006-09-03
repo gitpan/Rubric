@@ -6,7 +6,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Config.pm 19187 2006-02-26T20:00:15.946075Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Config.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
 
 =head1 DESCRIPTION
 
@@ -51,6 +51,14 @@ the username to be used by Rubric::DBI to connect to the Rubric's database
 =item * db_pass
 
 the password to be used by Rubric::DBI to connect to the Rubric's database
+
+=item * dbi_trace_level
+
+level of debug output for DBI 
+
+=item * dbi_trace_file
+
+Where to send DBI debug output if dbi_trace_level
 
 =item * uri_root
 
@@ -177,6 +185,8 @@ my $default = {
 	db_user     => undef,
 	db_pass     => undef,
 	dsn         => undef,
+	dbi_trace_level => 0,
+	dbi_trace_file  => undef,
 	email_from  => undef,
 	login_class => 'Rubric::WebApp::Login::Post',
 	smtp_server => undef,

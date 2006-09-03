@@ -6,7 +6,7 @@ Rubric::DBI - Rubric's subclass of Class::DBI
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/DBI.pm 18100 2006-01-26T13:59:16.285684Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/DBI.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
 
 =head1 DESCRIPTION
 
@@ -22,6 +22,8 @@ use base qw(Class::DBI);
 
 use Class::DBI::AbstractSearch;
 
+DBI->trace(Rubric::Config->dbi_trace_level, Rubric::Config->dbi_trace_file);
+
 my $dsn = Rubric::Config->dsn;
 my $db_user = Rubric::Config->db_user;
 my $db_pass = Rubric::Config->db_pass;
@@ -30,7 +32,7 @@ __PACKAGE__->connection(
 	$dsn,
 	$db_user,
 	$db_pass,
-	#{ AutoCommit => 0 }
+	{ AutoCommit => 1 }
 );
 
 =head1 METHODS

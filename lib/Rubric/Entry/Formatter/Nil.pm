@@ -6,7 +6,7 @@ Rubric::Entry::Formatter::Nil - format entries by formatting nearly not at all
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Formatter/Nil.pm 18629 2006-02-11T17:09:48.521002Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Formatter/Nil.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
 
 =head1 DESCRIPTION
 

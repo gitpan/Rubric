@@ -8,7 +8,7 @@ Rubric::DBI::Setup - db initialization routines
 
 version 0.10
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/DBI/Setup.pm 18650 2006-02-12T03:33:59.648082Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/DBI/Setup.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
 
 =cut
 
@@ -63,10 +63,28 @@ This method builds the tables in the database, if needed.
 
 sub setup_tables {
 	my ($class) = @_;
+
 	local $/ = "\n\n";
-	$class->dbh->do($_) for <DATA>;
+  $class->dbh->do( $class->specialize_sql($_) ) for <DATA>;
 }
 
+=head2 specialize_sql
+
+attempts to convert the given sql syntax to the given DBD Driver's
+
+=cut
+
+sub specialize_sql {
+  my ($class, $query) = @_;
+  
+  my $db_type = $class->determine_db_type;
+  
+  if ($db_type eq 'Pg') { 
+    $query =~ s/(id\s*)integer/$1SERIAL/i;
+  }
+  
+  return $query;
+}
 
 =head2 determine_version
 
@@ -109,6 +127,23 @@ sub determine_version {
 	return 1 if $class->_columns("SELECT * FROM links LIMIT 1") == 2;
 
 	return;
+}
+
+=head2 determine_db_type
+
+Returns the type of db being used, based on the DSN's DBD driver.
+SQLite and Pg support only right now.
+
+=cut
+
+sub determine_db_type {
+	my ($class) = @_;
+  
+  Rubric::Config->dsn =~ /dbi:([^:]+):/;
+  
+  my $db_type = $1;
+
+  return $db_type;
 }
 
 =head2 update_schema
@@ -502,10 +537,53 @@ END_SQL
 	$dbh->do($_) for split /\n\n/, $sql;
 };
 
-$from{10} = undef;
+$from{10} = sub {
+	my $sql = <<'END_SQL';
+  CREATE TABLE new_entries (
+    id          integer PRIMARY KEY,
+    link        integer,
+    username    varchar NOT NULL,
+    title       varchar NOT NULL,
+    created     integer NOT NULL,
+    modified    integer NOT NULL,
+    description varchar,
+    body                TEXT
+  );
+
+  INSERT INTO new_entries (id, link, username, title, created, modified, description, body)
+    SELECT id, link, user, title, created, modified, description, body
+      FROM entries;
+
+  DROP TABLE entries;
+
+  CREATE TABLE entries (
+    id          integer PRIMARY KEY,
+    link        integer,
+    username    varchar NOT NULL,
+    title       varchar NOT NULL,
+    created     integer NOT NULL,
+    modified    integer NOT NULL,
+    description varchar,
+    body                TEXT
+  );
+
+  INSERT INTO entries 
+    SELECT id, link, username, title, created, modified, description, body
+      FROM new_entries;
+
+  DROP TABLE new_entries;
+
+  UPDATE rubric SET schema_version = 11;
+END_SQL
+
+  $dbh->do($_) for split /\n\n/, $sql;
+};
+
+$from{11} = undef;
 
 sub update_schema {
 	my ($class) = @_;
+  
 	while ($_ = $class->determine_version) {
 		die "no update path from schema version $_" unless exists $from{$_};
 		last unless defined $from{$_};
@@ -556,7 +634,7 @@ CREATE TABLE users (
 CREATE TABLE entries (
 	id          integer PRIMARY KEY,
 	link        integer,
-	user        varchar NOT NULL,
+	username    varchar NOT NULL,
 	title       varchar NOT NULL,
 	created     integer NOT NULL,
 	modified    integer NOT NULL,
@@ -576,4 +654,4 @@ CREATE TABLE rubric (
 	schema_version integer NOT NULL
 );
 
-INSERT INTO rubric (schema_version) VALUES (10);
+INSERT INTO rubric (schema_version) VALUES (11);

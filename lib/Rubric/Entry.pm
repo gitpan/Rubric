@@ -9,7 +9,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry.pm 18888 2006-02-20T16:24:13.027374Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
 
 =head1 DESCRIPTION
 
@@ -29,7 +29,7 @@ __PACKAGE__->table('entries');
 
  id          - a unique identifier
  link        - the link to which the entry refers
- user        - the user who made the entry
+ username    - the user who made the entry
  title       - the title of the link's destination
  description - a short description of the entry
  body        - a long body of text for the entry
@@ -39,7 +39,7 @@ __PACKAGE__->table('entries');
 =cut
 
 __PACKAGE__->columns(
-  All => qw(id link user title description body created modified)
+  All => qw(id link username title description body created modified)
 );
 
 =head1 RELATIONSHIPS
@@ -60,13 +60,13 @@ The uri attribute returns the URI of the entry's link.
 
 sub uri { my ($self) = @_; return unless $self->link; $self->link->uri; }
 
-=head2 user
+=head2 username
 
 The user attribute returns a Rubric::User.
 
 =cut
 
-__PACKAGE__->has_a(user => 'Rubric::User');
+__PACKAGE__->has_a(username => 'Rubric::User');
 
 =head2 tags
 
@@ -258,6 +258,14 @@ sub body_as {
     markup => $markup,
     format => $format
   });
+}
+
+sub accessor_name_for {
+  my ($class, $field) = @_;
+
+  return 'user' if $field eq 'username';
+
+  return $field;
 }
 
 ## return retrieve_all'd objects in recent-to-older order

@@ -8,7 +8,7 @@ Rubric::Entry::Query - construct and execute a complex query
 
 version 0.10
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Query.pm 18809 2006-02-20T00:04:05.908025Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Query.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
 
 =cut
 
@@ -54,7 +54,7 @@ sub _private_constraint {
 	
 	$user = Rubric::Entry->db_Main->quote($user);
 	return
-		"((user = $user) OR " .
+		"((username = $user) OR " .
 		"id NOT IN (SELECT entry FROM entrytags WHERE tag=$priv_tag))";
 }
 
@@ -128,7 +128,7 @@ the user.
 sub constraint_for_user {
 	my ($self, $user) = @_;
 	return undef unless $user;
-	return "user = " . Rubric::Entry->db_Main->quote($user);
+	return "username = " . Rubric::Entry->db_Main->quote($user);
 }
 
 =head3 constraint_for_tags($tags)

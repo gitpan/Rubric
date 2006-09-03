@@ -8,7 +8,7 @@ Rubric::EntryTag - a tag on an entry
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/EntryTag.pm 18681 2006-02-14T03:17:50.649116Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/EntryTag.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
 
 =head1 DESCRIPTION
 
