@@ -32,4 +32,4 @@ requires:
   Time::Piece: 0
   YAML: 0
 tests: " t/00-load.t t/10-dbsetup.t t/20-testdata.t t/config_custom.t t/config_default.t t/entry.t t/entry_format.t t/entry_query.t t/link.t t/pod-coverage.t t/pod.t t/privacy.t t/renderer.t t/tagstrings.t t/uri.t t/user.t t/www/www_main.t"
-version: 0.141
+version: 0.142

@@ -8,7 +8,7 @@ Rubric::DBI::Setup - db initialization routines
 
 version 0.10
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/DBI/Setup.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
+ $Id: /my/cs/projects/rubric/trunk/lib/Rubric/DBI/Setup.pm 25526 2006-09-06T03:30:39.047934Z rjbs  $
 
 =cut
 
@@ -108,7 +108,7 @@ sub determine_version {
 		if ($version == 6) {
 			# some schemata are broken, and claim 6 on 7
 			eval { $class->dbh->selectall_array("SELECT verification_code FROM users"); };
-			if ($@) { warn "your db schema label is incorrect; run updatedb"; return 7; }
+			if ($@) { warn "your db schema label is incorrect; run rubric db -u"; return 7; }
 			else    { return 6; }
 		} else {
 			return $version;
