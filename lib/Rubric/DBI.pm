@@ -1,4 +1,7 @@
+use strict;
+use warnings;
 package Rubric::DBI;
+our $VERSION = '0.143';
 
 =head1 NAME
 
@@ -6,7 +9,7 @@ Rubric::DBI - Rubric's subclass of Class::DBI
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/DBI.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
+version 0.143
 
 =head1 DESCRIPTION
 
@@ -15,8 +18,6 @@ retrieved from Rubric::Config.
 
 =cut
 
-use strict;
-use warnings;
 use Rubric::Config;
 use base qw(Class::DBI);
 

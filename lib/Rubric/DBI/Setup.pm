@@ -1,4 +1,7 @@
+use strict;
+use warnings;
 package Rubric::DBI::Setup;
+our $VERSION = '0.143';
 
 =head1 NAME
 
@@ -6,13 +9,7 @@ Rubric::DBI::Setup - db initialization routines
 
 =head1 VERSION
 
-version 0.10
-
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/DBI/Setup.pm 25526 2006-09-06T03:30:39.047934Z rjbs  $
-
-=cut
-
-our $VERSION = '0.10';
+version 0.143
 
 =head1 SYNOPSIS
 
@@ -24,11 +21,7 @@ our $VERSION = '0.10';
 
 =head1 DESCRIPTION
 
-
 =cut
-
-use strict;
-use warnings;
 
 use DBI;
 use Rubric::Config;
@@ -107,9 +100,14 @@ sub determine_version {
 	if ($version) {
 		if ($version == 6) {
 			# some schemata are broken, and claim 6 on 7
-			eval { $class->dbh->selectall_array("SELECT verification_code FROM users"); };
-			if ($@) { warn "your db schema label is incorrect; run rubric db -u"; return 7; }
-			else    { return 6; }
+			eval {
+        $class->dbh->selectall_array("SELECT verification_code FROM users");
+      };
+			if ($@) {
+        warn "your db schema label is incorrect; run rubric db -u"; return 7;
+      } else {
+        return 6;
+      }
 		} else {
 			return $version;
 		}

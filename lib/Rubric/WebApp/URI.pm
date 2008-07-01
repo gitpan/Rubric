@@ -1,4 +1,7 @@
+use strict;
+use warnings;
 package Rubric::WebApp::URI;
+our $VERSION = '0.143';
 
 =head1 NAME
 
@@ -6,16 +9,13 @@ Rubric::WebApp::URI - URIs for Rubric web requests
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp/URI.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
+version 0.143
 
 =head1 DESCRIPTION
 
 This module provides methods for generating the URIs for Rubric requests.
 
 =cut
-
-use strict;
-use warnings;
 
 use Rubric::Config;
 
@@ -31,11 +31,15 @@ sub root { Rubric::Config->uri_root }
 	
 =head2 stylesheet
 
-the URI for the stylesheet; taken from css_href in config
+the URI for the stylesheet
 
 =cut
 
-sub stylesheet { Rubric::Config->css_href; }
+sub stylesheet {
+  my $href = Rubric::Config->css_href;
+  return $href if $href;
+  return Rubric::Config->uri_root . '/style/rubric.css';
+}
 
 =head2 logout
 
@@ -157,11 +161,43 @@ URI for new entry form
 
 sub post_entry { Rubric::Config->uri_root . "/post"; }
 
+=head2 by_date
+
+URI for by_date
+
+=cut
+
+sub by_date {
+	my ($class) = @_;
+  shift;
+  my $year = shift;
+  my $month = shift;
+  my $uri = '/calendar';
+  $uri .= "/$year" if ($year);
+  $uri .= "/$month" if ($month);
+
+	Rubric::Config->uri_root . $uri;
+}
+
+
+
+=head2 tag_cloud
+
+URI for all tags / tag cloud
+
+=cut
+
+sub tag_cloud { 
+	my ($class) = @_;
+	Rubric::Config->uri_root . "/tag_cloud";
+}
+
 =head2 preferences
 
 URI for preferences form
 
 =cut
+
 
 sub preferences { Rubric::Config->uri_root . "/preferences"; }
 

@@ -1,3 +1,5 @@
+use strict;
+use warnings;
 package Rubric::WebApp;
 
 =head1 NAME
@@ -6,13 +8,11 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.140
-
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
+version 0.143
 
 =cut
 
-our $VERSION = '0.140';
+our $VERSION = '0.143';
 
 =head1 SYNOPSIS
 
@@ -50,6 +50,7 @@ basic dispatch table looks something like this:
  /entries/Q   | find and display results for query Q      | entries
  /~USER/TAGS  | see a user's entries for given tags       | (in flux)
  /doc/PAGE    | view the named page in the documentation  | doc
+ /style/PAGE  | get the named style sheet                 | style 
 
 If the system is private and no user is logged in, the default action is to
 display a login screen.  If the system is public, or a user is logged in, the
@@ -58,14 +59,13 @@ default action is to display entries.
 =cut
 
 use base qw(CGI::Application);
-use CGI::Application::Plugin::Session;
 use CGI::Carp qw(fatalsToBrowser);
 
 use Digest::MD5 qw(md5_hex);
 use Encode qw(decode_utf8);
 
-use strict;
-use warnings;
+use HTML::TagCloud;
+use DateTime;
 
 use Email::Address;
 use Email::Send;
@@ -74,6 +74,9 @@ use Rubric::Config;
 use Rubric::Entry;
 use Rubric::Renderer;
 use Rubric::WebApp::URI;
+use Rubric::WebApp::Session;
+
+use String::Truncate qw(elide);
 
 =head1 METHODS
 
@@ -114,17 +117,11 @@ session configuration.
 sub cgiapp_init {
   my ($self) = @_;
 
-  CGI::Session->name('rubric_session');
-	
-  $self->session_config(
-    COOKIE_PARAMS => {
-      -expires => '+30d',
-      -name    => 'rubric_session'
-    }
-  );
-
   my $login_class = Rubric::Config->login_class;
+
+  ## no critic (StringyEval)
   eval "require $login_class";
+  ## use critic
   $login_class->check_for_login($self);
 }
 
@@ -228,12 +225,12 @@ sub setup {
   $self->mode_param(path_info => 1);
 
   $self->start_mode('login');
-  $self->run_modes([ qw(doc login newuser reset_password verify) ]);
+  $self->run_modes([ qw(style doc login newuser reset_password verify) ]);
 
   if ($self->param('current_user') or not Rubric::Config->private_system) {
     $self->start_mode('entries');
     $self->run_modes([
-      qw(delete edit entries entry link logout post preferences)
+      qw(delete edit entries entry link logout post preferences tag_cloud calendar)
     ]);
   }
 
@@ -261,23 +258,6 @@ sub _entries_shortcut {
   $self->entries;
 }
 
-=head2 teardown
-
-This is called at the end of a request, and deletes the session of un-logged-in
-users.
-
-=cut
-
-sub teardown {
-  my ($self) = @_;
-
-  if (Rubric::Config->purge_anonymous_sessions) {
-    $self->session->delete unless $self->param('current_user')
-                               or $self->get_current_runmode eq 'login'
-                               or $self->get_current_runmode eq 'post';
-  }
-}
-
 =head2 entries
 
 This passes off responsibility to the class named in the C<entries_query_class>
@@ -289,7 +269,9 @@ sub entries {
   my ($self) = @_;
 
   my $entries_class = Rubric::Config->entries_query_class;
+  ## no critic (StringyEval)
   die $@ unless eval "require $entries_class";
+  ## use critic
   $entries_class->entries($self);
 }
 
@@ -364,6 +346,139 @@ sub get_link {
   return unless %search;
   return unless my ($link) = Rubric::Link->search(\%search);
   $self->param('link', $link);
+}
+
+=head2 tag_cloud
+
+=cut
+
+sub tag_cloud {
+  my ($self, $options) = @_;
+    
+  my $tags = Rubric::DBI->db_Main->selectall_arrayref(
+     "SELECT tag, count(*) 
+        FROM entrytags 
+       WHERE tag not like '@%' 
+    GROUP BY tag 
+    ORDER BY tag");
+
+  my $cloud = HTML::TagCloud->new();
+  foreach my $tag (@$tags) {
+    my $href = Rubric::WebApp::URI->entries({tags => [ $tag->[0] ]});
+    $cloud->add($tag->[0], $href, $tag->[1]);
+  }
+
+  return $self->template('tag_cloud' => {
+    cloud => $cloud,
+    query_description => 'All Tags',
+  });
+
+}
+
+=head2 calendar
+
+=cut
+
+sub calendar {
+  my ($self, $options) = @_;
+  my $path = $self->param('path');
+
+  require HTML::CalendarMonth;
+
+  my $year  = shift @$path;
+  my $month = shift @$path;
+
+  if (not ($year or $month)) {
+    ($month, $year) = (localtime)[4,5];
+    $month++;
+    $year += 1900;
+  }
+  my $calendar = HTML::CalendarMonth->new(
+    month => $month,
+    year  => $year,
+    full_days => 1
+  );
+  $calendar->item($calendar->year, $calendar->month)->attr(
+    style => 'background-color: #EEEEEE'
+  );
+  $calendar->attr(class => 'calendar');
+  $calendar->alldays->attr(class => 'day');
+  my $num_span = HTML::Element->new('span', class => 'day_indicator');
+  $calendar->alldays->attr(class => 'day');
+  $calendar->alldays->wrap_content($num_span);
+  $calendar->allheaders->attr(class => 'headers');
+
+  my $start = DateTime->new(
+    year   => $year,
+    month  => $month,
+    day    => 1,
+    hour   => 0,
+    minute => 0,
+    second => 0,
+    nanosecond => 0,
+    time_zone => '-1700'
+  )->epoch;
+
+  my $end   = DateTime->new(
+    year   => $year,
+    month  => $month,
+    day    => $calendar->lastday,
+    hour   => 23,
+    minute => 59,
+    second => 59,
+    nanosecond => 0,
+    time_zone  => '-1700'
+  )->epoch;
+  
+  my $entries = Rubric::Entry->retrieve_from_sql(qq{
+      WHERE id NOT IN (SELECT entry FROM entrytags WHERE tag = '\@private')
+        AND created > '$start' 
+        AND created < '$end' 
+   ORDER BY created}
+  );
+
+  while (my $entry = $entries->next) {
+    my ($day) = $entry->created->day_of_month;
+    my $a = HTML::Element->new('a');
+    my $div = HTML::Element->new('div');
+    my $title = $entry->title;
+    $a->attr(title => $title);
+    $a->attr(href  => Rubric::WebApp::URI->entry($entry));
+    $title = elide($title, 18);
+    $a->push_content($title);
+    $div->push_content($a);
+    $calendar->item($day)->push_content($div);
+  } 
+
+  my $prev_month = $month;
+  my $prev_year = $year;
+  $prev_month --;
+  if (not $prev_month) {
+    $prev_month = 12;
+    $prev_year--;
+  }
+
+  my $next_month = $month;
+  my $next_year = $year;
+  $next_month++;
+  if ($next_month > 12) {
+    $next_month = 1;
+    $next_year++;
+  }
+
+  return $self->template('calendar' => {
+    calendar => $calendar,
+    prev_link => { 
+      month => sprintf("%02d", $prev_month),
+      year  => $prev_year,
+    },
+    next_link => { 
+      month => sprintf("%02d", $next_month),
+      year  => $next_year,
+    },
+    query_description => 'Calendar',
+  });
+
 }
 
 =head2 login
@@ -1026,6 +1141,32 @@ sub get_doc {
   my $doc_page = $self->next_path_part;
   return $doc_page =~ /^[\pL\d_]+$/ ? $self->param(doc_page => $doc_page)
                                     : ();
+}
+
+=head2 style
+
+This runmode sends the named stylesheet from the CSS path.
+
+=cut
+
+sub style {
+  my ($self) = @_;
+
+  my $sheet = $self->next_path_part;
+
+  my $file = File::Spec->catfile('style', $sheet);
+
+  $self->header_add(-type => 'text/css');
+  my $tt = Template->new({
+    INCLUDE_PATH => [
+      Rubric::Config->template_path,
+      File::Spec->catdir(File::ShareDir::dist_dir('Rubric'), 'templates'),
+    ],
+  });
+
+  my $output;
+  $tt->process($file,  {}, \$output);
+  return $output;
 }
 
 =head1 TODO

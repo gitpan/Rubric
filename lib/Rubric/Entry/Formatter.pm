@@ -1,4 +1,7 @@
+use strict;
+use warnings;
 package Rubric::Entry::Formatter;
+our $VERSION = '0.143';
 
 =head1 NAME
 
@@ -6,7 +9,7 @@ Rubric::Entry::Formatter - a base class for entry body formatters
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Entry/Formatter.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
+version 0.143
 
 =head1 DESCRIPTION
 
@@ -14,9 +17,6 @@ This class serves as a single point of dispatch for attempts to format entry
 bodies from their native format into rendered output.
 
 =cut
-
-use strict;
-use warnings;
 
 use Carp ();
 use Rubric::Config;
@@ -45,7 +45,11 @@ sub _load_formatter {
   my ($class, $formatter) = @_;
 
   return 1 if eval { $formatter->can('as_text'); };
-  return 1 if eval qq{require $formatter;};
+
+  ## no critic (StringyEval)
+  return 1 if eval qq{require $formatter};
+  ## use critic
+
   return 0;
 }
 

@@ -1,4 +1,7 @@
+use strict;
+use warnings;
 package Rubric::Renderer;
+our $VERSION = '0.143';
 
 =head1 NAME
 
@@ -6,7 +9,7 @@ Rubric::Renderer - the rendering interface for Rubric
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Renderer.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
+version 0.143
 
 =head1 DESCRIPTION
 
@@ -15,10 +18,9 @@ and other things collected by Rubric::WebApp.
 
 =cut
 
-use strict;
-use warnings;
-
 use Carp;
+use File::ShareDir;
+use File::Spec;
 use HTML::Widget::Factory;
 use Rubric;
 use Rubric::Config;
@@ -46,7 +48,10 @@ sub register_type {
   $renderer{$type} = $arg;
   $renderer{$type}{renderer} = Template->new({
     PROCESS      => ("template.$arg->{extension}"),
-    INCLUDE_PATH => Rubric::Config->template_path()
+    INCLUDE_PATH => [
+      Rubric::Config->template_path,
+      File::Spec->catdir(File::ShareDir::dist_dir('Rubric'), 'templates'),
+    ],
   });
 }
 
@@ -87,6 +92,8 @@ sub process {
   $stash->{xml_escape} = $xml_escape;
   $stash->{version}    = $Rubric::VERSION;
   $stash->{widget}     = HTML::Widget::Factory->new;
+  # 2007-05-07
+  # XXX: we only should create one factory per request, tops -- rjbs,
 
   $template .= '.' . $renderer{$type}{extension};
   $renderer{$type}{renderer}->process($template, $stash, \(my $output))

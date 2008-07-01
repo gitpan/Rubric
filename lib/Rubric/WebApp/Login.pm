@@ -1,6 +1,6 @@
-package Rubric::WebApp::Login;
 use strict;
 use warnings;
+package Rubric::WebApp::Login;
 
 =head1 NAME
 
@@ -8,13 +8,11 @@ Rubric::WebApp::Login - web login processing
 
 =head1 VERSION
 
-version 0.01
-
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp/Login.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
+version 0.143
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.143';
 
 =head1 DESCRIPTION
 
@@ -47,7 +45,7 @@ default) and L<Rubric::WebApp::Login::HTTP> serve as examples.
 
 sub check_for_login {
 	my ($self, $webapp) = @_;
-	
+
 	return unless my $username = $self->get_login_username($webapp);
 
 	$username = $self->map_username($username);

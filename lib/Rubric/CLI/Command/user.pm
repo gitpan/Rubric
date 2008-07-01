@@ -1,4 +1,8 @@
+use strict;
+use warnings;
 package Rubric::CLI::Command::user;
+use base qw(Rubric::CLI::Command);
+our $VERSION = '0.143';
 
 =head1 NAME
 
@@ -6,14 +10,9 @@ Rubric::CLI::Command::user - Rubric user management commands
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/CLI/Command/user.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
+version 0.143
 
 =cut
-
-use strict;
-use warnings;
-
-use base qw(Rubric::CLI::Command);
 
 use Digest::MD5 qw(md5_hex);
 use Rubric::User;

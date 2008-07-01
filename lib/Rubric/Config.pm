@@ -1,4 +1,8 @@
+use strict;
+use warnings;
 package Rubric::Config;
+use base qw(Class::Accessor);
+our $VERSION = '0.143';
 
 =head1 NAME
 
@@ -6,7 +10,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/Config.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
+version 0.143
 
 =head1 DESCRIPTION
 
@@ -20,10 +24,6 @@ module:
 
 =cut
 
-use strict;
-use warnings;
-
-use base qw(Class::Accessor);
 use Config::Auto;
 use YAML;
 
@@ -59,6 +59,11 @@ level of debug output for DBI
 =item * dbi_trace_file
 
 Where to send DBI debug output if dbi_trace_level
+
+=item * session_cipher_key
+
+The key to use to encrypt sessions, which are stored in user cookies.  This
+must be set.
 
 =item * uri_root
 
@@ -103,11 +108,6 @@ true if registration new users can't register for accounts via the web
 =item * private_system
 
 true value if users must have an account to view entries
-
-=item * purge_anonymous_sessions
-
-If true, sessions that are not logged in or login attempts will be deleted at
-teardown.
 
 =item * private_tag
 
@@ -202,7 +202,7 @@ my $default = {
   markup_formatter    => {},
 	one_entry_per_link  => 1,
 	registration_closed => undef,
-  purge_anonymous_sessions  => undef,
+  session_cipher_key  => undef,
 	skip_newuser_verification => undef,
 };
 sub _default { $default }

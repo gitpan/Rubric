@@ -1,8 +1,7 @@
-package Rubric::WebApp::Login::Post;
-use base qw(Rubric::WebApp::Login);
-
 use strict;
 use warnings;
+package Rubric::WebApp::Login::Post;
+use base qw(Rubric::WebApp::Login);
 
 use Digest::MD5 qw(md5_hex);
 
@@ -12,13 +11,11 @@ Rubric::WebApp::Login::Post - process web login from query parameters
 
 =head1 VERSION
 
-version 0.01
-
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/WebApp/Login/Post.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
+version 0.143
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.143';
 
 =head1 DESCRIPTION
 
@@ -55,6 +52,8 @@ sub authenticate_login {
 	return 1 if
 		$webapp->session->param('current_user') and
 		$webapp->session->param('current_user') eq $user;
+
+  warn "trying to auth $user / " . $webapp->query->param('password');
 
 	my $password = $webapp->query->param('password');
 

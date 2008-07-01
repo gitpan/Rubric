@@ -1,4 +1,7 @@
+use strict;
+use warnings;
 package Rubric::User;
+our $VERSION = 0.143;
 
 =head1 NAME
 
@@ -6,7 +9,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/User.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
+version 0.143
 
 =head1 DESCRIPTION
 
@@ -15,8 +18,6 @@ Rubric::DBI, which is a Class::DBI class.
 
 =cut
 
-use strict;
-use warnings;
 use base qw(Rubric::DBI);
 use Digest::MD5 qw(md5_hex);
 use Time::Piece;

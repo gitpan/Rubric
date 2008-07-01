@@ -1,6 +1,6 @@
-package Rubric;
 use strict;
 use warnings;
+package Rubric;
 
 =head1 NAME
 
@@ -8,13 +8,11 @@ Rubric - a notes and bookmarks manager with tagging
 
 =head1 VERSION
 
-version 0.142
-
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric.pm 25526 2006-09-06T03:30:39.047934Z rjbs  $
+version 0.143
 
 =cut
 
-our $VERSION = '0.142';
+our $VERSION = '0.143';
 
 =head1 DESCRIPTION
 

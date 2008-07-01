@@ -1,6 +1,7 @@
-package Rubric::EntryTag;
 use strict;
 use warnings;
+package Rubric::EntryTag;
+our $VERSION = '0.143';
 
 =head1 NAME
 
@@ -8,7 +9,7 @@ Rubric::EntryTag - a tag on an entry
 
 =head1 VERSION
 
- $Id: /my/cs/projects/rubric/trunk/lib/Rubric/EntryTag.pm 1425 2006-08-14T17:02:44.651525Z rjbs  $
+version 0.143
 
 =head1 DESCRIPTION
 
