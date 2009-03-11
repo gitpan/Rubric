@@ -1,7 +1,9 @@
 use strict;
 use warnings;
 package Rubric::EntryTag;
-our $VERSION = '0.143';
+our $VERSION = '0.144';
+
+use String::TagString;
 
 =head1 NAME
 
@@ -9,7 +11,7 @@ Rubric::EntryTag - a tag on an entry
 
 =head1 VERSION
 
-version 0.143
+version 0.144
 
 =head1 DESCRIPTION
 
@@ -124,7 +126,10 @@ sub related_tags_counted {
 =cut
 
 sub stringify_self {
-  $_[0]->tag . (defined $_[0]->tag_value ? (':' . $_[0]->tag_value) : '')
+  my ($self) = @_;
+  String::TagString->string_from_tags({
+    $self->tag => $self->tag_value
+  });
 }
 
 =head1 TODO

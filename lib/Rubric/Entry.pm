@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::Entry;
 use base qw(Rubric::DBI);
-our $VERSION = '0.143';
+our $VERSION = '0.144';
 
 =head1 NAME
 
@@ -10,7 +10,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
-version 0.143
+version 0.144
 
 =head1 DESCRIPTION
 
@@ -21,6 +21,7 @@ Rubric::DBI, which is a Class::DBI class.
 
 use Encode qw(_utf8_on);
 use Rubric::Entry::Formatter;
+use String::TagString;
 use Time::Piece;
 
 __PACKAGE__->table('entries');
@@ -76,7 +77,7 @@ represent them.
 
 =cut
 
-__PACKAGE__->has_many(entrytags => 'Rubric::EntryTag' );
+__PACKAGE__->has_many(entrytags => 'Rubric::EntryTag');
 __PACKAGE__->has_many(tags => [ 'Rubric::EntryTag' => 'tag' ]);
 
 =head3 recent_tags_counted
@@ -205,21 +206,7 @@ sub tags_from_string {
 
   return {} unless $tagstring and $tagstring =~ /\S/;
 
-  _utf8_on($tagstring);
-
-  # remove leading and trailing spaces
-  $tagstring =~ s/\A\s*//;
-
-  my %tags = map { (index($_, ':') > 0) ? split(/:/, $_, 2) : ($_ => undef) }
-                 split /(?:\+|\s)+/, $tagstring;
-
-  die "invalid characters in tagstring" 
-    if grep { defined $_ and $_ !~ /\A[@\pL\d_:.*][-\pL\d_:.*]*\z/ } keys %tags;
-
-  die "invalid characters in tagstring" 
-    if grep { defined $_ and $_ !~ /\A[-\pL\d:_.*]*\z/ } values %tags;
-
-  return \%tags;
+  String::TagString->tags_from_string($tagstring);
 }
 
 =head2 C< markup >
@@ -294,5 +281,12 @@ Copyright 2004 Ricardo SIGNES.  This program is free software;  you can
 redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut
+
+sub tagstring {
+  my ($self) = @_;
+  String::TagString->string_from_tags({
+    map {; $_->tag => $_->tag_value } $self->entrytags
+  });
+}
 
 1;

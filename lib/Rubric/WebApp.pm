@@ -8,11 +8,11 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.143
+version 0.144
 
 =cut
 
-our $VERSION = '0.143';
+our $VERSION = '0.144';
 
 =head1 SYNOPSIS
 
@@ -294,9 +294,11 @@ sub entry {
          or  $entry->user ne $self->param('current_user'));
 
   $self->template('entry_long' => {
-    entry     => $self->param('entry'),
-    self_url  => $self->query->self_url(),
-    long_form => 1
+    entry             => $self->param('entry'),
+    self_url          => $self->query->self_url(),
+    # FIX ME: hack to put the title of the entry in the <title> tag
+    query_description => $entry->title,
+    long_form         => 1
   });
 }
 
