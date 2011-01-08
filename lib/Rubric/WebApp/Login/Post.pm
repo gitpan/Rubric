@@ -11,11 +11,11 @@ Rubric::WebApp::Login::Post - process web login from query parameters
 
 =head1 VERSION
 
-version 0.145
+version 0.146
 
 =cut
 
-our $VERSION = '0.145';
+our $VERSION = '0.146';
 
 =head1 DESCRIPTION
 
@@ -52,8 +52,6 @@ sub authenticate_login {
 	return 1 if
 		$webapp->session->param('current_user') and
 		$webapp->session->param('current_user') eq $user;
-
-  warn "trying to auth $user / " . $webapp->query->param('password');
 
 	my $password = $webapp->query->param('password');
 
