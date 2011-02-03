@@ -25,7 +25,6 @@ requires:
   CGI::Carp: 0
   Class::DBI: 0.96
   Class::DBI::AbstractSearch: 0
-  Config::Auto: 0.11
   Crypt::CBC: 0
   Crypt::Rijndael: 0
   DBD::SQLite: 1.08
@@ -55,4 +54,4 @@ requires:
   YAML: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.146
+version: 0.147
