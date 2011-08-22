@@ -12,6 +12,7 @@ version_from  ('lib/Rubric.pm');
 
 requires('App::Cmd'          => 0.000);
 requires('CGI::Application'  => 3.00);
+requires('CGI::Application::PSGI' => 0);
 requires('CGI::Carp'         => 0.00);
 requires('Class::DBI'        => 0.96);
 requires('Crypt::CBC'        => 0); # min version unknown
@@ -26,6 +27,7 @@ requires('Encode'            => 2.00);
 requires('JSON'              => 2); # min version unknown
 requires('File::ShareDir'    => 0); # min version unknown
 requires('MIME::Base64'      => 0); # min version unknown
+requires('Plack::Builder'    => 0); # min version unknown
 requires('String::TagString' => 0.00);
 requires('String::Truncate'  => 0.00);
 requires('Sub::Exporter'     => 0); # min version unknown

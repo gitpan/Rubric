@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::CLI::Command::user;
 use base qw(Rubric::CLI::Command);
-our $VERSION = '0.147';
+our $VERSION = '0.148';
 
 =head1 NAME
 
@@ -10,7 +10,7 @@ Rubric::CLI::Command::user - Rubric user management commands
 
 =head1 VERSION
 
-version 0.147
+version 0.148
 
 =cut
 
@@ -21,10 +21,10 @@ sub usage_desc { "rubric user %o [username]" }
 
 sub opt_spec {
   return (
-    [ "new-user|n",        "add a user (requires --email and --pass)" ],
-    [ "activate|a",        "activate an existing user"                ],
-    [ "password|pass|p=s", "set user's password"                      ],
-    [ "email|e=s",         "set user's email address"                 ],
+    [ "new-user|n",        "add a user (requires --email and --password)" ],
+    [ "activate|a",        "activate an existing user"                    ],
+    [ "password|pass|p=s", "set user's password"                          ],
+    [ "email|e=s",         "set user's email address"                     ],
   );
 }
 
@@ -43,12 +43,12 @@ sub run {
     if $opt->{new_user} and $opt->{activate};
 
   if ($opt->{new_user}) {
-    die "--new-user requries --email and --pass"
-      unless $opt->{email} and $opt->{pass};
+    die "--new-user requries --email and --password"
+      unless $opt->{email} and $opt->{password};
 
     my $user = Rubric::User->create({
       username => $username,
-      password => md5_hex($opt->{pass}),
+      password => md5_hex($opt->{password}),
       email    => $opt->{email},
     });
 
