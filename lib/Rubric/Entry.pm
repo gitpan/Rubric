@@ -2,7 +2,9 @@ use strict;
 use warnings;
 package Rubric::Entry;
 use base qw(Rubric::DBI);
-our $VERSION = '0.148';
+our $VERSION = '0.149';
+
+use Class::DBI::utf8;
 
 =head1 NAME
 
@@ -10,7 +12,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
-version 0.148
+version 0.149
 
 =head1 DESCRIPTION
 
@@ -42,6 +44,8 @@ __PACKAGE__->table('entries');
 __PACKAGE__->columns(
   All => qw(id link username title description body created modified)
 );
+
+__PACKAGE__->utf8_columns(qw( title description body ));
 
 =head1 RELATIONSHIPS
 
