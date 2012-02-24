@@ -1,18 +1,11 @@
 use strict;
 use warnings;
 package Rubric::CLI::Command::linkcheck;
+{
+  $Rubric::CLI::Command::linkcheck::VERSION = '0.150';
+}
 use base qw(Rubric::CLI::Command);
-our $VERSION = '0.149';
-
-=head1 NAME
-
-Rubric::CLI::Command::linkcheck - check validity of links in the database
-
-=head1 VERSION
-
-version 0.149
-
-=cut
+# ABSTRACT: check validity of links in the database
 
 use LWP::Simple ();
 use Rubric::DBI::Setup;
@@ -36,3 +29,28 @@ sub run {
 }
 
 1;
+
+__END__
+=pod
+
+=head1 NAME
+
+Rubric::CLI::Command::linkcheck - check validity of links in the database
+
+=head1 VERSION
+
+version 0.150
+
+=head1 AUTHOR
+
+Ricardo SIGNES <rjbs@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2004 by Ricardo SIGNES.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+

@@ -1,31 +1,14 @@
 use strict;
 use warnings;
 package Rubric::Entry::Formatter::HTMLEscape;
-our $VERSION = '0.149';
+{
+  $Rubric::Entry::Formatter::HTMLEscape::VERSION = '0.150';
+}
+# ABSTRACT: format into HTML by escaping entities
 
-=head1 NAME
-
-Rubric::Entry::Formatter::HTMLEscape - format into HTML by escaping entities
-
-=head1 VERSION
-
-version 0.149
-
-=head1 DESCRIPTION
-
-This formatter only handles formatting to HTML, and outputs the original
-content with HTML-unsafe characters escaped and paragraphs broken.
-
-This is equivalent to filtering with Template::Filters' C<html> and
-C<html_para> filters.
-
-=cut
 
 use Template::Filters;
 
-=head1 METHODS
-
-=cut
 
 my ($filter, $html, $para);
 {
@@ -50,24 +33,39 @@ sub as_text {
   return $html->($arg->{text});
 }
 
-=head1 TODO
+1;
+
+__END__
+=pod
+
+=head1 NAME
+
+Rubric::Entry::Formatter::HTMLEscape - format into HTML by escaping entities
+
+=head1 VERSION
+
+version 0.150
+
+=head1 DESCRIPTION
+
+This formatter only handles formatting to HTML, and outputs the original
+content with HTML-unsafe characters escaped and paragraphs broken.
+
+This is equivalent to filtering with Template::Filters' C<html> and
+C<html_para> filters.
+
+=head1 METHODS
 
 =head1 AUTHOR
 
-Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+Ricardo SIGNES <rjbs@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to C<bug-rubric@rt.cpan.org>, or
-through the web interface at L<http://rt.cpan.org>. I will be notified, and
-then you'll automatically be notified of progress on your bug as I make
-changes.
+This software is copyright (c) 2004 by Ricardo SIGNES.
 
-=head1 COPYRIGHT
-
-Copyright 2005 Ricardo SIGNES.  This program is free software;  you can
-redistribute it and/or modify it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1;

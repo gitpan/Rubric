@@ -1,45 +1,21 @@
 use strict;
 use warnings;
 package Rubric::Renderer;
-our $VERSION = '0.149';
+{
+  $Rubric::Renderer::VERSION = '0.150';
+}
+# ABSTRACT: the rendering interface for Rubric
 
-=head1 NAME
-
-Rubric::Renderer - the rendering interface for Rubric
-
-=head1 VERSION
-
-version 0.149
-
-=head1 DESCRIPTION
-
-Rubric::Renderer provides a simple interface for rendering entries, entry sets,
-and other things collected by Rubric::WebApp.
-
-=cut
 
 use Carp;
 use File::ShareDir;
 use File::Spec;
-use HTML::Widget::Factory;
+use HTML::Widget::Factory 0.03;
 use Rubric;
 use Rubric::Config;
-use Template;
+use Template 2.00;
 use Template::Filters;
 
-=head1 METHODS
-
-=head2 register_type($type => \%arg)
-
-This method registers a format type by providing a little data needed to render
-to it.  The hashref of arguments must include C<content_type>, used to set the
-MIME type of the returned ouput; and C<extension>, used to find the primary
-template.
-
-This method returns a Template object, which is registered as the renderer for
-this type.  This return value may change in the future.
-
-=cut
 
 my %renderer;
 
@@ -62,17 +38,6 @@ __PACKAGE__->register_type(@$_) for (
   [ api  => { content_type => 'text/xml',            extension => 'api'  } ],
 );
 
-=head2 process($template, $type, \%stash)
-
-This method renders the named template using the registered renderer for the
-given type, using the passed stash variables.
-
-The type must be rendered with Rubric::Renderer before this method is called.
-
-In list context, this method returns the content type and output document as a
-two-element list.  In scalar context, it returns the output document.
-
-=cut
 
 my $xml_escape = sub {
   for (shift) {
@@ -85,12 +50,12 @@ my $xml_escape = sub {
   }
 };
 
-sub process { 
+sub process {
   my ($class, $template, $type, $stash) = @_;
   return unless $renderer{$type};
 
   $stash->{xml_escape} = $xml_escape;
-  $stash->{version}    = $Rubric::VERSION;
+  $stash->{version}    = Rubric->VERSION || 0;
   $stash->{widget}     = HTML::Widget::Factory->new;
   # 2007-05-07
   # XXX: we only should create one factory per request, tops -- rjbs,
@@ -106,24 +71,56 @@ sub process {
     :  $output;
 }
 
-=head1 TODO
+1;
+
+__END__
+=pod
+
+=head1 NAME
+
+Rubric::Renderer - the rendering interface for Rubric
+
+=head1 VERSION
+
+version 0.150
+
+=head1 DESCRIPTION
+
+Rubric::Renderer provides a simple interface for rendering entries, entry sets,
+and other things collected by Rubric::WebApp.
+
+=head1 METHODS
+
+=head2 register_type($type => \%arg)
+
+This method registers a format type by providing a little data needed to render
+to it.  The hashref of arguments must include C<content_type>, used to set the
+MIME type of the returned ouput; and C<extension>, used to find the primary
+template.
+
+This method returns a Template object, which is registered as the renderer for
+this type.  This return value may change in the future.
+
+=head2 process($template, $type, \%stash)
+
+This method renders the named template using the registered renderer for the
+given type, using the passed stash variables.
+
+The type must be rendered with Rubric::Renderer before this method is called.
+
+In list context, this method returns the content type and output document as a
+two-element list.  In scalar context, it returns the output document.
 
 =head1 AUTHOR
 
-Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+Ricardo SIGNES <rjbs@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to C<bug-rubric@rt.cpan.org>, or
-through the web interface at L<http://rt.cpan.org>. I will be notified, and
-then you'll automatically be notified of progress on your bug as I make
-changes.
+This software is copyright (c) 2004 by Ricardo SIGNES.
 
-=head1 COPYRIGHT
-
-Copyright 2004 Ricardo SIGNES.  This program is free software;  you can
-redistribute it and/or modify it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1;

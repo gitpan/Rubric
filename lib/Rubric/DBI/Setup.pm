@@ -1,40 +1,17 @@
 use strict;
 use warnings;
 package Rubric::DBI::Setup;
-our $VERSION = '0.149';
+{
+  $Rubric::DBI::Setup::VERSION = '0.150';
+}
+# ABSTRACT: db initialization routines
 
-=head1 NAME
-
-Rubric::DBI::Setup - db initialization routines
-
-=head1 VERSION
-
-version 0.149
-
-=head1 SYNOPSIS
-
- use strict;
- use warnings;
-
- use Rubric::DBI::Setup;
- Rubric::DBI::Setup->setup_tables;
-
-=head1 DESCRIPTION
-
-=cut
 
 use DBI;
 use Rubric::Config;
 use Rubric::Entry;
 use Rubric::Renderer;
 
-=head1 METHODS
-
-=head2 dbh
-
-This method returns a connection to the Rubric database.
-
-=cut
 
 my $dbh;
 
@@ -48,11 +25,6 @@ sub dbh {
 	);
 }
 
-=head2 setup_tables
-
-This method builds the tables in the database, if needed.
-
-=cut
 
 sub setup_tables {
 	my ($class) = @_;
@@ -61,31 +33,19 @@ sub setup_tables {
   $class->dbh->do( $class->specialize_sql($_) ) for <DATA>;
 }
 
-=head2 specialize_sql
-
-attempts to convert the given sql syntax to the given DBD Driver's
-
-=cut
 
 sub specialize_sql {
   my ($class, $query) = @_;
-  
+
   my $db_type = $class->determine_db_type;
-  
-  if ($db_type eq 'Pg') { 
+
+  if ($db_type eq 'Pg') {
     $query =~ s/(id\s*)integer/$1SERIAL/i;
   }
-  
+
   return $query;
 }
 
-=head2 determine_version
-
-This attempts to determine the version of the database schema to which the
-given database conforms.  All recent schemata store their version number; for
-older versions, some simple table attributes are checked.
-
-=cut
 
 sub _columns {
 	my ($class, $query) = @_;
@@ -127,29 +87,17 @@ sub determine_version {
 	return;
 }
 
-=head2 determine_db_type
-
-Returns the type of db being used, based on the DSN's DBD driver.
-SQLite and Pg support only right now.
-
-=cut
 
 sub determine_db_type {
 	my ($class) = @_;
-  
+
   Rubric::Config->dsn =~ /dbi:([^:]+):/;
-  
+
   my $db_type = $1;
 
   return $db_type;
 }
 
-=head2 update_schema
-
-This method will try to upgrade the database to the most recent schema.  It's
-sort of ugly, but it works...
-
-=cut
 
 my %from;
 
@@ -565,7 +513,7 @@ $from{10} = sub {
     body                TEXT
   );
 
-  INSERT INTO entries 
+  INSERT INTO entries
     SELECT id, link, username, title, created, modified, description, body
       FROM new_entries;
 
@@ -581,7 +529,7 @@ $from{11} = undef;
 
 sub update_schema {
 	my ($class) = @_;
-  
+
 	while ($_ = $class->determine_version) {
 		die "no update path from schema version $_" unless exists $from{$_};
 		last unless defined $from{$_};
@@ -591,27 +539,73 @@ sub update_schema {
 	return $class->determine_version;
 }
 
-=head1 TODO
+1;
+
+
+
+=pod
+
+=head1 NAME
+
+Rubric::DBI::Setup - db initialization routines
+
+=head1 VERSION
+
+version 0.150
+
+=head1 SYNOPSIS
+
+ use strict;
+ use warnings;
+
+ use Rubric::DBI::Setup;
+ Rubric::DBI::Setup->setup_tables;
+
+=head1 DESCRIPTION
+
+=head1 METHODS
+
+=head2 dbh
+
+This method returns a connection to the Rubric database.
+
+=head2 setup_tables
+
+This method builds the tables in the database, if needed.
+
+=head2 specialize_sql
+
+attempts to convert the given sql syntax to the given DBD Driver's
+
+=head2 determine_version
+
+This attempts to determine the version of the database schema to which the
+given database conforms.  All recent schemata store their version number; for
+older versions, some simple table attributes are checked.
+
+=head2 determine_db_type
+
+Returns the type of db being used, based on the DSN's DBD driver.
+SQLite and Pg support only right now.
+
+=head2 update_schema
+
+This method will try to upgrade the database to the most recent schema.  It's
+sort of ugly, but it works...
 
 =head1 AUTHOR
 
-Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+Ricardo SIGNES <rjbs@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to C<bug-rubric@rt.cpan.org>, or
-through the web interface at L<http://rt.cpan.org>. I will be notified, and
-then you'll automatically be notified of progress on your bug as I make
-changes.
+This software is copyright (c) 2004 by Ricardo SIGNES.
 
-=head1 COPYRIGHT
-
-Copyright 2004-2005, Ricardo SIGNES.  This program is free software;  you can
-redistribute it and/or modify it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1;
 
 __DATA__
 CREATE TABLE links (

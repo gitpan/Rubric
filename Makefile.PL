@@ -1,55 +1,106 @@
+
 use strict;
 use warnings;
 
-use inc::Module::Install;
-use File::Find;
 
-name          ('Rubric');
-module_name   ('Rubric');
-author        ('Ricardo SIGNES <rjbs@cpan.org>');
-license       ('perl');
-version_from  ('lib/Rubric.pm');
 
-requires('App::Cmd'          => 0.000);
-requires('CGI::Application'  => 3.00);
-requires('CGI::Application::PSGI' => 0);
-requires('CGI::Carp'         => 0.00);
-requires('Class::DBI'        => 0.96);
-requires('Class::DBI::utf8'  => 0.2); # all I tested with
-requires('Crypt::CBC'        => 0); # min version unknown
-requires('Crypt::Rijndael'   => 0); # min version unknown
-requires('DateTime'          => 0.00);
-requires('Date::Span'        => 1.12);
-requires('DBD::SQLite'       => 1.08);
-requires('Digest::MD5'       => 0.00);
-requires('Email::Address'    => 0.00);
-requires('Email::Send'       => 0.00);
-requires('Encode'            => 2.00);
-requires('JSON'              => 2); # min version unknown
-requires('File::ShareDir'    => 0); # min version unknown
-requires('MIME::Base64'      => 0); # min version unknown
-requires('Plack::Builder'    => 0); # min version unknown
-requires('String::TagString' => 0.00);
-requires('String::Truncate'  => 0.00);
-requires('Sub::Exporter'     => 0); # min version unknown
-requires('Template'          => 2.00);
-requires('Time::Local'       => 0.00);
-requires('Time::Piece'       => 0.00);
-requires('YAML'              => 0.00);
-requires('Class::DBI::AbstractSearch' => 0);
-requires('HTML::CalendarMonth'        => 0.00);
-requires('HTML::TagCloud'             => 0.00);
-requires('HTML::Widget::Factory'      => '0.03'); # 0.03: links w/classes
-requires('HTTP::Server::Simple'       => '0.09');
-requires('Getopt::Long::Descriptive'  => '0.03');
-requires('Template::Plugin::Class'    => '0.12');
-requires('Test::HTTP::Server::Simple' => '0.02');
-requires('Test::WWW::Mechanize'       => '1.04');
+use ExtUtils::MakeMaker 6.30;
 
-install_script('bin/rubric');
+use File::ShareDir::Install;
+install_share dist => "share";
 
-install_share;
 
-tests_recursive;
+my %WriteMakefileArgs = (
+  "ABSTRACT" => "a notes and bookmarks manager with tagging",
+  "AUTHOR" => "Ricardo SIGNES <rjbs\@cpan.org>",
+  "BUILD_REQUIRES" => {
+    "DBD::SQLite" => "1.08",
+    "Exporter" => 0,
+    "File::Copy" => 0,
+    "File::Path" => 0,
+    "HTTP::Server::Simple" => "0.08",
+    "HTTP::Server::Simple::CGI" => 0,
+    "Test::HTTP::Server::Simple" => "0.02",
+    "Test::More" => "0.96",
+    "Test::WWW::Mechanize" => "1.04"
+  },
+  "CONFIGURE_REQUIRES" => {
+    "ExtUtils::MakeMaker" => "6.30",
+    "File::ShareDir::Install" => "0.03"
+  },
+  "DISTNAME" => "Rubric",
+  "EXE_FILES" => [
+    "bin/rubric"
+  ],
+  "LICENSE" => "perl",
+  "NAME" => "Rubric",
+  "PREREQ_PM" => {
+    "App::Cmd" => 0,
+    "App::Cmd::Command" => 0,
+    "App::Cmd::Command::commands" => 0,
+    "CGI::Application" => 3,
+    "CGI::Carp" => 0,
+    "CGI::Cookie" => 0,
+    "Carp" => 0,
+    "Class::Accessor" => 0,
+    "Class::DBI" => "0.96",
+    "Class::DBI::AbstractSearch" => 0,
+    "Crypt::CBC" => 0,
+    "DBI" => 0,
+    "Date::Span" => "1.12",
+    "DateTime" => 0,
+    "Digest::MD5" => 0,
+    "Email::Address" => 0,
+    "Email::Send" => 0,
+    "Encode" => 2,
+    "File::ShareDir" => 0,
+    "File::Spec" => 0,
+    "HTML::CalendarMonth" => 0,
+    "HTML::TagCloud" => 0,
+    "HTML::Widget::Factory" => "0.03",
+    "JSON" => 2,
+    "LWP::Simple" => 0,
+    "MIME::Base64" => 0,
+    "Scalar::Util" => 0,
+    "String::TagString" => 0,
+    "String::Truncate" => 0,
+    "Sub::Exporter" => 0,
+    "Template" => "2.00",
+    "Template::Filters" => 0,
+    "Template::Plugin::Class" => "0.12",
+    "Time::Piece" => 0,
+    "YAML::XS" => 0,
+    "base" => 0,
+    "strict" => 0,
+    "warnings" => 0
+  },
+  "VERSION" => "0.150",
+  "test" => {
+    "TESTS" => "t/*.t t/www/*.t"
+  }
+);
 
-WriteAll();
+
+unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {
+  my $br = delete $WriteMakefileArgs{BUILD_REQUIRES};
+  my $pp = $WriteMakefileArgs{PREREQ_PM};
+  for my $mod ( keys %$br ) {
+    if ( exists $pp->{$mod} ) {
+      $pp->{$mod} = $br->{$mod} if $br->{$mod} > $pp->{$mod};
+    }
+    else {
+      $pp->{$mod} = $br->{$mod};
+    }
+  }
+}
+
+delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
+  unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
+
+WriteMakefile(%WriteMakefileArgs);
+
+package
+MY;
+use File::ShareDir::Install qw(postamble);
+
+

@@ -1,7 +1,22 @@
 use strict;
 use warnings;
 package Rubric::WebApp::Login::HTTP;
+{
+  $Rubric::WebApp::Login::HTTP::VERSION = '0.150';
+}
 use base qw(Rubric::WebApp::Login);
+# ABSTRACT: process web login from HTTP authentication
+
+
+sub get_login_username { $ENV{REMOTE_USER} }
+
+
+sub authenticate_login { 1 }
+
+1;
+
+__END__
+=pod
 
 =head1 NAME
 
@@ -9,11 +24,7 @@ Rubric::WebApp::Login::HTTP - process web login from HTTP authentication
 
 =head1 VERSION
 
-version 0.149
-
-=cut
-
-our $VERSION = '0.149';
+version 0.150
 
 =head1 DESCRIPTION
 
@@ -26,35 +37,21 @@ the Rubric.
 
 This method returns the REMOTE_USER environment variable.
 
-=cut
-
-sub get_login_username { $ENV{REMOTE_USER} }
-
 =head2 authenticate_login
 
 This method always returns true.  (The assumption, here, is that the HTTP
 server has already taken care of authentication.)
 
-=cut
-
-sub authenticate_login { 1 }
-
 =head1 AUTHOR
 
-Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+Ricardo SIGNES <rjbs@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to C<bug-rubric@rt.cpan.org>, or
-through the web interface at L<http://rt.cpan.org>. I will be notified, and
-then you'll automatically be notified of progress on your bug as I make
-changes.
+This software is copyright (c) 2004 by Ricardo SIGNES.
 
-=head1 COPYRIGHT
-
-Copyright 2004 Ricardo SIGNES.  This program is free software;  you can
-redistribute it and/or modify it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1;

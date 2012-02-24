@@ -1,29 +1,14 @@
 use strict;
 use warnings;
 package Rubric::Entry::Formatter::Nil;
-our $VERSION = '0.149';
+{
+  $Rubric::Entry::Formatter::Nil::VERSION = '0.150';
+}
+# ABSTRACT: format entries by formatting nearly not at all
 
-=head1 NAME
-
-Rubric::Entry::Formatter::Nil - format entries by formatting nearly not at all
-
-=head1 VERSION
-
-version 0.149
-
-=head1 DESCRIPTION
-
-This is the default formatter.  The only formatting it performs is done by
-Template::Filters' C<html_para> filter.  Paragraph breaks will be
-retained from plaintext into HTML, but nothing else will be done.
-
-=cut
 
 use Template::Filters;
 
-=head1 METHODS
-
-=cut
 
 my $filter = Template::Filters->new->fetch('html_para');
 
@@ -39,24 +24,37 @@ sub as_text {
   return $arg->{text};
 }
 
-=head1 TODO
+1;
+
+__END__
+=pod
+
+=head1 NAME
+
+Rubric::Entry::Formatter::Nil - format entries by formatting nearly not at all
+
+=head1 VERSION
+
+version 0.150
+
+=head1 DESCRIPTION
+
+This is the default formatter.  The only formatting it performs is done by
+Template::Filters' C<html_para> filter.  Paragraph breaks will be
+retained from plaintext into HTML, but nothing else will be done.
+
+=head1 METHODS
 
 =head1 AUTHOR
 
-Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+Ricardo SIGNES <rjbs@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to C<bug-rubric@rt.cpan.org>, or
-through the web interface at L<http://rt.cpan.org>. I will be notified, and
-then you'll automatically be notified of progress on your bug as I make
-changes.
+This software is copyright (c) 2004 by Ricardo SIGNES.
 
-=head1 COPYRIGHT
-
-Copyright 2005 Ricardo SIGNES.  This program is free software;  you can
-redistribute it and/or modify it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1;

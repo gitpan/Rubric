@@ -1,24 +1,15 @@
 use strict;
 use warnings;
 package Rubric::DBI;
-our $VERSION = '0.149';
+{
+  $Rubric::DBI::VERSION = '0.150';
+}
 
-=head1 NAME
+# ABSTRACT: Rubric's subclass of Class::DBI
 
-Rubric::DBI - Rubric's subclass of Class::DBI
-
-=head1 VERSION
-
-version 0.149
-
-=head1 DESCRIPTION
-
-Rubric::DBI subclasses Class::DBI.  It sets the connection by using the DSN
-retrieved from Rubric::Config.
-
-=cut
 
 use Rubric::Config;
+use Class::DBI 0.96;
 use base qw(Class::DBI);
 
 use Class::DBI::AbstractSearch;
@@ -36,14 +27,6 @@ __PACKAGE__->connection(
 	{ AutoCommit => 1 }
 );
 
-=head1 METHODS
-
-=head2 vacuum
-
-This method performs periodic maintenance, cleaning up records that are no
-longer needed.
-
-=cut
 
 sub vacuum {
 	my $self = shift;
@@ -53,24 +36,41 @@ sub vacuum {
 	);
 }
 
-=head1 TODO
+1;
+
+__END__
+=pod
+
+=head1 NAME
+
+Rubric::DBI - Rubric's subclass of Class::DBI
+
+=head1 VERSION
+
+version 0.150
+
+=head1 DESCRIPTION
+
+Rubric::DBI subclasses Class::DBI.  It sets the connection by using the DSN
+retrieved from Rubric::Config.
+
+=head1 METHODS
+
+=head2 vacuum
+
+This method performs periodic maintenance, cleaning up records that are no
+longer needed.
 
 =head1 AUTHOR
 
-Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+Ricardo SIGNES <rjbs@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to C<bug-rubric@rt.cpan.org>, or
-through the web interface at L<http://rt.cpan.org>. I will be notified, and
-then you'll automatically be notified of progress on your bug as I make
-changes.
+This software is copyright (c) 2004 by Ricardo SIGNES.
 
-=head1 COPYRIGHT
-
-Copyright 2004 Ricardo SIGNES.  This program is free software;  you can
-redistribute it and/or modify it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1;

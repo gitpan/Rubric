@@ -1,36 +1,40 @@
 ---
+abstract: 'a notes and bookmarks manager with tagging'
 author:
   - 'Ricardo SIGNES <rjbs@cpan.org>'
 build_requires:
-  ExtUtils::MakeMaker: 6.36
+  DBD::SQLite: 1.08
+  Exporter: 0
+  File::Copy: 0
+  File::Path: 0
+  HTTP::Server::Simple: 0.08
+  HTTP::Server::Simple::CGI: 0
+  Test::HTTP::Server::Simple: 0.02
+  Test::More: 0.96
+  Test::WWW::Mechanize: 1.04
 configure_requires:
-  ExtUtils::MakeMaker: 6.36
-distribution_type: module
-dynamic_config: 1
-generated_by: 'Module::Install version 1.04'
+  ExtUtils::MakeMaker: 6.30
+  File::ShareDir::Install: 0.03
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 4.300007, CPAN::Meta::Converter version 2.120351'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
-module_name: Rubric
 name: Rubric
-no_index:
-  directory:
-    - inc
-    - share
-    - t
-    - xt
 requires:
   App::Cmd: 0
+  App::Cmd::Command: 0
+  App::Cmd::Command::commands: 0
   CGI::Application: 3
-  CGI::Application::PSGI: 0
   CGI::Carp: 0
+  CGI::Cookie: 0
+  Carp: 0
+  Class::Accessor: 0
   Class::DBI: 0.96
   Class::DBI::AbstractSearch: 0
-  Class::DBI::utf8: 0.2
   Crypt::CBC: 0
-  Crypt::Rijndael: 0
-  DBD::SQLite: 1.08
+  DBI: 0
   Date::Span: 1.12
   DateTime: 0
   Digest::MD5: 0
@@ -38,24 +42,197 @@ requires:
   Email::Send: 0
   Encode: 2
   File::ShareDir: 0
-  Getopt::Long::Descriptive: 0.03
+  File::Spec: 0
   HTML::CalendarMonth: 0
   HTML::TagCloud: 0
   HTML::Widget::Factory: 0.03
-  HTTP::Server::Simple: 0.09
   JSON: 2
+  LWP::Simple: 0
   MIME::Base64: 0
-  Plack::Builder: 0
+  Scalar::Util: 0
   String::TagString: 0
   String::Truncate: 0
   Sub::Exporter: 0
-  Template: 2
+  Template: 2.00
+  Template::Filters: 0
   Template::Plugin::Class: 0.12
-  Test::HTTP::Server::Simple: 0.02
-  Test::WWW::Mechanize: 1.04
-  Time::Local: 0
   Time::Piece: 0
-  YAML: 0
+  YAML::XS: 0
+  base: 0
+  strict: 0
+  warnings: 0
 resources:
-  license: http://dev.perl.org/licenses/
-version: 0.149
+  homepage: https://github.com/rjbs/rubric
+  repository: https://github.com/rjbs/rubric.git
+version: 0.150
+x_Dist_Zilla:
+  plugins:
+    -
+      class: Dist::Zilla::Plugin::CheckPrereqsIndexed
+      name: '@Filter/CheckPrereqsIndexed'
+      version: 0.007
+    -
+      class: Dist::Zilla::Plugin::GatherDir
+      name: '@Filter/@Basic/GatherDir'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::PruneCruft
+      name: '@Filter/@Basic/PruneCruft'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::ManifestSkip
+      name: '@Filter/@Basic/ManifestSkip'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::MetaYAML
+      name: '@Filter/@Basic/MetaYAML'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::License
+      name: '@Filter/@Basic/License'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::Readme
+      name: '@Filter/@Basic/Readme'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::ExtraTests
+      name: '@Filter/@Basic/ExtraTests'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::ExecDir
+      name: '@Filter/@Basic/ExecDir'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::ShareDir
+      name: '@Filter/@Basic/ShareDir'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::MakeMaker
+      name: '@Filter/@Basic/MakeMaker'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::Manifest
+      name: '@Filter/@Basic/Manifest'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::TestRelease
+      name: '@Filter/@Basic/TestRelease'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::ConfirmRelease
+      name: '@Filter/@Basic/ConfirmRelease'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::UploadToCPAN
+      name: '@Filter/@Basic/UploadToCPAN'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::AutoPrereqs
+      name: '@Filter/AutoPrereqs'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::Git::NextVersion
+      name: '@Filter/Git::NextVersion'
+      version: 1.120370
+    -
+      class: Dist::Zilla::Plugin::PkgVersion
+      name: '@Filter/PkgVersion'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::MetaConfig
+      name: '@Filter/MetaConfig'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::MetaJSON
+      name: '@Filter/MetaJSON'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::NextRelease
+      name: '@Filter/NextRelease'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::PodSyntaxTests
+      name: '@Filter/PodSyntaxTests'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::Repository
+      name: '@Filter/Repository'
+      version: 0.18
+    -
+      class: Dist::Zilla::Plugin::Prereqs
+      config:
+        Dist::Zilla::Plugin::Prereqs:
+          phase: test
+          type: requires
+      name: '@Filter/TestMoreWithSubtests'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::PodWeaver
+      name: '@Filter/PodWeaver'
+      version: 3.101641
+    -
+      class: Dist::Zilla::Plugin::GithubMeta
+      name: '@Filter/GithubMeta'
+      version: 0.28
+    -
+      class: Dist::Zilla::Plugin::Git::Check
+      name: '@Filter/@Git/Check'
+      version: 1.120370
+    -
+      class: Dist::Zilla::Plugin::Git::Commit
+      name: '@Filter/@Git/Commit'
+      version: 1.120370
+    -
+      class: Dist::Zilla::Plugin::Git::Tag
+      name: '@Filter/@Git/Tag'
+      version: 1.120370
+    -
+      class: Dist::Zilla::Plugin::Git::Push
+      name: '@Filter/@Git/Push'
+      version: 1.120370
+    -
+      class: Dist::Zilla::Plugin::Prereqs
+      config:
+        Dist::Zilla::Plugin::Prereqs:
+          phase: runtime
+          type: requires
+      name: Prereqs
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::Prereqs
+      config:
+        Dist::Zilla::Plugin::Prereqs:
+          phase: test
+          type: requires
+      name: TestRequires
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::FinderCode
+      name: ':InstallModules'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::FinderCode
+      name: ':IncModules'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::FinderCode
+      name: ':TestFiles'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::FinderCode
+      name: ':ExecFiles'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::FinderCode
+      name: ':ShareFiles'
+      version: 4.300007
+    -
+      class: Dist::Zilla::Plugin::FinderCode
+      name: ':MainModule'
+      version: 4.300007
+  zilla:
+    class: Dist::Zilla::Dist::Builder
+    config:
+      is_trial: 0
+    version: 4.300007

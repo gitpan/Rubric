@@ -1,6 +1,64 @@
 use strict;
 use warnings;
 package Rubric::WebApp::Login;
+{
+  $Rubric::WebApp::Login::VERSION = '0.150';
+}
+# ABSTRACT: web login processing
+
+
+sub check_for_login {
+	my ($self, $webapp) = @_;
+
+	return unless my $username = $self->get_login_username($webapp);
+
+	$username = $self->map_username($username);
+	return unless $self->valid_username($username);
+	return unless my $user =
+		$self->get_login_user($username) || $self->autocreate_user($username);
+	return unless $self->authenticate_login($webapp, $user);
+	if ($user->verification_code) {
+		$webapp->param('user_pending', 1);
+	} else {
+		$self->set_current_user($webapp, $user);
+	}
+}
+
+
+sub get_login_username { die "get_login_username unimplemented" }
+
+
+sub map_username { $_[1] }
+
+
+sub valid_username {
+	my ($self, $username) = @_;
+	$username =~ /^[\pL\d_]+$/;
+}
+
+
+sub get_login_user {
+	my ($self, $username) = @_;
+	Rubric::User->retrieve($username);
+}
+
+
+sub autocreate_user { }
+
+
+sub authenticate_login { die "authenticate_login unimplemented" }
+
+
+sub set_current_user {
+	my ($self, $webapp, $user) = @_;
+
+	$webapp->param(current_user => $user);
+}
+
+1;
+
+__END__
+=pod
 
 =head1 NAME
 
@@ -8,11 +66,7 @@ Rubric::WebApp::Login - web login processing
 
 =head1 VERSION
 
-version 0.149
-
-=cut
-
-our $VERSION = '0.149';
+version 0.150
 
 =head1 DESCRIPTION
 
@@ -41,25 +95,6 @@ Most of the methods above are virtual methods in this class, and should be
 implemented in subclasses.  The bundled L<Rubric::WebApp::Login::Post> (the
 default) and L<Rubric::WebApp::Login::HTTP> serve as examples.
 
-=cut
-
-sub check_for_login {
-	my ($self, $webapp) = @_;
-
-	return unless my $username = $self->get_login_username($webapp);
-
-	$username = $self->map_username($username);
-	return unless $self->valid_username($username);
-	return unless my $user =
-		$self->get_login_user($username) || $self->autocreate_user($username);
-	return unless $self->authenticate_login($webapp, $user);
-	if ($user->verification_code) {
-		$webapp->param('user_pending', 1);
-	} else {
-		$self->set_current_user($webapp, $user);
-	}
-}
-
 =head2 get_login_username($webapp)
 
 This method returns the login username taken from the request.  It is not
@@ -67,41 +102,19 @@ necessarily the name of a Rubric user (see C<map_username>).
 
 This must be implemented by the login subclass.
 
-=cut
-
-sub get_login_username { die "get_login_username unimplemented" }
-
 =head2 map_username($username)
 
 This method returns the Rubric username to which the login name maps.  By
 default, it returns the C<$username> verbatim.
-
-=cut
-
-sub map_username { $_[1] }
 
 =head2 valid_username($username)
 
 Returns a true or false value, depending on whether the given username string
 is a valid username.
 
-=cut
-
-sub valid_username {
-	my ($self, $username) = @_;
-	$username =~ /^[\pL\d_]+$/;
-}
-
 =head2 get_login_user($username)
 
 Given a username, this method returns the Rubric::User object for the user.
-
-=cut
-
-sub get_login_user {
-	my ($self, $username) = @_;
-	Rubric::User->retrieve($username);
-}
 
 =head2 autocreate_user($username)
 
@@ -110,10 +123,6 @@ the user automatically.  By default, it always returns nothing.  It may be
 subclassed for implementation.  (For example, one could create domain users
 from a directory.)
 
-=cut
-
-sub autocreate_user { }
-
 =head2 authenticate_login($webapp, $user)
 
 This method attempts to authenticate the user's login, checking the given
@@ -121,39 +130,21 @@ password or performing any other needed check.  It returns true or false.
 
 This must be implemented by the login subclass.
 
-=cut
-
-sub authenticate_login { die "authenticate_login unimplemented" }
-
 =head2 set_current_user($webapp, $user)
 
 This method sets the current user on the WebApp by setting the WebApp's
 "current_user" attribute to the Rubric::User object.
 
-=cut
-
-sub set_current_user {
-	my ($self, $webapp, $user) = @_;
-
-	$webapp->param(current_user => $user);
-}
-
 =head1 AUTHOR
 
-Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+Ricardo SIGNES <rjbs@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to C<bug-rubric@rt.cpan.org>, or
-through the web interface at L<http://rt.cpan.org>. I will be notified, and
-then you'll automatically be notified of progress on your bug as I make
-changes.
+This software is copyright (c) 2004 by Ricardo SIGNES.
 
-=head1 COPYRIGHT
-
-Copyright 2004 Ricardo SIGNES.  This program is free software;  you can
-redistribute it and/or modify it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1;

@@ -1,8 +1,75 @@
 use strict;
 use warnings;
 package Rubric::Config;
+{
+  $Rubric::Config::VERSION = '0.150';
+}
 use base qw(Class::Accessor);
-our $VERSION = '0.149';
+# ABSTRACT: the configuration data for a Rubric
+
+
+use YAML::XS ();
+
+my $config_filename = $ENV{RUBRIC_CONFIG_FILE} || 'rubric.yml';
+
+sub import {
+	my ($class) = shift;
+	$config_filename = shift if @_;
+}
+
+
+my $config;
+sub _read_config {
+	return $config if $config;
+
+	my $config_file = $config_filename;
+	$config = YAML::XS::LoadFile($config_file);
+}
+
+
+my $default = {
+	css_href    => undef,
+	db_user     => undef,
+	db_pass     => undef,
+	dsn         => undef,
+	dbi_trace_level => 0,
+	dbi_trace_file  => undef,
+	email_from  => undef,
+	login_class => 'Rubric::WebApp::Login::Post',
+	smtp_server => undef,
+	uri_root    => '',
+	private_tag => '@private',
+	private_system => undef,
+	template_path  => undef,
+	allowed_schemes     => undef,
+	default_page_size   => 25,
+	display_localtime   => 0,
+	entries_query_class => 'Rubric::WebApp::Entries',
+	max_page_size       => 100,
+  markup_formatter    => {},
+	one_entry_per_link  => 1,
+	registration_closed => undef,
+  session_cipher_key  => undef,
+	skip_newuser_verification => undef,
+};
+sub _default { $default }
+
+
+sub make_ro_accessor {
+	my ($class, $field) = @_;
+	sub {
+		exists $class->_read_config->{$field}
+			? $class->_read_config->{$field}
+			: $class->_default->{$field}
+	}
+}
+
+__PACKAGE__->mk_ro_accessors(keys %$default);
+
+1;
+
+__END__
+=pod
 
 =head1 NAME
 
@@ -10,7 +77,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
-version 0.149
+version 0.150
 
 =head1 DESCRIPTION
 
@@ -20,17 +87,6 @@ current working directory.  By default, Rubric::Config looks for C<rubric.yml>,
 but an alternate filename may be passed when using the module:
 
  use Rubric::Config ".rubric_yml";
-
-=cut
-
-use YAML;
-
-my $config_filename = $ENV{RUBRIC_CONFIG_FILE} || 'rubric.yml';
-
-sub import {
-	my ($class) = shift;
-	$config_filename = shift if @_;
-}
 
 =head1 SETTINGS
 
@@ -162,48 +218,9 @@ These methods are used by the setting accessors, internally:
 This method returns the config data, if loaded.  If it hasn't already been
 loaded, it finds and parses the configuration file, then returns the data.
 
-=cut
-
-my $config;
-sub _read_config {
-	return $config if $config;
-
-	my $config_file = $config_filename;
-	$config = YAML::LoadFile($config_file);
-}
-
 =head2 _default
 
 This method returns the default configuration has a hashref.
-
-=cut
-
-my $default = {
-	css_href    => undef,
-	db_user     => undef,
-	db_pass     => undef,
-	dsn         => undef,
-	dbi_trace_level => 0,
-	dbi_trace_file  => undef,
-	email_from  => undef,
-	login_class => 'Rubric::WebApp::Login::Post',
-	smtp_server => undef,
-	uri_root    => '',
-	private_tag => '@private',
-	private_system => undef,
-	template_path  => undef,
-	allowed_schemes     => undef,
-	default_page_size   => 25,
-	display_localtime   => 0,
-	entries_query_class => 'Rubric::WebApp::Entries',
-	max_page_size       => 100,
-  markup_formatter    => {},
-	one_entry_per_link  => 1,
-	registration_closed => undef,
-  session_cipher_key  => undef,
-	skip_newuser_verification => undef,
-};
-sub _default { $default }
 
 =head2 make_ro_accessor
 
@@ -211,35 +228,16 @@ Rubric::Config isa Class::Accessor, and uses this sub to build its setting
 accessors.  For a given field, it returns the value of that field in the
 configuration, if it exists.  Otherwise, it returns the default for that field.
 
-=cut
-
-sub make_ro_accessor {
-	my ($class, $field) = @_;
-	sub {
-		exists $class->_read_config->{$field}
-			? $class->_read_config->{$field}
-			: $class->_default->{$field}
-	}
-}
-
-__PACKAGE__->mk_ro_accessors(keys %$default);
-
 =head1 AUTHOR
 
-Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+Ricardo SIGNES <rjbs@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to C<bug-rubric@rt.cpan.org>, or
-through the web interface at L<http://rt.cpan.org>. I will be notified, and
-then you'll automatically be notified of progress on your bug as I make
-changes.
+This software is copyright (c) 2004 by Ricardo SIGNES.
 
-=head1 COPYRIGHT
-
-Copyright 2004 Ricardo SIGNES.  This program is free software;  you can
-redistribute it and/or modify it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1;

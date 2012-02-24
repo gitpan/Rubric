@@ -1,22 +1,11 @@
 use strict;
 use warnings;
 package Rubric::Link;
-our $VERSION = '0.149';
+{
+  $Rubric::Link::VERSION = '0.150';
+}
+# ABSTRACT: a link (URI) against which entries have been made
 
-=head1 NAME
-
-Rubric::Link - a link (URI) against which entries have been made
-
-=head1 VERSION
-
-version 0.149
-
-=head1 DESCRIPTION
-
-This class provides an interface to links in the Rubric.  It inherits from
-Rubric::DBI, which is a Class::DBI class.
-
-=cut
 
 use base qw(Rubric::DBI);
 
@@ -24,13 +13,6 @@ use Digest::MD5 qw(md5_hex);
 
 __PACKAGE__->table('links');
 
-=head1 COLUMNS
-
- id    - a unique identifier
- uri   - the link itself
- md5   - the hex md5sum of the link's URI (set automatically)
-
-=cut
 
 __PACKAGE__->columns(All => qw(id uri md5));
 
@@ -43,22 +25,9 @@ sub _check_schema {
 	return scalar grep { $_ eq $uri->scheme } @{ Rubric::Config->allowed_schemes }
 }
 
-=head1 RELATIONSHIPS
-
-=head2 entries
-
-Every link has_many Rubric::Entries, available with the normal methods,
-including C<entries>.
-
-=cut
 
 __PACKAGE__->has_many(entries => 'Rubric::Entry');
 
-=head3 entry_count
-
-This method returns the number of entries that refer to this link.
-
-=cut
 
 __PACKAGE__->set_sql(
 	entry_count => "SELECT COUNT(*) FROM entries WHERE link = ?"
@@ -71,13 +40,6 @@ sub entry_count {
 	$sth->fetchall_arrayref->[0][0];
 }
 
-=head3 tags_counted
-
-This returns an arrayref of arrayrefs, each containing a tag name and the
-number of entries for this link tagged with that tag.  The pairs are sorted in
-colation order by tag name.
-
-=cut
 
 __PACKAGE__->set_sql(tags_counted => <<'' );
 SELECT DISTINCT tag, COUNT(*) AS count
@@ -94,27 +56,12 @@ sub tags_counted {
 	return $tags;
 }
 
-=head1 INFLATIONS
-
-=head2 uri
-
-The uri column inflates to a URI object.
-
-=cut
 
 __PACKAGE__->has_a(
 	uri => 'URI',
 	deflate => sub { (shift)->canonical->as_string }
-); 
+);
 
-=head1 METHODS
-
-=head2 stringify_self
-
-This method returns the link's URI as a string, and is teh default
-stringification for Rubric::Link objects.
-
-=cut
 
 sub stringify_self { $_[0]->uri->as_string }
 
@@ -125,24 +72,70 @@ sub _set_md5 {
 	$self->_attribute_store(md5 => md5_hex("$self->{uri}"));
 }
 
-=head1 TODO
+1;
+
+__END__
+=pod
+
+=head1 NAME
+
+Rubric::Link - a link (URI) against which entries have been made
+
+=head1 VERSION
+
+version 0.150
+
+=head1 DESCRIPTION
+
+This class provides an interface to links in the Rubric.  It inherits from
+Rubric::DBI, which is a Class::DBI class.
+
+=head1 COLUMNS
+
+ id    - a unique identifier
+ uri   - the link itself
+ md5   - the hex md5sum of the link's URI (set automatically)
+
+=head1 RELATIONSHIPS
+
+=head2 entries
+
+Every link has_many Rubric::Entries, available with the normal methods,
+including C<entries>.
+
+=head3 entry_count
+
+This method returns the number of entries that refer to this link.
+
+=head3 tags_counted
+
+This returns an arrayref of arrayrefs, each containing a tag name and the
+number of entries for this link tagged with that tag.  The pairs are sorted in
+colation order by tag name.
+
+=head1 INFLATIONS
+
+=head2 uri
+
+The uri column inflates to a URI object.
+
+=head1 METHODS
+
+=head2 stringify_self
+
+This method returns the link's URI as a string, and is teh default
+stringification for Rubric::Link objects.
 
 =head1 AUTHOR
 
-Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+Ricardo SIGNES <rjbs@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to C<bug-rubric@rt.cpan.org>, or
-through the web interface at L<http://rt.cpan.org>. I will be notified, and
-then you'll automatically be notified of progress on your bug as I make
-changes.
+This software is copyright (c) 2004 by Ricardo SIGNES.
 
-=head1 COPYRIGHT
-
-Copyright 2004 Ricardo SIGNES.  This program is free software;  you can
-redistribute it and/or modify it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1;

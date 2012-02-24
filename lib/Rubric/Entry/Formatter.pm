@@ -1,45 +1,15 @@
 use strict;
 use warnings;
 package Rubric::Entry::Formatter;
-our $VERSION = '0.149';
+{
+  $Rubric::Entry::Formatter::VERSION = '0.150';
+}
+# ABSTRACT: a base class for entry body formatters
 
-=head1 NAME
-
-Rubric::Entry::Formatter - a base class for entry body formatters
-
-=head1 VERSION
-
-version 0.149
-
-=head1 DESCRIPTION
-
-This class serves as a single point of dispatch for attempts to format entry
-bodies from their native format into rendered output.
-
-=cut
 
 use Carp ();
 use Rubric::Config;
 
-=head1 METHODS
-
-=head2 C< format >
-
-  my $formatted = Rubric::Entry::Formatter->format(\%arg);
-
-This method accepts a set of named arguments and returns formatted output in
-the requested format.  If it is unable to do so, it throws an exception.
-
-Valid arguments are:
-
- markup - the markup format used to mark up the text (default: _default)
- text   - the text that has been marked up and should be formatted (required)
- format - the requested output format (required)
-
-Formatting requests are dispatched according to the configuration in
-C<markup_formatter>.  
-
-=cut
 
 sub _load_formatter {
   my ($class, $formatter) = @_;
@@ -87,6 +57,43 @@ sub format {
   $formatter_code->($formatter, $arg, $config);
 }
 
+
+1;
+
+__END__
+=pod
+
+=head1 NAME
+
+Rubric::Entry::Formatter - a base class for entry body formatters
+
+=head1 VERSION
+
+version 0.150
+
+=head1 DESCRIPTION
+
+This class serves as a single point of dispatch for attempts to format entry
+bodies from their native format into rendered output.
+
+=head1 METHODS
+
+=head2 C< format >
+
+  my $formatted = Rubric::Entry::Formatter->format(\%arg);
+
+This method accepts a set of named arguments and returns formatted output in
+the requested format.  If it is unable to do so, it throws an exception.
+
+Valid arguments are:
+
+ markup - the markup format used to mark up the text (default: _default)
+ text   - the text that has been marked up and should be formatted (required)
+ format - the requested output format (required)
+
+Formatting requests are dispatched according to the configuration in
+C<markup_formatter>.  
+
 =head1 WRITING FORMATTERS
 
 Writing a formatter should be very simple; the interface is very simple,
@@ -106,24 +113,16 @@ Actually, the method is found and called via C<can>, so a suitably programmed
 module can respond to C<can> to allow it to render into all the format it likes
 -- or at least to claim to.
 
-=head1 TODO
-
 =head1 AUTHOR
 
-Ricardo SIGNES, C<< <rjbs@cpan.org> >>
+Ricardo SIGNES <rjbs@cpan.org>
 
-=head1 BUGS
+=head1 COPYRIGHT AND LICENSE
 
-Please report any bugs or feature requests to C<bug-rubric@rt.cpan.org>, or
-through the web interface at L<http://rt.cpan.org>. I will be notified, and
-then you'll automatically be notified of progress on your bug as I make
-changes.
+This software is copyright (c) 2004 by Ricardo SIGNES.
 
-=head1 COPYRIGHT
-
-Copyright 2005 Ricardo SIGNES.  This program is free software;  you can
-redistribute it and/or modify it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-1;
