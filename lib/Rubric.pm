@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric;
 {
-  $Rubric::VERSION = '0.150';
+  $Rubric::VERSION = '0.151';
 }
 # ABSTRACT: a notes and bookmarks manager with tagging
 
@@ -18,7 +18,7 @@ Rubric - a notes and bookmarks manager with tagging
 
 =head1 VERSION
 
-version 0.150
+version 0.151
 
 =head1 DESCRIPTION
 

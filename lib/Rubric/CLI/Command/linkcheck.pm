@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::CLI::Command::linkcheck;
 {
-  $Rubric::CLI::Command::linkcheck::VERSION = '0.150';
+  $Rubric::CLI::Command::linkcheck::VERSION = '0.151';
 }
 use base qw(Rubric::CLI::Command);
 # ABSTRACT: check validity of links in the database
@@ -39,7 +39,7 @@ Rubric::CLI::Command::linkcheck - check validity of links in the database
 
 =head1 VERSION
 
-version 0.150
+version 0.151
 
 =head1 AUTHOR
 

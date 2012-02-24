@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::WebApp::Login::Post;
 {
-  $Rubric::WebApp::Login::Post::VERSION = '0.150';
+  $Rubric::WebApp::Login::Post::VERSION = '0.151';
 }
 use base qw(Rubric::WebApp::Login);
 # ABSTRACT: process web login from query parameters
@@ -48,7 +48,7 @@ Rubric::WebApp::Login::Post - process web login from query parameters
 
 =head1 VERSION
 
-version 0.150
+version 0.151
 
 =head1 DESCRIPTION
 

@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::DBI;
 {
-  $Rubric::DBI::VERSION = '0.150';
+  $Rubric::DBI::VERSION = '0.151';
 }
 
 # ABSTRACT: Rubric's subclass of Class::DBI
@@ -47,7 +47,7 @@ Rubric::DBI - Rubric's subclass of Class::DBI
 
 =head1 VERSION
 
-version 0.150
+version 0.151
 
 =head1 DESCRIPTION
 

@@ -2,9 +2,9 @@ use strict;
 use warnings;
 package Rubric::EntryTag;
 {
-  $Rubric::EntryTag::VERSION = '0.150';
+  $Rubric::EntryTag::VERSION = '0.151';
 }
-# ABTRACT: a tag on an entry
+# ABSTRACT: a tag on an entry
 
 use String::TagString;
 
@@ -93,11 +93,11 @@ __END__
 
 =head1 NAME
 
-Rubric::EntryTag
+Rubric::EntryTag - a tag on an entry
 
 =head1 VERSION
 
-version 0.150
+version 0.151
 
 =head1 DESCRIPTION
 

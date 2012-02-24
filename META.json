@@ -32,6 +32,7 @@
             "Class::Accessor" : "0",
             "Class::DBI" : "0.96",
             "Class::DBI::AbstractSearch" : "0",
+            "Class::DBI::utf8" : "0",
             "Crypt::CBC" : "0",
             "DBI" : "0",
             "Date::Span" : "1.12",
@@ -85,7 +86,7 @@
          "web" : "https://github.com/rjbs/rubric"
       }
    },
-   "version" : "0.150",
+   "version" : "0.151",
    "x_Dist_Zilla" : {
       "plugins" : [
          {

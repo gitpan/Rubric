@@ -45,6 +45,7 @@ my %WriteMakefileArgs = (
     "Class::Accessor" => 0,
     "Class::DBI" => "0.96",
     "Class::DBI::AbstractSearch" => 0,
+    "Class::DBI::utf8" => 0,
     "Crypt::CBC" => 0,
     "DBI" => 0,
     "Date::Span" => "1.12",
@@ -74,7 +75,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.150",
+  "VERSION" => "0.151",
   "test" => {
     "TESTS" => "t/*.t t/www/*.t"
   }

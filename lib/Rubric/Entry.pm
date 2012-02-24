@@ -2,10 +2,12 @@ use strict;
 use warnings;
 package Rubric::Entry;
 {
-  $Rubric::Entry::VERSION = '0.150';
+  $Rubric::Entry::VERSION = '0.151';
 }
 use base qw(Rubric::DBI);
 # ABSTRACT: a single entry made by a user
+
+use Class::DBI::utf8;
 
 
 use Encode 2 qw(_utf8_on);
@@ -19,6 +21,8 @@ __PACKAGE__->table('entries');
 __PACKAGE__->columns(
   All => qw(id link username title description body created modified)
 );
+
+__PACKAGE__->utf8_columns(qw( title description body ));
 
 
 __PACKAGE__->has_a(link => 'Rubric::Link');
@@ -165,7 +169,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
-version 0.150
+version 0.151
 
 =head1 DESCRIPTION
 

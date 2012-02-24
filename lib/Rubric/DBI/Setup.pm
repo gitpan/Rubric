@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::DBI::Setup;
 {
-  $Rubric::DBI::Setup::VERSION = '0.150';
+  $Rubric::DBI::Setup::VERSION = '0.151';
 }
 # ABSTRACT: db initialization routines
 
@@ -551,7 +551,7 @@ Rubric::DBI::Setup - db initialization routines
 
 =head1 VERSION
 
-version 0.150
+version 0.151
 
 =head1 SYNOPSIS
 

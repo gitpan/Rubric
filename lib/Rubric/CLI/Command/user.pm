@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::CLI::Command::user;
 {
-  $Rubric::CLI::Command::user::VERSION = '0.150';
+  $Rubric::CLI::Command::user::VERSION = '0.151';
 }
 use base qw(Rubric::CLI::Command);
 # ABSTRACT: Rubric user management commands
@@ -87,7 +87,7 @@ Rubric::CLI::Command::user - Rubric user management commands
 
 =head1 VERSION
 
-version 0.150
+version 0.151
 
 =head1 AUTHOR
 

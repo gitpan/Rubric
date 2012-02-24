@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::Link;
 {
-  $Rubric::Link::VERSION = '0.150';
+  $Rubric::Link::VERSION = '0.151';
 }
 # ABSTRACT: a link (URI) against which entries have been made
 
@@ -83,7 +83,7 @@ Rubric::Link - a link (URI) against which entries have been made
 
 =head1 VERSION
 
-version 0.150
+version 0.151
 
 =head1 DESCRIPTION
 

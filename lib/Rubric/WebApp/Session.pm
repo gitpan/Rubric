@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::WebApp::Session;
 {
-  $Rubric::WebApp::Session::VERSION = '0.150';
+  $Rubric::WebApp::Session::VERSION = '0.151';
 }
 # ABSTRACT: the Rubric session plugin
 
@@ -88,7 +88,7 @@ sub set_cookie_payload {
 
 package Rubric::WebApp::Session::Object;
 {
-  $Rubric::WebApp::Session::Object::VERSION = '0.150';
+  $Rubric::WebApp::Session::Object::VERSION = '0.151';
 }
 
 
@@ -141,7 +141,7 @@ Rubric::WebApp::Session - the Rubric session plugin
 
 =head1 VERSION
 
-version 0.150
+version 0.151
 
 =head1 METHODS
 
