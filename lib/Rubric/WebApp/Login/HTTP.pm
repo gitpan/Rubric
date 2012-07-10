@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::WebApp::Login::HTTP;
 {
-  $Rubric::WebApp::Login::HTTP::VERSION = '0.151';
+  $Rubric::WebApp::Login::HTTP::VERSION = '0.152';
 }
 use base qw(Rubric::WebApp::Login);
 # ABSTRACT: process web login from HTTP authentication
@@ -24,7 +24,7 @@ Rubric::WebApp::Login::HTTP - process web login from HTTP authentication
 
 =head1 VERSION
 
-version 0.151
+version 0.152
 
 =head1 DESCRIPTION
 

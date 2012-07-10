@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::Entry::Formatter::Nil;
 {
-  $Rubric::Entry::Formatter::Nil::VERSION = '0.151';
+  $Rubric::Entry::Formatter::Nil::VERSION = '0.152';
 }
 # ABSTRACT: format entries by formatting nearly not at all
 
@@ -35,7 +35,7 @@ Rubric::Entry::Formatter::Nil - format entries by formatting nearly not at all
 
 =head1 VERSION
 
-version 0.151
+version 0.152
 
 =head1 DESCRIPTION
 

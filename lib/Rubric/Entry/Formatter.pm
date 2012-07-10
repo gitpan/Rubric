@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::Entry::Formatter;
 {
-  $Rubric::Entry::Formatter::VERSION = '0.151';
+  $Rubric::Entry::Formatter::VERSION = '0.152';
 }
 # ABSTRACT: a base class for entry body formatters
 
@@ -69,7 +69,7 @@ Rubric::Entry::Formatter - a base class for entry body formatters
 
 =head1 VERSION
 
-version 0.151
+version 0.152
 
 =head1 DESCRIPTION
 

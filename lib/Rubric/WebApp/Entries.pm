@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::WebApp::Entries;
 {
-  $Rubric::WebApp::Entries::VERSION = '0.151';
+  $Rubric::WebApp::Entries::VERSION = '0.152';
 }
 # ABSTRACT:  process the /entries run method
 
@@ -176,7 +176,7 @@ Rubric::WebApp::Entries - process the /entries run method
 
 =head1 VERSION
 
-version 0.151
+version 0.152
 
 =head1 DESCRIPTION
 

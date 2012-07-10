@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::WebApp::Session;
 {
-  $Rubric::WebApp::Session::VERSION = '0.151';
+  $Rubric::WebApp::Session::VERSION = '0.152';
 }
 # ABSTRACT: the Rubric session plugin
 
@@ -57,9 +57,11 @@ sub get_cookie_payload {
 
   return __empty unless my $cookie_value = $self->query->cookie($COOKIE_NAME);
 
+  my $cipherer = $self->session_cipherer;
+
   my $data = eval {
     JSON->new->utf8->decode(
-      $self->session_cipherer->decrypt(decode_base64($cookie_value))
+      $cipherer->decrypt(decode_base64($cookie_value))
     );
   };
 
@@ -88,7 +90,7 @@ sub set_cookie_payload {
 
 package Rubric::WebApp::Session::Object;
 {
-  $Rubric::WebApp::Session::Object::VERSION = '0.151';
+  $Rubric::WebApp::Session::Object::VERSION = '0.152';
 }
 
 
@@ -141,7 +143,7 @@ Rubric::WebApp::Session - the Rubric session plugin
 
 =head1 VERSION
 
-version 0.151
+version 0.152
 
 =head1 METHODS
 

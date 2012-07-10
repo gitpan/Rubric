@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::WebApp;
 {
-  $Rubric::WebApp::VERSION = '0.151';
+  $Rubric::WebApp::VERSION = '0.152';
 }
 # ABSTRACT: the web interface to Rubric
 
@@ -51,7 +51,7 @@ sub cgiapp_init {
   my $login_class = Rubric::Config->login_class;
 
   ## no critic (StringyEval)
-  eval "require $login_class";
+  eval("require $login_class; 1") or die;
   ## use critic
   $login_class->check_for_login($self);
 }
@@ -844,7 +844,7 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.151
+version 0.152
 
 =head1 SYNOPSIS
 

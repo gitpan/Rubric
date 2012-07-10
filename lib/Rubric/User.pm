@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::User;
 {
-  $Rubric::User::VERSION = '0.151';
+  $Rubric::User::VERSION = '0.152';
 }
 # ABSTRACT: a Rubric user
 
@@ -220,7 +220,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
-version 0.151
+version 0.152
 
 =head1 DESCRIPTION
 

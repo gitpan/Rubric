@@ -20,6 +20,7 @@ my %WriteMakefileArgs = (
     "File::Path" => 0,
     "HTTP::Server::Simple" => "0.08",
     "HTTP::Server::Simple::CGI" => 0,
+    "Test::File::ShareDir" => 0,
     "Test::HTTP::Server::Simple" => "0.02",
     "Test::More" => "0.96",
     "Test::WWW::Mechanize" => "1.04"
@@ -47,6 +48,7 @@ my %WriteMakefileArgs = (
     "Class::DBI::AbstractSearch" => 0,
     "Class::DBI::utf8" => 0,
     "Crypt::CBC" => 0,
+    "Crypt::Rijndael" => 0,
     "DBI" => 0,
     "Date::Span" => "1.12",
     "DateTime" => 0,
@@ -75,7 +77,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.151",
+  "VERSION" => "0.152",
   "test" => {
     "TESTS" => "t/*.t t/www/*.t"
   }
@@ -100,8 +102,10 @@ delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
 
 WriteMakefile(%WriteMakefileArgs);
 
+{
 package
 MY;
 use File::ShareDir::Install qw(postamble);
+}
 
 

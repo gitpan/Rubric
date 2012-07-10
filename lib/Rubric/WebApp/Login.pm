@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::WebApp::Login;
 {
-  $Rubric::WebApp::Login::VERSION = '0.151';
+  $Rubric::WebApp::Login::VERSION = '0.152';
 }
 # ABSTRACT: web login processing
 
@@ -66,7 +66,7 @@ Rubric::WebApp::Login - web login processing
 
 =head1 VERSION
 
-version 0.151
+version 0.152
 
 =head1 DESCRIPTION
 

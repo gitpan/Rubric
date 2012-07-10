@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::CLI;
 {
-  $Rubric::CLI::VERSION = '0.151';
+  $Rubric::CLI::VERSION = '0.152';
 }
 use base qw(App::Cmd);
 
@@ -19,7 +19,7 @@ Rubric::CLI - the Rubric command line interface
 
 =head1 VERSION
 
-version 0.151
+version 0.152
 
 =head1 AUTHOR
 
