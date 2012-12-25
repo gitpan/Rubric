@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::DBI::Setup;
 {
-  $Rubric::DBI::Setup::VERSION = '0.152';
+  $Rubric::DBI::Setup::VERSION = '0.153';
 }
 # ABSTRACT: db initialization routines
 
@@ -541,8 +541,6 @@ sub update_schema {
 
 1;
 
-
-
 =pod
 
 =head1 NAME
@@ -551,7 +549,7 @@ Rubric::DBI::Setup - db initialization routines
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 SYNOPSIS
 
@@ -605,7 +603,6 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
 
 __DATA__
 CREATE TABLE links (

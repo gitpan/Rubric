@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::Link;
 {
-  $Rubric::Link::VERSION = '0.152';
+  $Rubric::Link::VERSION = '0.153';
 }
 # ABSTRACT: a link (URI) against which entries have been made
 
@@ -75,6 +75,7 @@ sub _set_md5 {
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -83,7 +84,7 @@ Rubric::Link - a link (URI) against which entries have been made
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 DESCRIPTION
 
@@ -138,4 +139,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

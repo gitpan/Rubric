@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::Entry::Formatter::HTMLEscape;
 {
-  $Rubric::Entry::Formatter::HTMLEscape::VERSION = '0.152';
+  $Rubric::Entry::Formatter::HTMLEscape::VERSION = '0.153';
 }
 # ABSTRACT: format into HTML by escaping entities
 
@@ -36,6 +36,7 @@ sub as_text {
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -44,7 +45,7 @@ Rubric::Entry::Formatter::HTMLEscape - format into HTML by escaping entities
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 DESCRIPTION
 
@@ -68,4 +69,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

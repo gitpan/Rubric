@@ -54,7 +54,7 @@ my %WriteMakefileArgs = (
     "DateTime" => 0,
     "Digest::MD5" => 0,
     "Email::Address" => 0,
-    "Email::Send" => 0,
+    "Email::Sender::Simple" => 0,
     "Encode" => 2,
     "File::ShareDir" => 0,
     "File::Spec" => 0,
@@ -77,7 +77,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.152",
+  "VERSION" => "0.153",
   "test" => {
     "TESTS" => "t/*.t t/www/*.t"
   }

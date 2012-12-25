@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::EntryTag;
 {
-  $Rubric::EntryTag::VERSION = '0.152';
+  $Rubric::EntryTag::VERSION = '0.153';
 }
 # ABSTRACT: a tag on an entry
 
@@ -89,6 +89,7 @@ sub stringify_self {
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -97,7 +98,7 @@ Rubric::EntryTag - a tag on an entry
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 DESCRIPTION
 
@@ -145,4 +146,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::WebApp;
 {
-  $Rubric::WebApp::VERSION = '0.152';
+  $Rubric::WebApp::VERSION = '0.153';
 }
 # ABSTRACT: the web interface to Rubric
 
@@ -18,7 +18,7 @@ use HTML::TagCloud;
 use DateTime;
 
 use Email::Address;
-use Email::Send;
+use Email::Sender::Simple qw(sendmail);
 
 use Rubric::Config;
 use Rubric::Entry;
@@ -551,7 +551,8 @@ sub send_reset_email_to {
     { user => $user, email_from => Rubric::Config->email_from }
   );
 
-  send SMTP => $message => Rubric::Config->smtp_server;
+  # XXX: This now ignores the smtp_server config.
+  sendmail($message);
 }
 
 
@@ -564,7 +565,8 @@ sub send_verification_email_to {
     { user => $user, email_from => Rubric::Config->email_from }
   );
 
-  send SMTP => $message => Rubric::Config->smtp_server;
+  # XXX: This now ignores the smtp_server config.
+  sendmail($message);
 }
 
 
@@ -836,6 +838,7 @@ sub style {
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -844,7 +847,7 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 SYNOPSIS
 
@@ -1151,4 +1154,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

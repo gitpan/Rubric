@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::Config;
 {
-  $Rubric::Config::VERSION = '0.152';
+  $Rubric::Config::VERSION = '0.153';
 }
 use base qw(Class::Accessor);
 # ABSTRACT: the configuration data for a Rubric
@@ -69,6 +69,7 @@ __PACKAGE__->mk_ro_accessors(keys %$default);
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -77,7 +78,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 DESCRIPTION
 
@@ -240,4 +241,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

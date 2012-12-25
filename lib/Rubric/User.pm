@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::User;
 {
-  $Rubric::User::VERSION = '0.152';
+  $Rubric::User::VERSION = '0.153';
 }
 # ABSTRACT: a Rubric user
 
@@ -212,6 +212,7 @@ sub randomize_verification_code {
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -220,7 +221,7 @@ Rubric::User - a Rubric user
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 DESCRIPTION
 
@@ -335,4 +336,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

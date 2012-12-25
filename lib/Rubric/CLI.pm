@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::CLI;
 {
-  $Rubric::CLI::VERSION = '0.152';
+  $Rubric::CLI::VERSION = '0.153';
 }
 use base qw(App::Cmd);
 
@@ -11,6 +11,7 @@ use base qw(App::Cmd);
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -19,7 +20,7 @@ Rubric::CLI - the Rubric command line interface
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 AUTHOR
 
@@ -33,4 +34,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

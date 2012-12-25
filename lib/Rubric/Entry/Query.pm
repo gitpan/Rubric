@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::Entry::Query;
 {
-  $Rubric::Entry::Query::VERSION = '0.152';
+  $Rubric::Entry::Query::VERSION = '0.153';
 }
 # ABSTRACT: construct and execute a complex query
 
@@ -203,6 +203,7 @@ sub _unit_from_string {
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -211,7 +212,7 @@ Rubric::Entry::Query - construct and execute a complex query
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 DESCRIPTION
 
@@ -317,4 +318,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

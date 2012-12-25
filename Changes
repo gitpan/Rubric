@@ -1,5 +1,9 @@
 Revision history for Rubric
 
+0.153     2012-12-24 23:17:19 America/New_York
+          use Email::Sender, not Email::Send (breaks smtp_server config
+          for now)
+
 0.152     2012-07-10 16:29:38 America/New_York
           add a missing prereq, stop losing errors doing session decrypt
           (thanks for the report, Jan Dubois!)

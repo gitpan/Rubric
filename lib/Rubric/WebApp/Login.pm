@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::WebApp::Login;
 {
-  $Rubric::WebApp::Login::VERSION = '0.152';
+  $Rubric::WebApp::Login::VERSION = '0.153';
 }
 # ABSTRACT: web login processing
 
@@ -58,6 +58,7 @@ sub set_current_user {
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -66,7 +67,7 @@ Rubric::WebApp::Login - web login processing
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 DESCRIPTION
 
@@ -147,4 +148,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

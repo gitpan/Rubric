@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::Entry;
 {
-  $Rubric::Entry::VERSION = '0.152';
+  $Rubric::Entry::VERSION = '0.153';
 }
 use base qw(Rubric::DBI);
 # ABSTRACT: a single entry made by a user
@@ -161,6 +161,7 @@ sub tagstring {
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -169,7 +170,7 @@ Rubric::Entry - a single entry made by a user
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 DESCRIPTION
 
@@ -280,4 +281,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

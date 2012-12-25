@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::WebApp::Entries;
 {
-  $Rubric::WebApp::Entries::VERSION = '0.152';
+  $Rubric::WebApp::Entries::VERSION = '0.153';
 }
 # ABSTRACT:  process the /entries run method
 
@@ -168,6 +168,7 @@ sub arg_for_urimd5 {
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -176,7 +177,7 @@ Rubric::WebApp::Entries - process the /entries run method
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 DESCRIPTION
 
@@ -259,4 +260,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

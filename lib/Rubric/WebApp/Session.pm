@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::WebApp::Session;
 {
-  $Rubric::WebApp::Session::VERSION = '0.152';
+  $Rubric::WebApp::Session::VERSION = '0.153';
 }
 # ABSTRACT: the Rubric session plugin
 
@@ -90,7 +90,7 @@ sub set_cookie_payload {
 
 package Rubric::WebApp::Session::Object;
 {
-  $Rubric::WebApp::Session::Object::VERSION = '0.152';
+  $Rubric::WebApp::Session::Object::VERSION = '0.153';
 }
 
 
@@ -135,6 +135,7 @@ sub as_hash {
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -143,7 +144,7 @@ Rubric::WebApp::Session - the Rubric session plugin
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 METHODS
 
@@ -205,4 +206,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

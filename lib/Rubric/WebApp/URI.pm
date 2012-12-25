@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::WebApp::URI;
 {
-  $Rubric::WebApp::URI::VERSION = '0.152';
+  $Rubric::WebApp::URI::VERSION = '0.153';
 }
 # ABSTRACT: URIs for Rubric web requests
 
@@ -131,6 +131,7 @@ sub doc {
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -139,7 +140,7 @@ Rubric::WebApp::URI - URIs for Rubric web requests
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 DESCRIPTION
 
@@ -227,4 +228,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::DBI;
 {
-  $Rubric::DBI::VERSION = '0.152';
+  $Rubric::DBI::VERSION = '0.153';
 }
 
 # ABSTRACT: Rubric's subclass of Class::DBI
@@ -39,6 +39,7 @@ sub vacuum {
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -47,7 +48,7 @@ Rubric::DBI - Rubric's subclass of Class::DBI
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 DESCRIPTION
 
@@ -73,4 +74,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

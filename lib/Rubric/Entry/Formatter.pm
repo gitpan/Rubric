@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::Entry::Formatter;
 {
-  $Rubric::Entry::Formatter::VERSION = '0.152';
+  $Rubric::Entry::Formatter::VERSION = '0.153';
 }
 # ABSTRACT: a base class for entry body formatters
 
@@ -61,6 +61,7 @@ sub format {
 1;
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -69,7 +70,7 @@ Rubric::Entry::Formatter - a base class for entry body formatters
 
 =head1 VERSION
 
-version 0.152
+version 0.153
 
 =head1 DESCRIPTION
 
@@ -125,4 +126,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
