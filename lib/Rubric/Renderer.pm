@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::Renderer;
 {
-  $Rubric::Renderer::VERSION = '0.153';
+  $Rubric::Renderer::VERSION = '0.154';
 }
 # ABSTRACT: the rendering interface for Rubric
 
@@ -83,7 +83,7 @@ Rubric::Renderer - the rendering interface for Rubric
 
 =head1 VERSION
 
-version 0.153
+version 0.154
 
 =head1 DESCRIPTION
 

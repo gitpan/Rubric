@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::Config;
 {
-  $Rubric::Config::VERSION = '0.153';
+  $Rubric::Config::VERSION = '0.154';
 }
 use base qw(Class::Accessor);
 # ABSTRACT: the configuration data for a Rubric
@@ -78,7 +78,7 @@ Rubric::Config - the configuration data for a Rubric
 
 =head1 VERSION
 
-version 0.153
+version 0.154
 
 =head1 DESCRIPTION
 

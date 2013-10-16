@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::Entry::Formatter::HTMLEscape;
 {
-  $Rubric::Entry::Formatter::HTMLEscape::VERSION = '0.153';
+  $Rubric::Entry::Formatter::HTMLEscape::VERSION = '0.154';
 }
 # ABSTRACT: format into HTML by escaping entities
 
@@ -45,7 +45,7 @@ Rubric::Entry::Formatter::HTMLEscape - format into HTML by escaping entities
 
 =head1 VERSION
 
-version 0.153
+version 0.154
 
 =head1 DESCRIPTION
 

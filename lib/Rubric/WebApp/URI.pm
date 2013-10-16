@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::WebApp::URI;
 {
-  $Rubric::WebApp::URI::VERSION = '0.153';
+  $Rubric::WebApp::URI::VERSION = '0.154';
 }
 # ABSTRACT: URIs for Rubric web requests
 
@@ -140,7 +140,7 @@ Rubric::WebApp::URI - URIs for Rubric web requests
 
 =head1 VERSION
 
-version 0.153
+version 0.154
 
 =head1 DESCRIPTION
 

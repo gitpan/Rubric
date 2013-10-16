@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::CLI::Command::commands;
 {
-  $Rubric::CLI::Command::commands::VERSION = '0.153';
+  $Rubric::CLI::Command::commands::VERSION = '0.154';
 }
 use base qw(App::Cmd::Command::commands);
 # ABSTRACT: list the rubric commands
@@ -19,7 +19,7 @@ Rubric::CLI::Command::commands - list the rubric commands
 
 =head1 VERSION
 
-version 0.153
+version 0.154
 
 =head1 AUTHOR
 

@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::WebApp;
 {
-  $Rubric::WebApp::VERSION = '0.153';
+  $Rubric::WebApp::VERSION = '0.154';
 }
 # ABSTRACT: the web interface to Rubric
 
@@ -847,7 +847,7 @@ Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.153
+version 0.154
 
 =head1 SYNOPSIS
 

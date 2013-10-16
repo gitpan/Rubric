@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::Entry::Query;
 {
-  $Rubric::Entry::Query::VERSION = '0.153';
+  $Rubric::Entry::Query::VERSION = '0.154';
 }
 # ABSTRACT: construct and execute a complex query
 
@@ -212,7 +212,7 @@ Rubric::Entry::Query - construct and execute a complex query
 
 =head1 VERSION
 
-version 0.153
+version 0.154
 
 =head1 DESCRIPTION
 

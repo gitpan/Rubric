@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Rubric::CLI::Command::db;
 {
-  $Rubric::CLI::Command::db::VERSION = '0.153';
+  $Rubric::CLI::Command::db::VERSION = '0.154';
 }
 use base qw(Rubric::CLI::Command);
 # ABSTRACT: database management
@@ -51,7 +51,7 @@ Rubric::CLI::Command::db - database management
 
 =head1 VERSION
 
-version 0.153
+version 0.154
 
 =head1 AUTHOR
 
