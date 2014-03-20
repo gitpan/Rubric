@@ -1,11 +1,51 @@
 use strict;
 use warnings;
 package Rubric::WebApp;
-{
-  $Rubric::WebApp::VERSION = '0.154';
-}
 # ABSTRACT: the web interface to Rubric
-
+$Rubric::WebApp::VERSION = '0.155';
+# =head1 SYNOPSIS
+#
+#  use strict;
+#  use warnings;
+#  use Rubric::WebApp;
+#  Rubric::WebApp->new->run();
+#
+# It's a CGI::Application!
+#
+# =head1 DESCRIPTION
+#
+# Rubric::WebApp provides a CGI-based interface to Rubric data.  It's built on
+# top of CGI::Application, which does most of the boring work.  This module's
+# code sets up the dispatch tables and implements the responses to various
+# queries.
+#
+# =head1 REQUESTS DISPATCH
+#
+# Requests are I<mostly> path-based, though some involve form submission.  The
+# basic dispatch table looks something like this:
+#
+#  request      | description                               | method called
+#  -------------+-------------------------------------------+--------------
+#  /login       | log in to a user account                  | login
+#  /logout      | log out                                   | logout
+#  /preferences | view or change account settings           | preferences
+#  /newuser     | create a new user account                 | newuser
+#  /verify      | verify a pending user account             | verify
+#  /link        | view the details of entries for a link    | link
+#  /post        | post or edit an entry (must be logged in) | post
+#  /edit        | edit an entry (must be logged in)         | edit
+#  /delete      | delete an entry (must be logged in)       | delete
+#  /entry/ENTRY | find and display the identified entry     | entry
+#  /entries/Q   | find and display results for query Q      | entries
+#  /~USER/TAGS  | see a user's entries for given tags       | (in flux)
+#  /doc/PAGE    | view the named page in the documentation  | doc
+#  /style/PAGE  | get the named style sheet                 | style
+#
+# If the system is private and no user is logged in, the default action is to
+# display a login screen.  If the system is public, or a user is logged in, the
+# default action is to display entries.
+#
+# =cut
 
 use CGI::Application 3;
 use base qw(CGI::Application);
@@ -28,6 +68,14 @@ use Rubric::WebApp::Session;
 
 use String::Truncate qw(elide);
 
+# =head1 METHODS
+#
+# =head2 redirect($uri, $message)
+#
+# This method simplifies redirection; it redirects to the given URI, printing the
+# given message as the body of the HTTP response.
+#
+# =cut
 
 sub redirect {
   my ($self, $uri, $message) = @_;
@@ -37,6 +85,11 @@ sub redirect {
   return $message;
 }
 
+# =head2 redirect_root($message)
+#
+# This is shorthand to redirect to the Rubric's root URI.  It calls C<redirect>.
+#
+# =cut
 
 sub redirect_root {
   my ($self, $message) = @_;
@@ -44,6 +97,12 @@ sub redirect_root {
   return $self->redirect(Rubric::Config->uri_root, $message);
 }
 
+# =head2 cgiapp_init
+#
+# This method is called during CGI::Application's initialization.  It sets up the
+# session configuration.
+#
+# =cut
 
 sub cgiapp_init {
   my ($self) = @_;
@@ -56,6 +115,13 @@ sub cgiapp_init {
   $login_class->check_for_login($self);
 }
 
+# =head2 cgiapp_prerun
+#
+# This method is called before the selected runmode.  It checks for a login,
+# checks for updates to result-set paging, and starts processing the request
+# path.
+#
+# =cut
 
 sub cgiapp_prerun {
   my ($self) = @_;
@@ -66,12 +132,26 @@ sub cgiapp_prerun {
   $self->param(path => [ @path[ 2 .. $#path ] ]);
 }
 
+# =head2 next_path_part
+#
+# This method shifts the next item off of the request path and returns it.
+#
+# =cut
 
 sub next_path_part {
   my ($self) = @_;
   shift @{$self->param('path')};
 }
 
+# =head2 check_pager_data
+#
+# This method is called by C<cgiapp_init>, and sets up parameters used for paging
+# entry listings.  The following parameters are used:
+#
+#  per_page - how many items per page; default 25, maximum 100; stored in session;
+#  page     - which page to display; default 1
+#
+# =cut
 
 sub check_pager_data {
   my ($self) = @_;
@@ -89,6 +169,21 @@ sub check_pager_data {
   $self->param('page',     int(($self->query->param('page') || 1)));
 }
 
+# =head2 template($template, \%variables)
+#
+# This method is used to render a template with both provided and default
+# variables.
+#
+# Templates are rendered by calling the C<process> method on the template
+# renderer, which is retrieved by calling the C<renderer> method on the WebApp.
+#
+# The following variables are passed by default:
+#
+#  current_user - the currently logged-in user (a Rubric::User object)
+#  per_page     - entries per page (see check_pager_data)
+#  page         - which page (see check_pager_data)
+#
+# =cut
 
 sub template {
   my ($self, $template, $stash) = @_;
@@ -107,6 +202,12 @@ sub template {
   return $output;
 }
 
+# =head2 setup
+#
+# This method, called by CGI::Application's initialization process, sets up
+# the dispatch table for requests, as described above.
+#
+# =cut
 
 sub setup {
   my ($self) = @_;
@@ -147,6 +248,12 @@ sub _entries_shortcut {
   $self->entries;
 }
 
+# =head2 entries
+#
+# This passes off responsibility to the class named in the C<entries_query_class>
+# configuration option.  This option defaults to Rubric::WebApp::Entries.
+#
+# =cut
 
 sub entries {
   my ($self) = @_;
@@ -158,6 +265,11 @@ sub entries {
   $entries_class->entries($self);
 }
 
+# =head2 entry
+#
+# This displays the single requested entry.
+#
+# =cut
 
 sub entry {
   my ($self) = @_;
@@ -180,6 +292,12 @@ sub entry {
   });
 }
 
+# =head2 get_entry
+#
+# This method gets the next part of the path, assumes it to be a Rubric::Entry
+# id, and puts the corresponding entry in the "entry" parameter.
+#
+# =cut
 
 sub get_entry {
   my ($self) = @_;
@@ -188,6 +306,12 @@ sub get_entry {
   $self->param(entry => $entry);
 }
 
+# =head2 link
+#
+# This runmode displays entries that point to a given link, identified either by
+# URI or MD5 sum.
+#
+# =cut
 
 sub link {
   my ($self) = @_;
@@ -195,6 +319,13 @@ sub link {
   $self->display_entries;
 }
 
+# =head2 get_link
+#
+# This method look for a C<uri> or, failing that, C<url> query parameter.  If
+# found, it finds a Rubric::Link for that URI and puts it in the "link"
+# parameter.
+#
+# =cut
 
 sub get_link {
   my ($self) = @_;
@@ -209,6 +340,9 @@ sub get_link {
   $self->param('link', $link);
 }
 
+# =head2 tag_cloud
+#
+# =cut
 
 sub tag_cloud {
   my ($self, $options) = @_;
@@ -233,6 +367,9 @@ sub tag_cloud {
 
 }
 
+# =head2 calendar
+#
+# =cut
 
 sub calendar {
   my ($self, $options) = @_;
@@ -336,6 +473,12 @@ sub calendar {
 
 }
 
+# =head2 login
+#
+# If the user is logged in, this request is immediately redirected to the root of
+# the Rubric site.  Otherwise, a login form is provided.
+#
+# =cut
 
 sub login {
   my ($self) = @_;
@@ -359,6 +502,12 @@ sub login {
   });
 }
 
+# =head2 logout
+#
+# This run mode unsets the "current_user" parameter in the session and the WebApp
+# object, then redirects the user to the root of the Rubric site.
+#
+# =cut
 
 sub logout {
   my ($self) = @_;
@@ -368,6 +517,12 @@ sub logout {
   return $self->redirect_root("Logged out...");
 }
 
+# =head2 reset_password
+#
+# This run mode allows a user to request that his password be reset and emailled
+# to him.
+#
+# =cut
 
 sub reset_password {
   my ($self) = @_;
@@ -388,6 +543,11 @@ sub reset_password {
 
 }
 
+# =head2 setup_reset_code
+#
+# This routine gets a reset code for the user and emails it to him.
+#
+# =cut
 
 sub setup_reset_code {
   my ($self, $user) = @_;
@@ -398,6 +558,12 @@ sub setup_reset_code {
   $self->template("reset_sent");
 }
 
+# =head2 preferences
+#
+# This method displays account information for the current user.  Some account
+# settings may be changed.
+#
+# =cut
 
 sub preferences {
   my ($self) = @_;
@@ -414,6 +580,12 @@ sub preferences {
   $self->update_user(\%prefs);
 }
 
+# =head2 update_user(\%prefs)
+#
+# This method will update the current user object with the changes in C<%prefs>,
+# which is passed by the C<preferences> method.
+#
+# =cut
 
 sub update_user {
   my ($self, $prefs) = @_;
@@ -435,7 +607,40 @@ sub _get_prefs_form {
   return %form;
 }
 
+# =head2 validate_prefs(\%prefs)
+#
+# Given a set of preference updates from a form submission, this method validates
+# them and returns a description of the validation results.  This method will
+# probably be redesigned (possibly with Data::FormValidator) in the future.
+# Don't count on its interface.
+#
+# =cut
 
+# =begin future
+#
+# sub validate_prefs {
+#   my ($self, $prefs) = @_;
+#   require Data::FormValidator;
+#
+#   my $profile = {
+#     required     => [qw(password)],
+#     optional     => [qw(password_1 password_2 email)],
+#     constraints  => {
+#       email => 'email',
+#       password_1 => {
+#         params     => [qw(password_1 password_2)],
+#         constraint => sub { $_[0] eq $_[1] },
+#       }
+#     },
+#     dependency_groups => { new_password => [qw(password_1 password_2)] }
+#   };
+#
+#   my $results = Data::FormValidator->check($prefs, $profile);
+# }
+#
+# =end future
+#
+# =cut
 
 sub validate_prefs {
   my ($self, $prefs) = @_;
@@ -468,6 +673,15 @@ sub validate_prefs {
   return %errors;
 }
 
+# =head2 newuser
+#
+# If the proper form information is present, this runmode creates a new user
+# account.  If not, it presents a form.
+#
+# If a user is already logged in, the user is redirected to the root of the
+# Rubric.
+#
+# =cut
 
 sub newuser {
   my ($self) = @_;
@@ -490,6 +704,14 @@ sub newuser {
   }
 }
 
+# =head2 validate_newuser_form(\%newuser)
+#
+# Given a set of user data from a form submission, this method validates them and
+# returns a description of the validation results.  This method will probably be
+# redesigned (possibly with Data::FormValidator) in the future.  Don't count on
+# its interface.
+#
+# =cut
 
 sub validate_newuser_form {
   my ($self, $newuser) = @_;
@@ -521,6 +743,12 @@ sub validate_newuser_form {
   return %errors;
 }
 
+# =head2 create_newuser(\%newuser)
+#
+# This method creates a new user account from the given description.  It sends
+# the user a validation email (if needed) and displays an account creation page.
+#
+# =cut
 
 sub create_newuser {
   my ($self, %newuser) = @_;
@@ -541,6 +769,11 @@ sub create_newuser {
   $self->template("account_created");
 }
 
+# =head2 send_reset_email_to($user)
+#
+# This method sends an email to the given user with a URI to reset his password.
+#
+# =cut
 
 sub send_reset_email_to {
   my ($self, $user) = @_;
@@ -555,6 +788,11 @@ sub send_reset_email_to {
   sendmail($message);
 }
 
+# =head2 send_verification_email_to($user)
+#
+# This method sends a verification email to the given user.
+#
+# =cut
 
 sub send_verification_email_to {
   my ($self, $user) = @_;
@@ -569,6 +807,12 @@ sub send_verification_email_to {
   sendmail($message);
 }
 
+# =head2 verify
+#
+# This runmode attempts to verify a user account.  It expects a request to be
+# in the form: C< /verify/username/verification_code >
+#
+# =cut
 
 sub verify {
   my ($self) = @_;
@@ -586,6 +830,12 @@ sub verify {
                               : $self->redirect_root("BAD USER NO VALIDATION");
 }
 
+# =head2 get_reset_code
+#
+# This gets the next part of the path and puts it in the C<reset_code>
+# parameter.
+#
+# =cut
 
 sub get_reset_code {
   my ($self) = @_;
@@ -593,6 +843,12 @@ sub get_reset_code {
   $self->param(reset_code => $self->next_path_part);
 }
 
+# =head2 get_verification_code
+#
+# This gets the next part of the path and puts it in the C<verification_code>
+# parameter.
+#
+# =cut
 
 sub get_verification_code {
   my ($self) = @_;
@@ -600,6 +856,11 @@ sub get_verification_code {
   $self->param(verification_code => $self->next_path_part);
 }
 
+# =head2 get_user
+#
+# This gets the next part of the path and puts it in the C<user> parameter.
+#
+# =cut
 
 sub get_user {
   my ($self) = @_;
@@ -607,6 +868,13 @@ sub get_user {
   $self->param(user => Rubric::User->retrieve($self->next_path_part) || '');
 }
 
+# =head2 display_entries
+#
+# This method searches (with Rubric::Entry) for entries matching the requested
+# user and tags.  It pages the result (with C<page_entries>) and renders the
+# resulting page with C<render_entries>.
+#
+# =cut
 
 sub display_entries {
   my ($self) = @_;
@@ -630,6 +898,17 @@ sub display_entries {
   $self->page_entries($entries)->render_entries;
 }
 
+# =head2 page_entries($iterator)
+#
+# Given a Class::DBI::Iterator, this method sets up parameters describing the
+# current page.  Most importantly, it retrieves an Iterator for the slice of
+# entries representing the current page.  The following parameters are set:
+#
+#  entries - a Class::DBI::Iterator for the current page's entries
+#  count   - the number of entries in the entire set
+#  pages   - the number of pages the set spans
+#
+# =cut
 
 sub page_entries {
   my ($self, $iterator) = @_;
@@ -647,6 +926,12 @@ sub page_entries {
   return $self;
 }
 
+# =head2 render_entries
+#
+# This method renders a template to display the set of entries set up by
+# C<page_entries>.
+#
+# =cut
 
 sub render_entries {
   my ($self, $options) = @_;
@@ -667,6 +952,12 @@ sub render_entries {
   });
 }
 
+# =head2 edit
+#
+# If the user isn't logged in, it redirects to demand a login.  If he is, it
+# displays a post form, completed with the given entry's data.
+#
+# =cut
 
 sub edit {
   my ($self) = @_;
@@ -682,6 +973,18 @@ sub edit {
   return $self->post_form();
 }
 
+# =head2 post
+#
+# This method wants to be simplified.
+#
+# If the user isn't logged in, it redirects to demand a login.  If he is, it
+# checks whether it can create a new entry.  If so, it tries to.  If not, it
+# displays a form for doing so.  If the user already has an entry for the given
+# URI, the existing entry is passed to the form renderer.
+#
+# If a new entry is created, the user is redirected to his entry listing.
+#
+# =cut
 
 sub _post_form_contents {
   my ($self) = @_;
@@ -759,6 +1062,11 @@ sub post {
   $self->redirect( $goto, "Posted..." );
 }
 
+# =head2 post_form
+#
+# This method renders a form for the user to create a new entry.
+#
+# =cut
 
 sub post_form {
   my ($self, $form, $error) = @_;
@@ -774,6 +1082,16 @@ sub post_form {
   });
 }
 
+# =head2 delete
+#
+# This method wants to be simplified.  It's largely copied from C<post>.
+#
+# If the user isn't logged in, it redirects to demand a login.  If he is, it
+# checks whether the user has an entry for the given URI.  If so, it's deleted.
+#
+# Either way, the user is redirected to his entry listing.
+#
+# =cut
 
 sub delete {
   my ($self) = @_;
@@ -794,6 +1112,11 @@ sub delete {
   return $self->redirect( $goto, "Deleted..." );
 }
 
+# =head2 doc
+#
+# This runmode returns a mostly-static document from the template path.
+#
+# =cut
 
 sub doc {
   my ($self) = @_;
@@ -805,6 +1128,11 @@ sub doc {
   return $output ? $output : $self->redirect_root("no such document");
 }
 
+# =head2 get_doc
+#
+# This gets the next part of the path and puts it in the C<doc_page> parameter.
+#
+# =cut
 
 sub get_doc {
   my ($self) = @_;
@@ -814,6 +1142,11 @@ sub get_doc {
                                     : ();
 }
 
+# =head2 style
+#
+# This runmode sends the named stylesheet from the CSS path.
+#
+# =cut
 
 sub style {
   my ($self) = @_;
@@ -841,13 +1174,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Rubric::WebApp - the web interface to Rubric
 
 =head1 VERSION
 
-version 0.154
+version 0.155
 
 =head1 SYNOPSIS
 

@@ -1,11 +1,15 @@
 use strict;
 use warnings;
 package Rubric::WebApp::Entries;
-{
-  $Rubric::WebApp::Entries::VERSION = '0.154';
-}
 # ABSTRACT:  process the /entries run method
-
+$Rubric::WebApp::Entries::VERSION = '0.155';
+# =head1 DESCRIPTION
+#
+# Rubric::WebApp::Entries implements a URI parser that builds a query based
+# on a query URI, passes it to Rubric::Entries, and returns the rendered report
+# on the results.
+#
+# =cut
 
 use Date::Span 1.12;
 use Digest::MD5 qw(md5_hex);
@@ -15,6 +19,14 @@ use Rubric::Entry;
 use Rubric::Renderer;
 use Rubric::WebApp::URI;
 
+# =head1 METHODS
+#
+# =head2 entries($webapp)
+#
+# This method is called by Rubric::WebApp.  It returns the rendered template for
+# return to the user's browser.
+#
+# =cut
 
 sub entries {
 	my ($self, $webapp) = @_;
@@ -49,6 +61,11 @@ sub entries {
 	$webapp->page_entries($entries)->render_entries(\%arg);
 }
 
+# =head2 describe_query(\%arg)
+#
+# returns a human-readable description of the query described by C<%args>
+#
+# =cut
 
 sub describe_query {
 	my ($self, $arg) = @_;
@@ -81,6 +98,14 @@ sub describe_query {
 	return $desc;
 }
 
+# =head2 get_arg($param => $value)
+#
+# Given a name/value pair from the path, this method will attempt to
+# generate part of hash to send to << Rubric::Entry->query >>.  To do this, it
+# looks for and calls a method called "arg_for_NAME" where NAME is the passed
+# value of C<$param>.  If no clause can be generated, it returns undef.
+#
+# =cut
 
 sub get_arg {
 	my ($self, $param, $value) = @_;
@@ -89,6 +114,17 @@ sub get_arg {
 	$code->($self, $value);
 }
 
+# =head2 arg_for_NAME
+#
+# Each of these functions returns the proper value to put in the hash passed to
+# C<< Rubric::Entries->query >>.  If given an invalid argument, they will return
+# undef.
+#
+# =head3 arg_for_user($username)
+#
+# Given a username, this method returns the associated Rubric::User object.
+#
+# =cut
 
 sub arg_for_user {
 	my ($self, $user) = @_;
@@ -96,6 +132,13 @@ sub arg_for_user {
 	return Rubric::User->retrieve($user) || ();
 }
 
+# =head3 arg_for_tags($tagstring)
+#
+# =head3 arg_for_exact_tags($tagstring)
+#
+# Given "happy fuzzy bunnies" this returns C< [ qw(happy fuzzy bunnies) ] >
+#
+# =cut
 
 sub arg_for_tags {
 	my ($self, $tagstring) = @_;
@@ -107,42 +150,72 @@ sub arg_for_tags {
 
 sub arg_for_exact_tags { (shift)->arg_for_tags(@_) }
 
+# =head3 arg_for_desc_like
+#
+# =cut
 
 sub arg_for_desc_like {
 	my ($self, $value) = @_;
 	return $value;
 }
 
+# =head3 arg_for_body_like
+#
+# =cut
 
 sub arg_for_body_like {
 	my ($self, $value) = @_;
 	return $value;
 }
 
+# =head3 arg_for_like
+#
+# =cut
 
 sub arg_for_like {
 	my ($self, $value) = @_;
 	return $value;
 }
 
+# =head3 arg_for_has_body($bool)
+#
+# Returns the given boolean as 0 or 1.
+#
+# =cut
 
 sub arg_for_has_body {
 	my ($self, $bool) = @_;
 	return $bool ? 1 : 0;
 }
 
+# =head3 arg_for_has_link($bool)
+#
+# Returns the given boolean as 0 or 1.
+#
+# =cut
 
 sub arg_for_has_link {
 	my ($self, $bool) = @_;
 	return $bool ? 1 : 0;
 }
 
+# =head3 arg_for_first_only($bool)
+#
+# Returns the given boolean as 0 or 1.
+#
+# =cut
 
 sub arg_for_first_only {
 	my ($self, $bool) = @_;
 	return $bool ? 1 : 0;
 }
 
+# =head3 arg_for_urimd5($md5sum)
+#
+# This method returns the passed value, if that value is a valid 32-character
+# md5sum.
+#
+# =cut
 
 sub arg_for_urimd5 {
 	my ($self, $md5) = @_;
@@ -150,6 +223,13 @@ sub arg_for_urimd5 {
 	return $md5;
 }
 
+# =head3 arg_for_{timefield}_{preposition}($datetime)
+#
+# These methods correspond to those described in L<Rubric::Entry::Query>.
+#
+# They return the passed string unchanged.
+#
+# =cut
 
 ## more date-arg handling code
 {
@@ -171,13 +251,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Rubric::WebApp::Entries - process the /entries run method
 
 =head1 VERSION
 
-version 0.154
+version 0.155
 
 =head1 DESCRIPTION
 

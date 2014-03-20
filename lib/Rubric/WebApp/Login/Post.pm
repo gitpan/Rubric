@@ -1,14 +1,26 @@
 use strict;
 use warnings;
 package Rubric::WebApp::Login::Post;
-{
-  $Rubric::WebApp::Login::Post::VERSION = '0.154';
-}
-use base qw(Rubric::WebApp::Login);
 # ABSTRACT: process web login from query parameters
+$Rubric::WebApp::Login::Post::VERSION = '0.155';
+use parent qw(Rubric::WebApp::Login);
 
 use Digest::MD5 qw(md5_hex);
 
+# =head1 DESCRIPTION
+#
+# This module checks the submitted query for information needed to confirm that a
+# user is logged into the Rubric.
+#
+# =head1 METHODS
+#
+# =head2 get_login_username
+#
+# This checks for the username in a current login request.  First it checks
+# whether there is a C<current_user> value in this session.  If not, it looks for
+# a C<user> query parameter.
+#
+# =cut
 
 sub get_login_username {
 	my ($class, $webapp) = @_;
@@ -16,6 +28,13 @@ sub get_login_username {
 	$webapp->session->param('current_user') || $webapp->query->param('user');
 }
 
+# =head2 authenticate_login($webapp, $user)
+#
+# This returns true if the username came from the session.  Otherwise, it checks
+# for a C<password> query parameter and compares its md5sum against the user's
+# stored password md5sum.
+#
+# =cut
 
 sub authenticate_login {
 	my ($self, $webapp, $user) = @_;
@@ -29,6 +48,12 @@ sub authenticate_login {
 	return (md5_hex($password) eq $user->password);
 }
 
+# =head2 set_current_user($webapp, $user)
+#
+# This method sets the current user in the session and then calls the superclass
+# C<set_current_user>.
+#
+# =cut
 
 sub set_current_user {
 	my ($self, $webapp, $user) = @_;
@@ -43,13 +68,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Rubric::WebApp::Login::Post - process web login from query parameters
 
 =head1 VERSION
 
-version 0.154
+version 0.155
 
 =head1 DESCRIPTION
 

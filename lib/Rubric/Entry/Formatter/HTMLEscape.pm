@@ -1,14 +1,23 @@
 use strict;
 use warnings;
 package Rubric::Entry::Formatter::HTMLEscape;
-{
-  $Rubric::Entry::Formatter::HTMLEscape::VERSION = '0.154';
-}
 # ABSTRACT: format into HTML by escaping entities
-
+$Rubric::Entry::Formatter::HTMLEscape::VERSION = '0.155';
+# =head1 DESCRIPTION
+#
+# This formatter only handles formatting to HTML, and outputs the original
+# content with HTML-unsafe characters escaped and paragraphs broken.
+#
+# This is equivalent to filtering with Template::Filters' C<html> and
+# C<html_para> filters.
+#
+# =cut
 
 use Template::Filters;
 
+# =head1 METHODS
+#
+# =cut
 
 my ($filter, $html, $para);
 {
@@ -39,13 +48,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Rubric::Entry::Formatter::HTMLEscape - format into HTML by escaping entities
 
 =head1 VERSION
 
-version 0.154
+version 0.155
 
 =head1 DESCRIPTION
 

@@ -1,17 +1,32 @@
 use strict;
 use warnings;
 package Rubric::DBI::Setup;
-{
-  $Rubric::DBI::Setup::VERSION = '0.154';
-}
 # ABSTRACT: db initialization routines
-
+$Rubric::DBI::Setup::VERSION = '0.155';
+# =head1 SYNOPSIS
+#
+#  use strict;
+#  use warnings;
+#
+#  use Rubric::DBI::Setup;
+#  Rubric::DBI::Setup->setup_tables;
+#
+# =head1 DESCRIPTION
+#
+# =cut
 
 use DBI;
 use Rubric::Config;
 use Rubric::Entry;
 use Rubric::Renderer;
 
+# =head1 METHODS
+#
+# =head2 dbh
+#
+# This method returns a connection to the Rubric database.
+#
+# =cut
 
 my $dbh;
 
@@ -25,6 +40,11 @@ sub dbh {
 	);
 }
 
+# =head2 setup_tables
+#
+# This method builds the tables in the database, if needed.
+#
+# =cut
 
 sub setup_tables {
 	my ($class) = @_;
@@ -33,6 +53,11 @@ sub setup_tables {
   $class->dbh->do( $class->specialize_sql($_) ) for <DATA>;
 }
 
+# =head2 specialize_sql
+#
+# attempts to convert the given sql syntax to the given DBD Driver's
+#
+# =cut
 
 sub specialize_sql {
   my ($class, $query) = @_;
@@ -46,6 +71,13 @@ sub specialize_sql {
   return $query;
 }
 
+# =head2 determine_version
+#
+# This attempts to determine the version of the database schema to which the
+# given database conforms.  All recent schemata store their version number; for
+# older versions, some simple table attributes are checked.
+#
+# =cut
 
 sub _columns {
 	my ($class, $query) = @_;
@@ -87,6 +119,12 @@ sub determine_version {
 	return;
 }
 
+# =head2 determine_db_type
+#
+# Returns the type of db being used, based on the DSN's DBD driver.
+# SQLite and Pg support only right now.
+#
+# =cut
 
 sub determine_db_type {
 	my ($class) = @_;
@@ -98,6 +136,12 @@ sub determine_db_type {
   return $db_type;
 }
 
+# =head2 update_schema
+#
+# This method will try to upgrade the database to the most recent schema.  It's
+# sort of ugly, but it works...
+#
+# =cut
 
 my %from;
 
@@ -543,13 +587,15 @@ sub update_schema {
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Rubric::DBI::Setup - db initialization routines
 
 =head1 VERSION
 
-version 0.154
+version 0.155
 
 =head1 SYNOPSIS
 

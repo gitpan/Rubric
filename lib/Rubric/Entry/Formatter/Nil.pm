@@ -1,14 +1,21 @@
 use strict;
 use warnings;
 package Rubric::Entry::Formatter::Nil;
-{
-  $Rubric::Entry::Formatter::Nil::VERSION = '0.154';
-}
 # ABSTRACT: format entries by formatting nearly not at all
-
+$Rubric::Entry::Formatter::Nil::VERSION = '0.155';
+# =head1 DESCRIPTION
+#
+# This is the default formatter.  The only formatting it performs is done by
+# Template::Filters' C<html_para> filter.  Paragraph breaks will be
+# retained from plaintext into HTML, but nothing else will be done.
+#
+# =cut
 
 use Template::Filters;
 
+# =head1 METHODS
+#
+# =cut
 
 my $filter = Template::Filters->new->fetch('html_para');
 
@@ -30,13 +37,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Rubric::Entry::Formatter::Nil - format entries by formatting nearly not at all
 
 =head1 VERSION
 
-version 0.154
+version 0.155
 
 =head1 DESCRIPTION
 

@@ -1,11 +1,9 @@
 use strict;
 use warnings;
 package Rubric::CLI::Command::user;
-{
-  $Rubric::CLI::Command::user::VERSION = '0.154';
-}
-use base qw(Rubric::CLI::Command);
 # ABSTRACT: Rubric user management commands
+$Rubric::CLI::Command::user::VERSION = '0.155';
+use parent qw(Rubric::CLI::Command);
 
 use Digest::MD5 qw(md5_hex);
 use Rubric::User;
@@ -82,13 +80,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Rubric::CLI::Command::user - Rubric user management commands
 
 =head1 VERSION
 
-version 0.154
+version 0.155
 
 =head1 AUTHOR
 

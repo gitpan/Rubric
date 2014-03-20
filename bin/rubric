@@ -11,13 +11,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 rubric - the Rubric command line interface
 
 =head1 VERSION
 
-version 0.154
+version 0.155
 
 =head1 AUTHOR
 

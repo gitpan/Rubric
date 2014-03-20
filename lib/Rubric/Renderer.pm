@@ -1,11 +1,14 @@
 use strict;
 use warnings;
 package Rubric::Renderer;
-{
-  $Rubric::Renderer::VERSION = '0.154';
-}
 # ABSTRACT: the rendering interface for Rubric
-
+$Rubric::Renderer::VERSION = '0.155';
+# =head1 DESCRIPTION
+#
+# Rubric::Renderer provides a simple interface for rendering entries, entry sets,
+# and other things collected by Rubric::WebApp.
+#
+# =cut
 
 use Carp;
 use File::ShareDir;
@@ -16,6 +19,19 @@ use Rubric::Config;
 use Template 2.00;
 use Template::Filters;
 
+# =head1 METHODS
+#
+# =head2 register_type($type => \%arg)
+#
+# This method registers a format type by providing a little data needed to render
+# to it.  The hashref of arguments must include C<content_type>, used to set the
+# MIME type of the returned ouput; and C<extension>, used to find the primary
+# template.
+#
+# This method returns a Template object, which is registered as the renderer for
+# this type.  This return value may change in the future.
+#
+# =cut
 
 my %renderer;
 
@@ -38,6 +54,17 @@ __PACKAGE__->register_type(@$_) for (
   [ api  => { content_type => 'text/xml',            extension => 'api'  } ],
 );
 
+# =head2 process($template, $type, \%stash)
+#
+# This method renders the named template using the registered renderer for the
+# given type, using the passed stash variables.
+#
+# The type must be rendered with Rubric::Renderer before this method is called.
+#
+# In list context, this method returns the content type and output document as a
+# two-element list.  In scalar context, it returns the output document.
+#
+# =cut
 
 my $xml_escape = sub {
   for (shift) {
@@ -57,6 +84,7 @@ sub process {
   $stash->{xml_escape} = $xml_escape;
   $stash->{version}    = Rubric->VERSION || 0;
   $stash->{widget}     = HTML::Widget::Factory->new;
+  $stash->{basename}   = Rubric::Config->basename;
   # 2007-05-07
   # XXX: we only should create one factory per request, tops -- rjbs,
 
@@ -77,13 +105,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Rubric::Renderer - the rendering interface for Rubric
 
 =head1 VERSION
 
-version 0.154
+version 0.155
 
 =head1 DESCRIPTION
 

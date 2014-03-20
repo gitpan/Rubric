@@ -1,17 +1,34 @@
 use strict;
 use warnings;
 package Rubric::Entry::Query;
-{
-  $Rubric::Entry::Query::VERSION = '0.154';
-}
 # ABSTRACT: construct and execute a complex query
-
+$Rubric::Entry::Query::VERSION = '0.155';
+# =head1 DESCRIPTION
+#
+# Rubric::Entry::Query builds a query based on a simple hash of parameters,
+# performs that query, and returns the rendered report on the results.
+#
+# =cut
 
 use Date::Span;
 use Digest::MD5 qw(md5_hex);
 
 use Rubric::Config;
 
+# =head1 METHODS
+#
+# =head2 query(\%arg, \%context)
+#
+# This is the only interface to this module.  Given a hashref of named arguments,
+# it returns the entries that match constraints built from the arguments.  It
+# generates these constraints with C<get_constraint> and its helpers.  If any
+# constraint is invalid, an empty set of results is returned.
+#
+# The second hashref passed to the method provides context for generating
+# implicit query parameters; for example, if the querying user is indicated in
+# the context, private entries for that user will be returned.
+#
+# =cut
 
 sub _private_constraint {
 	my ($self, $user) = @_;
@@ -49,6 +66,14 @@ sub query {
 	$self->get_entries(\@constraints, $order_by);
 }
 
+# =head2 get_constraint($param => $value)
+#
+# Given a name/value pair describing a constraint, this method will attempt to
+# generate part of an SQL WHERE clause enforcing the constraint.  To do this, it
+# looks for and calls a method called "constraint_for_NAME" where NAME is the
+# passed value of C<$param>.  If no clause can be generated, it returns undef.
+#
+# =cut
 
 sub get_constraint {
 	my ($self, $param, $value) = @_;
@@ -58,6 +83,12 @@ sub get_constraint {
 	$code->($self, $value);
 }
 
+# =head2 get_entries(\@constraints)
+#
+# Given a set of SQL constraints, this method builds the WHERE and ORDER BY
+# clauses and performs a query with Class::DBI's C<retrieve_from_sql>.
+#
+# =cut
 
 sub get_entries {
 	my ($self, $constraints, $order_by) = @_;
@@ -69,6 +100,18 @@ sub get_entries {
 	);
 }
 
+# =head2 constraint_for_NAME
+#
+# These methods are called to produce SQL for the named parameter, and are passed
+# a scalar argument.  If the argument is not valid, they return undef, which will
+# cause C<query> to produce an empty set of records.
+#
+# =head3 constraint_for_user($user)
+#
+# Given a Rubric::User object, this returns SQL to limit results to entries by
+# the user.
+#
+# =cut
 
 sub constraint_for_user {
 	my ($self, $user) = @_;
@@ -77,6 +120,17 @@ sub constraint_for_user {
 	return "username = " . Rubric::Entry->db_Main->quote($user);
 }
 
+# =head3 constraint_for_tags($tags)
+#
+# =head3 constraint_for_exact_tags($tags)
+#
+# Given a set of tags, this returns SQL to limit results to entries marked
+# with the given tags.
+#
+# The C<exact> version of this constraint returns SQL for entries with only the
+# given tags.
+#
+# =cut
 
 sub constraint_for_tags {
 	my ($self, $tags) = @_;
@@ -114,6 +168,9 @@ sub constraint_for_exact_tags {
 		$self->constraint_for_tags($tags);
 }
 
+# =head3 constraint_for_desc_like($value)
+#
+# =cut
 
 sub constraint_for_desc_like {
 	my ($self, $value) = @_;
@@ -121,6 +178,9 @@ sub constraint_for_desc_like {
 	"(description LIKE '\%$like\%' OR title LIKE '\%$like\%')"
 }
 
+# =head3 constraint_for_body_like($value)
+#
+# =cut
 
 sub constraint_for_body_like {
 	my ($self, $value) = @_;
@@ -128,6 +188,9 @@ sub constraint_for_body_like {
 	"(body LIKE '\%$like\%')"
 }
 
+# =head3 constraint_for_like($value)
+#
+# =cut
 
 sub constraint_for_like {
 	my ($self, $value) = @_;
@@ -135,18 +198,34 @@ sub constraint_for_like {
 	"OR" . $self->constraint_for_body_like($value) . ")"
 }
 
+# =head3 constraint_for_has_body($bool)
+#
+# This returns SQL to limit the results to entries with bodies.
+#
+# =cut
 
 sub constraint_for_has_body {
 	my ($self, $bool) = @_;
 	return $bool ? "body IS NOT NULL" : "body IS NULL";
 }
 
+# =head3 constraint_for_has_link($bool)
+#
+# This returns SQL to limit the results to entries with links.
+#
+# =cut
 
 sub constraint_for_has_link {
 	my ($self, $bool) = @_;
 	return $bool ? "link IS NOT NULL" : "link IS NULL";
 }
 
+# =head3 constraint_for_first_only($bool)
+#
+# This returns SQL to limit the results to the first entry posted for any given
+# link.
+#
+# =cut
 
 sub constraint_for_first_only {
 	my ($self, $bool) = @_;
@@ -155,6 +234,12 @@ sub constraint_for_first_only {
 		: ();
 }
 
+# =head3 constraint_for_urimd5($md5)
+#
+# This returns SQL to limit the results to entries whose link has the given
+# md5sum.
+#
+# =cut
 
 sub constraint_for_urimd5 {
 	my ($self, $md5) = @_;
@@ -165,6 +250,24 @@ sub constraint_for_urimd5 {
 	return "link = " . $link->id;
 }
 
+# =head3 constraint_for_{timefield}_{preposition}($datetime)
+#
+# This set of six methods return SQL to limit the results based on its
+# timestamps.
+#
+# The passed value is a complete or partial datetime in the form:
+#
+#  YYYY[-MM[-DD[ HH[:MM]]]]  # space may be replaced with 'T'
+#
+# The timefield may be "created" or "modified".
+#
+# The prepositions are as follows:
+#
+#  after  - after the latest part of the given unit of time
+#  before - before the earliest part of the given unit of time
+#  on     - after (or at) the earliest part and before (or at) the latest part
+#
+# =cut
 
 ## here there be small lizards
 ## date parameter handling below...
@@ -206,13 +309,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Rubric::Entry::Query - construct and execute a complex query
 
 =head1 VERSION
 
-version 0.154
+version 0.155
 
 =head1 DESCRIPTION
 

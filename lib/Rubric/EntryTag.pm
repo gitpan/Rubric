@@ -1,24 +1,45 @@
 use strict;
 use warnings;
 package Rubric::EntryTag;
-{
-  $Rubric::EntryTag::VERSION = '0.154';
-}
 # ABSTRACT: a tag on an entry
-
+$Rubric::EntryTag::VERSION = '0.155';
 use String::TagString;
 
+# =head1 DESCRIPTION
+#
+# This class provides an interface to tags on Rubric entries.  It inherits from
+# Rubric::DBI, which is a Class::DBI class.
+#
+# =cut
 
 use base qw(Rubric::DBI);
 
 __PACKAGE__->table('entrytags');
 
+# =head1 COLUMNS
+#
+#  id        - a unique identifier
+#  entry     - the tagged entry
+#  tag       - the tag itself
+#  tag_value - the value of the tag (for tags in "tag:value" form)
+#
+# =cut
 
 __PACKAGE__->columns(All => qw(id entry tag tag_value));
 
+# =head1 RELATIONSHIPS
+#
+# =head2 entry
+#
+# The entry attribute returns a Rubric::Entry.
+#
+# =cut
 
 __PACKAGE__->has_a(entry => 'Rubric::Entry');
 
+# =head1 TRIGGERS
+#
+# =cut
 
 __PACKAGE__->add_trigger(before_create => \&_nullify_values);
 __PACKAGE__->add_trigger(before_update => \&_nullify_values);
@@ -29,6 +50,14 @@ sub _nullify_values {
     unless defined $self->{tag_value} and length $self->{tag_value};
 }
 
+# =head1 METHODS
+#
+# =head2 related_tags(\@tags)
+#
+# This method returns a reference to an array of tags related to all the given
+# tags.  Tags are related if they occur together on entries.  
+#
+# =cut
 
 sub related_tags {
 	my ($self, $tags) = @_;
@@ -51,6 +80,12 @@ sub related_tags {
 	$self->db_Main->selectcol_arrayref($query, undef);
 }
 
+# =head3 related_tags_counted(\@tags)
+#
+# This is the obvious conjunction of C<related_tags> and C<tags_counted>.  It
+# returns an arrayref of arrayrefs, each a pair of tag/occurance values.
+#
+# =cut
 
 sub related_tags_counted {
 	my ($self, $tags) = @_;
@@ -78,6 +113,9 @@ sub related_tags_counted {
 	$self->db_Main->selectall_arrayref($query, undef);
 }
 
+# =head2 stringify_self
+#
+# =cut
 
 sub stringify_self {
   my ($self) = @_;
@@ -92,13 +130,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Rubric::EntryTag - a tag on an entry
 
 =head1 VERSION
 
-version 0.154
+version 0.155
 
 =head1 DESCRIPTION
 

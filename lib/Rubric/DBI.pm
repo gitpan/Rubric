@@ -1,12 +1,14 @@
 use strict;
 use warnings;
 package Rubric::DBI;
-{
-  $Rubric::DBI::VERSION = '0.154';
-}
-
 # ABSTRACT: Rubric's subclass of Class::DBI
-
+$Rubric::DBI::VERSION = '0.155';
+# =head1 DESCRIPTION
+#
+# Rubric::DBI subclasses Class::DBI.  It sets the connection by using the DSN
+# retrieved from Rubric::Config.
+#
+# =cut
 
 use Rubric::Config;
 use Class::DBI 0.96;
@@ -27,6 +29,14 @@ __PACKAGE__->connection(
 	{ AutoCommit => 1 }
 );
 
+# =head1 METHODS
+#
+# =head2 vacuum
+#
+# This method performs periodic maintenance, cleaning up records that are no
+# longer needed.
+#
+# =cut
 
 sub vacuum {
 	my $self = shift;
@@ -42,13 +52,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Rubric::DBI - Rubric's subclass of Class::DBI
 
 =head1 VERSION
 
-version 0.154
+version 0.155
 
 =head1 DESCRIPTION
 

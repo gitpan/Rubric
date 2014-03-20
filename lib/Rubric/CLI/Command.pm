@@ -1,11 +1,9 @@
 use strict;
 use warnings;
 package Rubric::CLI::Command;
-{
-  $Rubric::CLI::Command::VERSION = '0.154';
-}
-use base qw(App::Cmd::Command);
 # ABSTRACT: base class for Rubric::CLI commands
+$Rubric::CLI::Command::VERSION = '0.155';
+use parent qw(App::Cmd::Command);
 
 1;
 
@@ -13,13 +11,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Rubric::CLI::Command - base class for Rubric::CLI commands
 
 =head1 VERSION
 
-version 0.154
+version 0.155
 
 =head1 AUTHOR
 

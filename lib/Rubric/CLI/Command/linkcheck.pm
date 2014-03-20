@@ -1,11 +1,9 @@
 use strict;
 use warnings;
 package Rubric::CLI::Command::linkcheck;
-{
-  $Rubric::CLI::Command::linkcheck::VERSION = '0.154';
-}
-use base qw(Rubric::CLI::Command);
 # ABSTRACT: check validity of links in the database
+$Rubric::CLI::Command::linkcheck::VERSION = '0.155';
+use parent qw(Rubric::CLI::Command);
 
 use LWP::Simple ();
 use Rubric::DBI::Setup;
@@ -34,13 +32,15 @@ __END__
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Rubric::CLI::Command::linkcheck - check validity of links in the database
 
 =head1 VERSION
 
-version 0.154
+version 0.155
 
 =head1 AUTHOR
 
